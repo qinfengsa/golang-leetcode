@@ -1,0 +1,210 @@
+package search
+
+import (
+	"fmt"
+)
+
+// 二分查找
+
+// 367. 有效的完全平方数
+// 给定一个正整数 num，编写一个函数，如果 num 是一个完全平方数，则返回 True，否则返回 False。
+//
+// 说明：不要使用任何内置的库函数，如  sqrt。
+//
+// 示例 1：
+//
+// 输入：16 输出：True
+// 示例 2：
+//
+// 输入：14 输出：False
+func isPerfectSquare(num int) bool {
+	if num < 0 {
+		return false
+	}
+	if num <= 1 {
+		return true
+	}
+	low, high := 1, num
+	for low < high {
+		mid := (low + high) >> 1
+		tmp := mid * mid
+		if tmp == num {
+			return true
+		}
+		if tmp < num {
+			low = mid + 1
+		} else {
+			high = mid
+		}
+
+	}
+
+	return low*low == num
+}
+
+// 704. 二分查找
+// 给定一个 n 个元素有序的（升序）整型数组 nums 和一个目标值 target，写一个函数搜索 nums 中的 target，如果目标值存在返回下标，否则返回 -1。
+//
+// 示例 1:
+// 输入: nums = [-1,0,3,5,9,12], target = 9 输出: 4
+// 解释: 9 出现在 nums 中并且下标为 4
+//
+// 示例 2:
+// 输入: nums = [-1,0,3,5,9,12], target = 2 输出: -1
+// 解释: 2 不存在 nums 中因此返回 -1
+//
+// 提示：
+// 你可以假设 nums 中的所有元素是不重复的。
+// n 将在 [1, 10000]之间。
+// nums 的每个元素都将在 [-9999, 9999]之间。
+func search(nums []int, target int) int {
+	left, right := 0, len(nums)-1
+	if nums[left] == target {
+		return left
+	}
+	if nums[right] == target {
+		return right
+	}
+	if target < nums[left] || target > nums[right] {
+		return -1
+	}
+	for left < right {
+		mid := (left + right) >> 1
+		if nums[mid] == target {
+			return mid
+		}
+		if nums[mid] < target {
+			left = mid + 1
+		} else {
+			right = mid
+		}
+	}
+	return -1
+}
+
+func searchTest() {
+	nums := []int{1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1}
+	target := 2
+	result := search2(nums, target)
+	fmt.Println(result)
+}
+
+// 81. 搜索旋转排序数组 II
+// 已知存在一个按非降序排列的整数数组 nums ，数组中的值不必互不相同。
+//
+// 在传递给函数之前，nums 在预先未知的某个下标 k（0 <= k < nums.length）上进行了 旋转 ，使数组变为 [nums[k], nums[k+1], ..., nums[n-1], nums[0], nums[1], ..., nums[k-1]]（下标 从 0 开始 计数）。例如， [0,1,2,4,4,4,5,6,6,7] 在下标 5 处经旋转后可能变为 [4,5,6,6,7,0,1,2,4,4] 。
+//
+// 给你 旋转后 的数组 nums 和一个整数 target ，请你编写一个函数来判断给定的目标值是否存在于数组中。如果 nums 中存在这个目标值 target ，则返回 true ，否则返回 false 。
+//
+// 示例 1：
+//
+// 输入：nums = [2,5,6,0,0,1,2], target = 0 输出：true
+//
+// 示例 2：
+// 输入：nums = [2,5,6,0,0,1,2], target = 3 输出：false
+//
+// 提示：
+// 1 <= nums.length <= 5000
+// -104 <= nums[i] <= 104
+// 题目数据保证 nums 在预先未知的某个下标上进行了旋转
+// -104 <= target <= 104
+//
+// 进阶：
+//
+// 这是 搜索旋转排序数组 的延伸题目，本题中的 nums  可能包含重复元素。
+// 这会影响到程序的时间复杂度吗？会有怎样的影响，为什么？
+func search2(nums []int, target int) bool {
+	size := len(nums)
+	if size == 0 {
+		return false
+	}
+	if size == 1 {
+		return nums[0] == target
+	}
+	left, right := 0, size-1
+	// 思路 ： 二分法找到峰值, 分成两个数组 分别二分
+	for left < right {
+		mid := (left + right) >> 1
+		if nums[mid] == target {
+			return true
+		}
+
+		if nums[mid] < nums[left] {
+			right = mid
+		} else if nums[mid] > nums[right] {
+			left = mid + 1
+		} else if nums[mid] == nums[left] {
+			left++
+		} else {
+			right--
+		}
+	}
+	fmt.Println("left -> ", left)
+	return binSearch(nums, target, 0, left) || binSearch(nums, target, left+1, size-1)
+}
+
+func binSearch(nums []int, target int, start int, end int) bool {
+	if start == end {
+		return nums[start] == target
+	}
+	if nums[end] == target {
+		return true
+	}
+	for start < end {
+		mid := (start + end) >> 1
+		if nums[mid] == target {
+			return true
+		} else if nums[mid] < target {
+			start = mid + 1
+		} else {
+			end = mid
+		}
+	}
+	return false
+}
+
+// 154. 寻找旋转排序数组中的最小值 II
+// 已知一个长度为 n 的数组，预先按照升序排列，经由 1 到 n 次 旋转 后，得到输入数组。例如，原数组 nums = [0,1,4,4,5,6,7] 在变化后可能得到：
+// 若旋转 4 次，则可以得到 [4,5,6,7,0,1,4]
+// 若旋转 7 次，则可以得到 [0,1,4,4,5,6,7]
+// 注意，数组 [a[0], a[1], a[2], ..., a[n-1]] 旋转一次 的结果为数组 [a[n-1], a[0], a[1], a[2], ..., a[n-2]] 。
+//
+// 给你一个可能存在 重复 元素值的数组 nums ，它原来是一个升序排列的数组，并按上述情形进行了多次旋转。请你找出并返回数组中的 最小元素 。
+//
+// 示例 1：
+// 输入：nums = [1,3,5] 输出：1
+//
+// 示例 2：
+// 输入：nums = [2,2,2,0,1] 输出：0
+//
+// 提示：
+// n == nums.length
+// 1 <= n <= 5000
+// -5000 <= nums[i] <= 5000
+// nums 原来是一个升序排序的数组，并进行了 1 至 n 次旋转
+//
+// 进阶：
+// 这道题是 寻找旋转排序数组中的最小值 的延伸题目。
+// 允许重复会影响算法的时间复杂度吗？会如何影响，为什么？
+func findMin(nums []int) int {
+	n := len(nums)
+	if n == 1 {
+		return nums[0]
+	}
+	left, right := 0, n-1
+	// 思路 ： 二分法找到峰值, 分成两个数组 分别二分
+	for left < right {
+		if nums[left] == nums[right] {
+			left++
+			continue
+		}
+		mid := (left + right) >> 1
+		// 如果中间值比右边小,顺序排列的
+		if nums[mid] > nums[right] {
+			left = mid + 1
+		} else {
+			right = mid
+		}
+	}
+	return nums[left]
+}

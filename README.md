@@ -1,2 +1,2 @@
 # golang-leetcode
-goland LeetCode 刷题
+golang LeetCode 刷题
