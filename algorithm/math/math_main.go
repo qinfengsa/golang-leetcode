@@ -26,7 +26,7 @@ func reverse(x int) int {
 	num := 0
 	for x != 0 {
 		num = num*10 + x%10
-		if num < MIN && num > MAX {
+		if num < MIN || num > MAX {
 			return 0
 		}
 		x /= 10
@@ -58,12 +58,6 @@ func isPalindrome(x int) bool {
 		tmp /= 10
 	}
 	return num == x
-}
-
-func mySqrtTest() {
-	x := 110
-	result := mySqrt(x)
-	fmt.Println(result)
 }
 
 // 69. x 的平方根
