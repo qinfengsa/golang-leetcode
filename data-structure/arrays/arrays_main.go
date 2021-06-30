@@ -1482,3 +1482,107 @@ func min(x, y int) int {
 	}
 	return y
 }
+
+// 11. 盛最多水的容器
+// 给你 n 个非负整数 a1，a2，...，an，每个数代表坐标中的一个点 (i, ai) 。在坐标内画 n 条垂直线，垂直线 i 的两个端点分别为 (i, ai) 和 (i, 0) 。找出其中的两条线，使得它们与 x 轴共同构成的容器可以容纳最多的水。
+//
+// 说明：你不能倾斜容器。
+//
+// 示例 1：
+// 输入：[1,8,6,2,5,4,8,3,7] 输出：49
+// 解释：图中垂直线代表输入数组 [1,8,6,2,5,4,8,3,7]。在此情况下，容器能够容纳水（表示为蓝色部分）的最大值为 49。
+//
+// 示例 2：
+// 输入：height = [1,1] 输出：1
+//
+// 示例 3：
+// 输入：height = [4,3,2,1,4] 输出：16
+//
+// 示例 4：
+// 输入：height = [1,2,1] 输出：2
+//
+// 提示：
+// n = height.length
+// 2 <= n <= 3 * 104
+// 0 <= height[i] <= 3 * 104
+func maxArea(height []int) int {
+	// 双指针
+	left, right := 0, len(height)-1
+	result := 0
+	for left < right {
+		l := right - left
+		var h int
+		if height[left] <= height[right] {
+			h = height[left]
+			left++
+		} else {
+			h = height[right]
+			right--
+		}
+		result = max(result, h*l)
+	}
+	return result
+}
+
+// 15. 三数之和
+// 给你一个包含 n 个整数的数组 nums，判断 nums 中是否存在三个元素 a，b，c ，使得 a + b + c = 0 ？请你找出所有和为 0 且不重复的三元组。
+//
+// 注意：答案中不可以包含重复的三元组。
+//
+// 示例 1：
+// 输入：nums = [-1,0,1,2,-1,-4] 输出：[[-1,-1,2],[-1,0,1]]
+//
+// 示例 2：
+// 输入：nums = [] 输出：[]
+//
+// 示例 3：
+// 输入：nums = [0] 输出：[]
+//
+// 提示：
+// 0 <= nums.length <= 3000
+// -105 <= nums[i] <= 105
+func threeSum(nums []int) [][]int {
+	sort.Ints(nums)
+	size := len(nums)
+	var result = make([][]int, 0)
+	// 选定一个主元
+	for i := 0; i < size-2; i++ {
+		if nums[i] > 0 {
+			break
+		}
+		// 最小的元素 > 0 sum肯定大于0
+		if nums[i] > 0 {
+			break
+		}
+		// 如果 num 和前一位相等，跳过
+		if i > 0 && nums[i] == nums[i-1] {
+			continue
+		}
+		left, right := i+1, size-1
+		for left < right {
+			// 最大元素  < 0 sum肯定小于0
+			if nums[right] < 0 {
+				break
+			}
+			sum := nums[i] + nums[left] + nums[right]
+			if sum == 0 {
+				result = append(result, []int{nums[i], nums[left], nums[right]})
+				left++
+				right--
+				for left < right && nums[left] == nums[left-1] {
+					left++
+				}
+				for left < right && nums[right] == nums[right+1] {
+					right--
+				}
+			} else if sum < 0 {
+				left++
+			} else {
+				right--
+			}
+
+		}
+	}
+
+	return result
+}
