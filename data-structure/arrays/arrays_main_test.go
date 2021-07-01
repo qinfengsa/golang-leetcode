@@ -18,3 +18,11 @@ func Test_threeSum(t *testing.T) {
 	result := threeSum(nums)
 	fmt.Println(result)
 }
+
+func Test_threeSumClosest(t *testing.T) {
+
+	nums := []int{1, 1, 1, 0}
+	target := -100
+	result := threeSumClosest(nums, target)
+	fmt.Println(result)
+}

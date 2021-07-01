@@ -1586,3 +1586,178 @@ func threeSum(nums []int) [][]int {
 
 	return result
 }
+
+// LCP 07. 传递信息
+// 小朋友 A 在和 ta 的小伙伴们玩传信息游戏，游戏规则如下：
+//
+// 有 n 名玩家，所有玩家编号分别为 0 ～ n-1，其中小朋友 A 的编号为 0
+// 每个玩家都有固定的若干个可传信息的其他玩家（也可能没有）。传信息的关系是单向的（比如 A 可以向 B 传信息，但 B 不能向 A 传信息）。
+// 每轮信息必须需要传递给另一个人，且信息可重复经过同一个人
+// 给定总玩家数 n，以及按 [玩家编号,对应可传递玩家编号] 关系组成的二维数组 relation。返回信息从小 A (编号 0 ) 经过 k 轮传递到编号为 n-1 的小伙伴处的方案数；若不能到达，返回 0。
+//
+// 示例 1：
+// 输入：n = 5, relation = [[0,2],[2,1],[3,4],[2,3],[1,4],[2,0],[0,4]], k = 3
+// 输出：3
+// 解释：信息从小 A 编号 0 处开始，经 3 轮传递，到达编号 4。共有 3 种方案，分别是 0->2->0->4， 0->2->1->4， 0->2->3->4。
+//
+// 示例 2：
+// 输入：n = 3, relation = [[0,2],[2,1]], k = 2 输出：0
+// 解释：信息不能从小 A 处经过 2 轮传递到编号 2
+//
+// 限制：
+// 2 <= n <= 10
+// 1 <= k <= 5
+// 1 <= relation.length <= 90, 且 relation[i].length == 2
+// 0 <= relation[i][0],relation[i][1] < n 且 relation[i][0] != relation[i][1]
+func numWays(n int, relation [][]int, k int) int {
+
+	// 深度优先遍历
+	graph := make([][]bool, n)
+	for i := 0; i < n; i++ {
+		graph[i] = make([]bool, n)
+	}
+	for _, rel := range relation {
+		graph[rel[0]][rel[1]] = true
+	}
+	result := 0
+
+	var dfs func(num, count int)
+
+	dfs = func(num, count int) {
+		if count == 0 {
+			if num == n-1 {
+				result++
+			}
+			return
+		}
+
+		for i := 0; i < n; i++ {
+			if i == num {
+				continue
+			}
+			if graph[num][i] {
+				dfs(i, count-1)
+			}
+		}
+	}
+
+	dfs(0, k)
+	return result
+}
+
+// 16. 最接近的三数之和
+// 给定一个包括 n 个整数的数组 nums 和 一个目标值 target。找出 nums 中的三个整数，使得它们的和与 target 最接近。
+// 返回这三个数的和。假定每组输入只存在唯一答案。
+//
+// 示例：
+// 输入：nums = [-1,2,1,-4], target = 1 输出：2
+// 解释：与 target 最接近的和是 2 (-1 + 2 + 1 = 2) 。
+//
+// 提示：
+// 3 <= nums.length <= 10^3
+// -10^3 <= nums[i] <= 10^3
+// -10^4 <= target <= 10^4
+func threeSumClosest(nums []int, target int) int {
+	sort.Ints(nums)
+	size := len(nums)
+
+	sub, result := math.MaxInt32, 0
+
+	// 选定一个主元
+	for i := 0; i < size-2; i++ {
+
+		left, right := i+1, size-1
+		for left < right {
+			sum := nums[i] + nums[left] + nums[right]
+			if sum == target {
+				return target
+			} else if sum < target {
+				if target-sum < sub {
+					result = sum
+					sub = target - sum
+				}
+				left++
+			} else {
+				if sum-target < sub {
+					result = sum
+					sub = sum - target
+				}
+				right--
+			}
+
+		}
+	}
+	return result
+}
+
+// 18. 四数之和
+// 给定一个包含 n 个整数的数组 nums 和一个目标值 target，判断 nums 中是否存在四个元素 a，b，c 和 d ，使得 a + b + c + d 的值与 target 相等？找出所有满足条件且不重复的四元组。
+//
+// 注意：答案中不可以包含重复的四元组。
+//
+// 示例 1：
+// 输入：nums = [1,0,-1,0,-2,2], target = 0 输出：[[-2,-1,1,2],[-2,0,0,2],[-1,0,0,1]]
+//
+// 示例 2：
+// 输入：nums = [], target = 0 输出：[]
+//
+// 提示：
+// 0 <= nums.length <= 200
+// -109 <= nums[i] <= 109
+// -109 <= target <= 109
+func fourSum(nums []int, target int) [][]int {
+
+	result := make([][]int, 0)
+	sort.Ints(nums)
+	n := len(nums)
+
+	// 选定两个个主元
+	for i := 0; i < n-3; i++ {
+		// 如果 num 和前一位相等，跳过
+		if i > 0 && nums[i] == nums[i-1] {
+			continue
+		}
+		// 最小值 大于 target
+		if nums[i]+nums[i+1]+nums[i+2]+nums[i+3] > target {
+			break
+		}
+		if nums[i]+nums[n-1]+nums[n-2]+nums[n-3] < target {
+			continue
+		}
+		for j := i + 1; j < n-2; j++ {
+
+			if j > i+1 && nums[j] == nums[j-1] {
+				continue
+			}
+			if nums[i]+nums[j]+nums[j+1]+nums[j+2] > target {
+				break
+			}
+			if nums[i]+nums[j]+nums[n-1]+nums[n-2] < target {
+				continue
+			}
+
+			left, right := j+1, n-1
+			for left < right {
+				sum := nums[i] + nums[j] + nums[left] + nums[right]
+				if sum == target {
+					result = append(result, []int{nums[i], nums[j], nums[left], nums[right]})
+					left++
+					right--
+					for left < right && nums[left] == nums[left-1] {
+						left++
+					}
+					for left < right && nums[right] == nums[right+1] {
+						right--
+					}
+				} else if sum < target {
+					left++
+				} else {
+					right--
+				}
+
+			}
+		}
+	}
+
+	return result
+}
