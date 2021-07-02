@@ -13,3 +13,9 @@ func Test_letterCombinations(t *testing.T) {
 	result := letterCombinations(digits)
 	fmt.Println(result)
 }
+
+func Test_generateParenthesis(t *testing.T) {
+	n := 3
+	result := generateParenthesis(n)
+	fmt.Println(result)
+}

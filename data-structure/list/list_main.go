@@ -452,3 +452,145 @@ func removeNthFromEnd(head *ListNode, n int) *ListNode {
 
 	return root.Next
 }
+
+// 23. 合并K个升序链表
+// 给你一个链表数组，每个链表都已经按升序排列。
+// 请你将所有链表合并到一个升序链表中，返回合并后的链表。
+//
+// 示例 1：
+// 输入：lists = [[1,4,5],[1,3,4],[2,6]] 输出：[1,1,2,3,4,4,5,6]
+// 解释：链表数组如下：
+// [
+//   1->4->5,
+//   1->3->4,
+//   2->6
+// ]
+// 将它们合并到一个有序链表中得到。
+// 1->1->2->3->4->4->5->6
+//
+// 示例 2：
+// 输入：lists = [] 输出：[]
+//
+// 示例 3：
+// 输入：lists = [[]] 输出：[]
+//
+// 提示：
+// k == lists.length
+// 0 <= k <= 10^4
+// 0 <= lists[i].length <= 500
+// -10^4 <= lists[i][j] <= 10^4
+// lists[i] 按 升序 排列
+// lists[i].length 的总和不超过 10^4
+func mergeKLists(lists []*ListNode) *ListNode {
+	size := len(lists)
+	if size == 0 {
+		return nil
+	}
+	if size == 1 {
+		return lists[0]
+	}
+
+	// 两两合并 直到最后一个
+	var merge func(start, end int) *ListNode
+
+	merge = func(start, end int) *ListNode {
+		if start == end {
+			return lists[start]
+		}
+		mid := (start + end) >> 1
+		left, right := merge(start, mid), merge(mid+1, end)
+		return mergeTwoLists(left, right)
+	}
+
+	return merge(0, size-1)
+}
+
+// 24. 两两交换链表中的节点
+// 给定一个链表，两两交换其中相邻的节点，并返回交换后的链表。
+//
+// 你不能只是单纯的改变节点内部的值，而是需要实际的进行节点交换。
+//
+// 示例 1：
+// 输入：head = [1,2,3,4] 输出：[2,1,4,3]
+//
+// 示例 2：
+// 输入：head = [] 输出：[]
+//
+// 示例 3：
+// 输入：head = [1] 输出：[1]
+//
+// 提示：
+// 链表中节点的数目在范围 [0, 100] 内
+// 0 <= Node.val <= 100
+//
+// 进阶：你能在不修改链表节点值的情况下解决这个问题吗?（也就是说，仅修改节点本身。）
+func swapPairs(head *ListNode) *ListNode {
+	root := &ListNode{Val: -1}
+	root.Next = head
+	pre := root
+
+	for pre.Next != nil && pre.Next.Next != nil {
+		first, second := pre.Next, pre.Next.Next
+		next := second.Next
+		pre.Next = second
+		second.Next = first
+		first.Next = next
+		pre = first
+	}
+
+	return root.Next
+}
+
+// 25. K 个一组翻转链表
+//
+// 给你一个链表，每 k 个节点一组进行翻转，请你返回翻转后的链表。
+// k 是一个正整数，它的值小于或等于链表的长度。
+// 如果节点总数不是 k 的整数倍，那么请将最后剩余的节点保持原有顺序。
+//
+// 进阶：
+// 你可以设计一个只使用常数额外空间的算法来解决此问题吗？
+// 你不能只是单纯的改变节点内部的值，而是需要实际进行节点交换。
+//
+// 示例 1：
+// 输入：head = [1,2,3,4,5], k = 2 输出：[2,1,4,3,5]
+//
+// 示例 2：
+// 输入：head = [1,2,3,4,5], k = 3 输出：[3,2,1,4,5]
+//
+// 示例 3：
+// 输入：head = [1,2,3,4,5], k = 1 输出：[1,2,3,4,5]
+//
+// 示例 4：
+// 输入：head = [1], k = 1 输出：[1]
+//
+// 提示：
+// 列表中节点的数量在范围 sz 内
+// 1 <= sz <= 5000
+// 0 <= Node.val <= 1000
+// 1 <= k <= sz
+func reverseKGroup(head *ListNode, k int) *ListNode {
+	if k == 1 {
+		return head
+	}
+	root := &ListNode{Val: -1}
+	root.Next = head
+	pre := root
+
+out:
+	for pre != nil {
+		start, last := pre.Next, pre
+		for i := 0; i < k; i++ {
+			last = last.Next
+			if last == nil {
+				break out
+			}
+		}
+		next := last.Next
+		last.Next = nil
+		pre.Next = reverseList(start)
+		pre = start
+		pre.Next = next
+	}
+
+	return root.Next
+}

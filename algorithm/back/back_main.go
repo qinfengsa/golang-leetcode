@@ -126,3 +126,45 @@ func letterCombinations(digits string) []string {
 	back(0, make([]byte, size))
 	return result
 }
+
+// 22. 括号生成
+// 数字 n 代表生成括号的对数，请你设计一个函数，用于能够生成所有可能的并且 有效的 括号组合。
+//
+// 示例 1：
+// 输入：n = 3 输出：["((()))","(()())","(())()","()(())","()()()"]
+//
+// 示例 2：
+// 输入：n = 1 输出：["()"]
+//
+// 提示：
+// 1 <= n <= 8
+func generateParenthesis(n int) []string {
+	result := make([]string, 0)
+
+	size := n << 1
+	var back func(idx, leftCnt, rightCnt int, chars []byte)
+	back = func(idx, leftCnt, rightCnt int, chars []byte) {
+		if idx == size {
+			result = append(result, string(chars))
+			return
+		}
+		if leftCnt == rightCnt {
+			// leftCnt == rightCnt 只能放左括号
+			chars[idx] = '('
+			back(idx+1, leftCnt+1, rightCnt, chars)
+		} else if leftCnt == n {
+			// leftCnt == n 只能放右括号
+			chars[idx] = ')'
+			back(idx+1, leftCnt, rightCnt+1, chars)
+		} else {
+			chars[idx] = '('
+			back(idx+1, leftCnt+1, rightCnt, chars)
+			chars[idx] = ')'
+			back(idx+1, leftCnt, rightCnt+1, chars)
+		}
+	}
+
+	back(0, 0, 0, make([]byte, size))
+
+	return result
+}
