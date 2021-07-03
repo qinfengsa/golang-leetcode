@@ -19,3 +19,10 @@ func Test_convert(t *testing.T) {
 	result := convert(s, numRows)
 	fmt.Println(result)
 }
+
+func Test_findSubstring(t *testing.T) {
+	s := "barfoothefoobarman"
+	words := []string{"foo", "bar"}
+	result := findSubstring(s, words)
+	fmt.Println(result)
+}
