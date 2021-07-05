@@ -118,38 +118,6 @@ func removeElement(nums []int, val int) int {
 	return idx
 }
 
-// 35. 搜索插入位置
-// 给定一个排序数组和一个目标值，在数组中找到目标值，并返回其索引。如果目标值不存在于数组中，返回它将会被按顺序插入的位置。
-//
-// 你可以假设数组中无重复元素。
-//
-// 示例 1: 输入: [1,3,5,6], 5 输出: 2
-// 示例 2: 输入: [1,3,5,6], 2 输出: 1
-// 示例 3: 输入: [1,3,5,6], 7 输出: 4
-// 示例 4: 输入: [1,3,5,6], 0 输出: 0
-func searchInsert(nums []int, target int) int {
-
-	left, right := 0, len(nums)-1
-
-	if target >= nums[right] {
-		return right
-	}
-	for left < right {
-		mid := (left + right) >> 1
-		if nums[mid] == target {
-			return mid
-		}
-
-		if nums[mid] < target {
-			left = mid + 1
-		} else {
-			right = mid
-		}
-
-	}
-	return left
-}
-
 // 53. 最大子序和
 // 给定一个整数数组 nums ，找到一个具有最大和的连续子数组（子数组最少包含一个元素），返回其最大和。
 //
@@ -1760,4 +1728,72 @@ func fourSum(nums []int, target int) [][]int {
 	}
 
 	return result
+}
+
+// 31. 下一个排列
+// 实现获取 下一个排列 的函数，算法需要将给定数字序列重新排列成字典序中下一个更大的排列。
+// 如果不存在下一个更大的排列，则将数字重新排列成最小的排列（即升序排列）。
+// 必须 原地 修改，只允许使用额外常数空间。
+//
+// 示例 1：
+// 输入：nums = [1,2,3] 输出：[1,3,2]
+//
+// 示例 2：
+// 输入：nums = [3,2,1] 输出：[1,2,3]
+//
+// 示例 3：
+// 输入：nums = [1,1,5] 输出：[1,5,1]
+//
+// 示例 4：
+// 输入：nums = [1] 输出：[1]
+//
+// 提示：
+// 1 <= nums.length <= 100
+// 0 <= nums[i] <= 100
+func nextPermutation(nums []int) {
+	size := len(nums)
+	if size == 1 {
+		return
+	}
+	if size == 2 {
+		nums[0], nums[1] = nums[1], nums[0]
+		return
+	}
+	// 最后两个元素升序 直接交换
+	if nums[size-1] > nums[size-2] {
+		nums[size-1], nums[size-2] = nums[size-2], nums[size-1]
+		return
+	}
+
+	// 从后往前 找到第一个逆序排列
+	idx := size - 1
+	for idx > 0 {
+		if nums[idx-1] < nums[idx] {
+			break
+		}
+		idx--
+	}
+	// 把逆序改正序
+	left, right := idx, size-1
+	for left < right {
+		nums[left], nums[right] = nums[right], nums[left]
+		left++
+		right--
+	}
+
+	if idx == 0 {
+		return
+	}
+	//  12453 idx = 3 -> 12435 -> 12534
+	//  12354 idx = 3 -> 12345 -> 12435
+	// 从 idx 找到第一个大于nums[idx - 1] 的元素 交换
+	lIdx, num := idx-1, nums[idx-1]
+	for idx < size {
+		if nums[idx] > num {
+			break
+		}
+		idx++
+	}
+	// 交换
+	nums[lIdx], nums[idx] = nums[idx], nums[lIdx]
 }

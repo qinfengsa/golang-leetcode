@@ -155,18 +155,18 @@ func minCostClimbingStairs(cost []int) int {
 	dp[0] = cost[0]
 	dp[1] = cost[1]
 	for i := 2; i < size; i++ {
-		dp[i] = Min(dp[i-1], dp[i-2]) + cost[i]
+		dp[i] = min(dp[i-1], dp[i-2]) + cost[i]
 	}
-	return Min(dp[size-1], dp[size-2])
+	return min(dp[size-1], dp[size-2])
 }
 
-func Min(x, y int) int {
+func min(x, y int) int {
 	if x > y {
 		return y
 	}
 	return x
 }
-func Max(x, y int) int {
+func max(x, y int) int {
 	if x > y {
 		return x
 	}
@@ -213,12 +213,12 @@ func robII(nums []int) int {
 		// lastNum 前一房间 currNum 当前房间
 		lastNum, currNum := 0, 0
 		for _, num := range arr {
-			lastNum, currNum = currNum, Max(lastNum+num, currNum)
+			lastNum, currNum = currNum, max(lastNum+num, currNum)
 		}
 
 		return currNum
 	}
-	return Max(myRob(nums[:size-1]), myRob(nums[1:]))
+	return max(myRob(nums[:size-1]), myRob(nums[1:]))
 }
 
 // 10. 正则表达式匹配
@@ -281,4 +281,52 @@ func isMatch(s string, p string) bool {
 	}
 
 	return dp[0][0]
+}
+
+// 32. 最长有效括号
+// 给你一个只包含 '(' 和 ')' 的字符串，找出最长有效（格式正确且连续）括号子串的长度。
+//
+// 示例 1：
+// 输入：s = "(()" 输出：2
+// 解释：最长有效括号子串是 "()"
+//
+// 示例 2：
+// 输入：s = ")()())" 输出：4
+// 解释：最长有效括号子串是 "()()"
+//
+// 示例 3：
+// 输入：s = "" 输出：0
+//
+// 提示：
+// 0 <= s.length <= 3 * 104
+// s[i] 为 '(' 或 ')'
+func longestValidParentheses(s string) int {
+	size := len(s)
+
+	dp := make([]int, size)
+	result := 0
+	for i := 1; i < size; i++ {
+		c := s[i]
+		if c == ')' {
+			if s[i-1] == '(' {
+				lastLen := 0
+				if i > 2 {
+					lastLen = dp[i-2]
+				}
+				dp[i] = lastLen + 2
+			} else {
+				lastLeft := i - dp[i-1] - 1
+				if lastLeft >= 0 && s[lastLeft] == '(' {
+					lastLen := 0
+					if lastLeft-1 >= 0 {
+						lastLen = dp[lastLeft-1]
+					}
+					dp[i] = dp[i-1] + 2 + lastLen
+				}
+			}
+			result = max(dp[i], result)
+		}
+	}
+
+	return result
 }

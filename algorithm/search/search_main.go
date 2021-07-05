@@ -208,3 +208,154 @@ func findMin(nums []int) int {
 	}
 	return nums[left]
 }
+
+// 33. 搜索旋转排序数组
+// 整数数组 nums 按升序排列，数组中的值 互不相同 。
+// 在传递给函数之前，nums 在预先未知的某个下标 k（0 <= k < nums.length）上进行了 旋转，使数组变为 [nums[k], nums[k+1], ..., nums[n-1], nums[0], nums[1], ..., nums[k-1]]（下标 从 0 开始 计数）。例如， [0,1,2,4,5,6,7] 在下标 3 处经旋转后可能变为 [4,5,6,7,0,1,2] 。
+// 给你 旋转后 的数组 nums 和一个整数 target ，如果 nums 中存在这个目标值 target ，则返回它的下标，否则返回 -1 。
+//
+// 示例 1：
+// 输入：nums = [4,5,6,7,0,1,2], target = 0 输出：4
+//
+// 示例 2：
+// 输入：nums = [4,5,6,7,0,1,2], target = 3 输出：-1
+//
+// 示例 3：
+// 输入：nums = [1], target = 0 输出：-1
+//
+// 提示：
+// 1 <= nums.length <= 5000
+// -10^4 <= nums[i] <= 10^4
+// nums 中的每个值都 独一无二
+// 题目数据保证 nums 在预先未知的某个下标上进行了旋转
+// -10^4 <= target <= 10^4
+//
+// 进阶：你可以设计一个时间复杂度为 O(log n) 的解决方案吗？
+func searchSortedNums(nums []int, target int) int {
+	// 二分
+	left, right := 0, len(nums)-1
+	if nums[right] == target {
+		return right
+	}
+	if nums[left] == target {
+		return left
+	}
+
+	for left < right {
+		mid := (left + right) >> 1
+		if nums[mid] == target {
+			return mid
+		}
+		// mid 比 右边小
+		if nums[mid] < nums[right] {
+			if nums[mid] < target && nums[right] >= target {
+				left = mid + 1
+			} else {
+				right = mid - 1
+			}
+		} else {
+			// mid 比右边大
+			if nums[mid] > target && nums[left] <= target {
+				right = mid - 1
+			} else {
+				left = mid + 1
+			}
+		}
+
+	}
+
+	return -1
+}
+
+// 34. 在排序数组中查找元素的第一个和最后一个位置
+//
+// 给定一个按照升序排列的整数数组 nums，和一个目标值 target。找出给定目标值在数组中的开始位置和结束位置。
+// 如果数组中不存在目标值 target，返回 [-1, -1]。
+//
+// 进阶：
+// 你可以设计并实现时间复杂度为 O(log n) 的算法解决此问题吗？
+//
+// 示例 1：
+// 输入：nums = [5,7,7,8,8,10], target = 8 输出：[3,4]
+//
+// 示例 2：
+// 输入：nums = [5,7,7,8,8,10], target = 6 输出：[-1,-1]
+//
+// 示例 3：
+// 输入：nums = [], target = 0 输出：[-1,-1]
+//
+// 提示：
+// 0 <= nums.length <= 105
+// -109 <= nums[i] <= 109
+// nums 是一个非递减数组
+// -109 <= target <= 109
+func searchRange(nums []int, target int) []int {
+	left, right := 0, len(nums)-1
+	result := []int{-1, -1}
+	if right < 0 {
+		return result
+	}
+	if nums[left] > target || nums[right] < target {
+		return result
+	}
+
+	for left <= right {
+		if nums[left] == target && nums[right] == target {
+			result[0] = left
+			result[1] = right
+			return result
+		}
+		mid := (left + right) >> 1
+		if nums[mid] == target {
+			for nums[left] < target {
+				left++
+			}
+			for nums[right] > target {
+				right--
+			}
+
+		} else if nums[mid] < target {
+			left = mid + 1
+		} else {
+			right = mid - 1
+		}
+
+	}
+
+	return result
+}
+
+// 35. 搜索插入位置
+// 给定一个排序数组和一个目标值，在数组中找到目标值，并返回其索引。如果目标值不存在于数组中，返回它将会被按顺序插入的位置。
+//
+// 你可以假设数组中无重复元素。
+//
+// 示例 1: 输入: [1,3,5,6], 5 输出: 2
+// 示例 2: 输入: [1,3,5,6], 2 输出: 1
+// 示例 3: 输入: [1,3,5,6], 7 输出: 4
+// 示例 4: 输入: [1,3,5,6], 0 输出: 0
+func searchInsert(nums []int, target int) int {
+
+	left, right := 0, len(nums)-1
+
+	if target > nums[right] {
+		return right + 1
+	}
+	if target == nums[right] {
+		return right
+	}
+	for left < right {
+		mid := (left + right) >> 1
+		if nums[mid] == target {
+			return mid
+		}
+
+		if nums[mid] < target {
+			left = mid + 1
+		} else {
+			right = mid
+		}
+
+	}
+	return left
+}
