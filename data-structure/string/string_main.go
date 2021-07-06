@@ -178,10 +178,10 @@ func countAndSay(n int) string {
 	str := countAndSay(n - 1)
 	length := len(str)
 	c, count := str[0], 1
-	result := ""
-	for i := 1; i < length+1; i++ {
+	result := strings.Builder{}
+	for i := 1; i <= length; i++ {
 		if i == length || c != str[i] {
-			result += fmt.Sprintf("%s%s", strconv.Itoa(count), string(c))
+			result.WriteString(fmt.Sprintf("%s%s", strconv.Itoa(count), string(c)))
 			if i < length {
 				c = str[i]
 				count = 1
@@ -191,7 +191,7 @@ func countAndSay(n int) string {
 			count++
 		}
 	}
-	return result
+	return result.String()
 }
 
 // 58. 最后一个单词的长度

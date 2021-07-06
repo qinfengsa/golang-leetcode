@@ -19,3 +19,21 @@ func Test_generateParenthesis(t *testing.T) {
 	result := generateParenthesis(n)
 	fmt.Println(result)
 }
+
+func Test_solveSudoku(t *testing.T) {
+
+}
+
+func Test_combinationSum(t *testing.T) {
+	candidates := []int{2, 3, 5}
+	target := 8
+	result := combinationSum(candidates, target)
+	fmt.Println(result)
+}
+
+func Test_combinationSum2(t *testing.T) {
+	candidates := []int{10, 1, 2, 7, 6, 1, 5}
+	target := 8
+	result := combinationSum2(candidates, target)
+	fmt.Println(result)
+}

@@ -2,6 +2,7 @@ package back
 
 import (
 	"fmt"
+	"sort"
 )
 
 // 回溯算法
@@ -165,6 +166,206 @@ func generateParenthesis(n int) []string {
 	}
 
 	back(0, 0, 0, make([]byte, size))
+
+	return result
+}
+
+// 37. 解数独
+// 编写一个程序，通过填充空格来解决数独问题。
+//
+// 数独的解法需 遵循如下规则：
+//
+// 数字 1-9 在每一行只能出现一次。
+// 数字 1-9 在每一列只能出现一次。
+// 数字 1-9 在每一个以粗实线分隔的 3x3 宫内只能出现一次。（请参考示例图）
+// 数独部分空格内已填入了数字，空白格用 '.' 表示。
+//
+// 示例：
+// 输入：board = [["5","3",".",".","7",".",".",".","."],["6",".",".","1","9","5",".",".","."],[".","9","8",".",".",".",".","6","."],["8",".",".",".","6",".",".",".","3"],["4",".",".","8",".","3",".",".","1"],["7",".",".",".","2",".",".",".","6"],[".","6",".",".",".",".","2","8","."],[".",".",".","4","1","9",".",".","5"],[".",".",".",".","8",".",".","7","9"]]
+// 输出：[["5","3","4","6","7","8","9","1","2"],["6","7","2","1","9","5","3","4","8"],["1","9","8","3","4","2","5","6","7"],["8","5","9","7","6","1","4","2","3"],["4","2","6","8","5","3","7","9","1"],["7","1","3","9","2","4","8","5","6"],["9","6","1","5","3","7","2","8","4"],["2","8","7","4","1","9","6","3","5"],["3","4","5","2","8","6","1","7","9"]]
+// 解释：输入的数独如上图所示，唯一有效的解决方案如下所示：
+//
+// 提示：
+// board.length == 9
+// board[i].length == 9
+// board[i][j] 是一位数字或者 '.'
+// 题目数据 保证 输入数独仅有一个解
+func solveSudoku(board [][]byte) {
+	hashRows, hashCols, hashBoards := make([][]bool, 9), make([][]bool, 9), make([][]bool, 9)
+	for i := 0; i < 9; i++ {
+		hashRows[i] = make([]bool, 9)
+		hashCols[i] = make([]bool, 9)
+		hashBoards[i] = make([]bool, 9)
+	}
+
+	for i := 0; i < 9; i++ {
+		for j := 0; j < 9; j++ {
+			if board[i][j] == '.' {
+				continue
+			}
+			numIdx := board[i][j] - '1'
+			hashRows[i][numIdx] = true
+			hashCols[j][numIdx] = true
+			// 计算9宫格位置
+			idx := i/3*3 + j/3
+			hashBoards[idx][numIdx] = true
+		}
+	}
+
+	// 回溯
+	var back func(row, col int) bool
+
+	back = func(i, j int) bool {
+		if j == 9 {
+			j = 0
+			i++
+			if i == 9 {
+				return true
+			}
+		}
+		if board[i][j] != '.' {
+			return back(i, j+1)
+		}
+		for num := '1'; num <= '9'; num++ {
+			// 计算9宫格位置
+			idx := i/3*3 + j/3
+			numIdx := num - '1'
+			if hashRows[i][numIdx] || hashCols[j][numIdx] || hashBoards[idx][numIdx] {
+				continue
+			}
+			hashRows[i][numIdx] = true
+			hashCols[j][numIdx] = true
+			hashBoards[idx][numIdx] = true
+			board[i][j] = byte(num)
+			if back(i, j+1) {
+				return true
+			}
+			board[i][j] = '.'
+			hashRows[i][numIdx] = false
+			hashCols[j][numIdx] = false
+			hashBoards[idx][numIdx] = false
+		}
+		return false
+	}
+	back(0, 0)
+}
+
+// 39. 组合总和
+// 给定一个无重复元素的数组 candidates 和一个目标数 target ，找出 candidates 中所有可以使数字和为 target 的组合。
+//
+// candidates 中的数字可以无限制重复被选取。
+// 说明：
+// 所有数字（包括 target）都是正整数。
+// 解集不能包含重复的组合。
+//
+// 示例 1：
+// 输入：candidates = [2,3,6,7], target = 7,
+// 所求解集为：
+// [
+//  [7],
+//  [2,2,3]
+// ]
+//
+// 示例 2：
+// 输入：candidates = [2,3,5], target = 8,
+// 所求解集为：
+// [
+//  [2,2,2,2],
+//  [2,3,3],
+//  [3,5]
+// ]
+//
+// 提示：
+// 1 <= candidates.length <= 30
+// 1 <= candidates[i] <= 200
+// candidate 中的每个元素都是独一无二的。
+// 1 <= target <= 500
+func combinationSum(candidates []int, target int) [][]int {
+	sort.Ints(candidates)
+	size := len(candidates)
+	result := make([][]int, 0)
+	// 回溯算法
+	var back func(idx, num int, nums []int)
+
+	back = func(idx, num int, nums []int) {
+		if num == target {
+			tmp := make([]int, len(nums))
+			copy(tmp, nums)
+			result = append(result, tmp)
+			return
+		}
+		for i := idx; i < size; i++ {
+			if num+candidates[i] > target {
+				break
+			}
+			l := len(nums)
+			nums = append(nums, candidates[i])
+			back(i, num+candidates[i], nums)
+			nums = nums[0:l]
+		}
+	}
+
+	back(0, 0, make([]int, 0))
+
+	return result
+}
+
+// 40. 组合总和 II
+// 给定一个数组 candidates 和一个目标数 target ，找出 candidates 中所有可以使数字和为 target 的组合。
+//
+// candidates 中的每个数字在每个组合中只能使用一次。
+// 说明：
+// 所有数字（包括目标数）都是正整数。
+// 解集不能包含重复的组合。
+//
+// 示例 1:
+// 输入: candidates = [10,1,2,7,6,1,5], target = 8,
+// 所求解集为:
+// [
+//  [1, 7],
+//  [1, 2, 5],
+//  [2, 6],
+//  [1, 1, 6]
+// ]
+//
+// 示例 2:
+// 输入: candidates = [2,5,2,1,2], target = 5,
+// 所求解集为:
+// [
+//  [1,2,2],
+//  [5]
+// ]
+func combinationSum2(candidates []int, target int) [][]int {
+	sort.Ints(candidates)
+	size := len(candidates)
+	result := make([][]int, 0)
+	// 回溯算法
+	var back func(idx, num int, nums []int)
+
+	back = func(idx, num int, nums []int) {
+
+		if num == target {
+			tmp := make([]int, len(nums))
+			copy(tmp, nums)
+			result = append(result, tmp)
+			return
+		}
+		for i := idx; i < size; i++ {
+			if num+candidates[i] > target {
+				break
+			}
+			// 防止重复
+			if i > idx && candidates[i-1] == candidates[i] {
+				continue
+			}
+			l := len(nums)
+			nums = append(nums, candidates[i])
+			back(i+1, num+candidates[i], nums)
+			nums = nums[0:l]
+		}
+	}
+
+	back(0, 0, make([]int, 0))
 
 	return result
 }
