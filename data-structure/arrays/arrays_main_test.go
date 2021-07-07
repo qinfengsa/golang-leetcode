@@ -26,3 +26,9 @@ func Test_threeSumClosest(t *testing.T) {
 	result := threeSumClosest(nums, target)
 	fmt.Println(result)
 }
+
+func Test_firstMissingPositive(t *testing.T) {
+	nums := []int{3, 4, -1, 1}
+	result := firstMissingPositive(nums)
+	fmt.Println(result)
+}

@@ -1797,3 +1797,91 @@ func nextPermutation(nums []int) {
 	// 交换
 	nums[lIdx], nums[idx] = nums[idx], nums[lIdx]
 }
+
+// 41. 缺失的第一个正数
+// 给你一个未排序的整数数组 nums ，请你找出其中没有出现的最小的正整数。
+//
+// 请你实现时间复杂度为 O(n) 并且只使用常数级别额外空间的解决方案。
+// 示例 1：
+// 输入：nums = [1,2,0] 输出：3
+//
+// 示例 2：
+// 输入：nums = [3,4,-1,1] 输出：2
+//
+// 示例 3：
+// 输入：nums = [7,8,9,11,12] 输出：1
+//
+// 提示：
+// 1 <= nums.length <= 5 * 105
+// -231 <= nums[i] <= 231 - 1
+func firstMissingPositive(nums []int) int {
+	// 把 1 放到 nums[0] 的 位置上  2 放到 nums[1]的位置
+	size := len(nums)
+
+	var modify func(idx int)
+	modify = func(num int) {
+		if num <= 0 || num > size {
+			return
+		}
+		if nums[num-1] == num {
+			return
+		}
+		// 记录 num - 1 位置的 元素
+		tmp := nums[num-1]
+		nums[num-1] = num
+		// 把 tmp 放到值得位置
+		modify(tmp)
+	}
+
+	for i := 0; i < size; i++ {
+		if i+1 == nums[i] {
+			continue
+		}
+		modify(nums[i])
+	}
+
+	for i := 0; i < size; i++ {
+		if i+1 != nums[i] {
+			return i + 1
+		}
+	}
+
+	return size + 1
+}
+
+// 42. 接雨水
+// 给定 n 个非负整数表示每个宽度为 1 的柱子的高度图，计算按此排列的柱子，下雨之后能接多少雨水。
+//
+// 示例 1：
+// 输入：height = [0,1,0,2,1,0,1,3,2,1,2,1] 输出：6
+// 解释：上面是由数组 [0,1,0,2,1,0,1,3,2,1,2,1] 表示的高度图，在这种情况下，可以接 6 个单位的雨水（蓝色部分表示雨水）。
+//
+// 示例 2：
+// 输入：height = [4,2,0,3,2,5] 输出：9
+//
+// 提示：
+// n == height.length
+// 0 <= n <= 3 * 104
+// 0 <= height[i] <= 105
+func trap(height []int) int {
+	n := len(height)
+	if n <= 2 {
+		return 0
+	}
+	leftHeight, rightHeight := make([]int, n), make([]int, n)
+	leftHeight[0] = height[0]
+
+	for i := 1; i < n; i++ {
+		leftHeight[i] = max(leftHeight[i-1], height[i])
+	}
+
+	rightHeight[n-1] = height[n-1]
+	for i := n - 2; i >= 0; i-- {
+		rightHeight[i] = max(rightHeight[i+1], height[i])
+	}
+	result := 0
+	for i := 1; i < n-1; i++ {
+		result += min(leftHeight[i], rightHeight[i]) - height[i]
+	}
+	return result
+}

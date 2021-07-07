@@ -26,3 +26,9 @@ func Test_findSubstring(t *testing.T) {
 	result := findSubstring(s, words)
 	fmt.Println(result)
 }
+
+func Test_multiply(t *testing.T) {
+	num1, num2 := "123", "456"
+	result := multiply(num1, num2)
+	fmt.Println(result)
+}

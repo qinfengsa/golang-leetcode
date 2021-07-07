@@ -1542,3 +1542,101 @@ func findSubstring(s string, words []string) []int {
 
 	return result
 }
+
+// 43. 字符串相乘
+// 给定两个以字符串形式表示的非负整数 num1 和 num2，返回 num1 和 num2 的乘积，它们的乘积也表示为字符串形式。
+//
+// 示例 1:
+// 输入: num1 = "2", num2 = "3" 输出: "6"
+//
+// 示例 2:
+// 输入: num1 = "123", num2 = "456" 输出: "56088"
+//
+// 说明：
+// num1 和 num2 的长度小于110。
+// num1 和 num2 只包含数字 0-9。
+// num1 和 num2 均不以零开头，除非是数字 0 本身。
+// 不能使用任何标准库的大数类型（比如 BigInteger）或直接将输入转换为整数来处理。
+func multiply(num1 string, num2 string) string {
+	if num1 == "0" || num2 == "0" {
+		return "0"
+	}
+	size1, size2 := len(num1), len(num2)
+	nums := make([]int, size1+size2)
+
+	for i := size1 - 1; i >= 0; i-- {
+		n1 := int(num1[i] - '0')
+		for j := size2 - 1; j >= 0; j-- {
+			n2 := int(num2[j] - '0')
+			sum := nums[i+j+1] + n1*n2
+			nums[i+j+1] = sum % 10
+			nums[i+j] += sum / 10
+		}
+	}
+	var builder strings.Builder
+	for i := 0; i < size1+size2; i++ {
+		if i == 0 && nums[i] == 0 {
+			continue
+		}
+		builder.WriteString(strconv.Itoa(nums[i]))
+	}
+	return builder.String()
+}
+
+// 44. 通配符匹配
+// 给定一个字符串 (s) 和一个字符模式 (p) ，实现一个支持 '?' 和 '*' 的通配符匹配。
+//
+// '?' 可以匹配任何单个字符。
+// '*' 可以匹配任意字符串（包括空字符串）。
+// 两个字符串完全匹配才算匹配成功。
+//
+// 说明:
+// s 可能为空，且只包含从 a-z 的小写字母。
+// p 可能为空，且只包含从 a-z 的小写字母，以及字符 ? 和 *。
+//
+// 示例 1:
+// 输入: s = "aa" p = "a"  输出: false
+// 解释: "a" 无法匹配 "aa" 整个字符串。
+//
+// 示例 2:
+// 输入: s = "aa" p = "*" 输出: true
+// 解释: '*' 可以匹配任意字符串。
+//
+// 示例 3:
+// 输入: s = "cb" p = "?a" 输出: false
+// 解释: '?' 可以匹配 'c', 但第二个 'a' 无法匹配 'b'。
+//
+// 示例 4:
+// 输入: s = "adceb" p = "*a*b" 输出: true
+// 解释: 第一个 '*' 可以匹配空字符串, 第二个 '*' 可以匹配字符串 "dce".
+//
+// 示例 5:
+// 输入: s = "acdcb" p = "a*c?b" 输出: false
+func isMatch(s string, p string) bool {
+	m, n := len(s), len(p)
+	match := make([][]bool, m+1)
+	for i := 0; i <= m; i++ {
+		match[i] = make([]bool, n+1)
+	}
+	match[0][0] = true
+	for j := 0; j < n; j++ {
+		if p[j] == '*' {
+			match[0][j+1] = match[0][j]
+		}
+	}
+
+	for i := 0; i < m; i++ {
+		c1 := s[i]
+		for j := 0; j < n; j++ {
+			c2 := p[j]
+			same := c1 == c2 || c2 == '?'
+			if same {
+				match[i+1][j+1] = match[i][j]
+			} else if c2 == '*' {
+				match[i+1][j+1] = match[i][j+1] || match[i+1][j]
+			}
+		}
+	}
+
+	return match[m][n]
+}
