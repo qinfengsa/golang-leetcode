@@ -37,3 +37,15 @@ func Test_combinationSum2(t *testing.T) {
 	result := combinationSum2(candidates, target)
 	fmt.Println(result)
 }
+
+func Test_permute(t *testing.T) {
+	nums := []int{1, 2, 3}
+	result := permute(nums)
+	fmt.Println(result)
+}
+
+func Test_permuteUnique(t *testing.T) {
+	nums := []int{1, 3, 2}
+	result := permuteUnique(nums)
+	fmt.Println(result)
+}

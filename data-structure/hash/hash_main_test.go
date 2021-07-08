@@ -12,3 +12,9 @@ func Test_frequencySort(t *testing.T) {
 	result := frequencySort(s)
 	fmt.Println(result)
 }
+
+func Test_groupAnagrams(t *testing.T) {
+	strs := []string{"eat", "tea", "tan", "ate", "nat", "bat"}
+	result := groupAnagrams(strs)
+	fmt.Println(result)
+}

@@ -369,3 +369,100 @@ func combinationSum2(candidates []int, target int) [][]int {
 
 	return result
 }
+
+// 46. 全排列
+// 给定一个不含重复数字的数组 nums ，返回其 所有可能的全排列 。你可以 按任意顺序 返回答案。
+//
+// 示例 1：
+// 输入：nums = [1,2,3] 输出：[[1,2,3],[1,3,2],[2,1,3],[2,3,1],[3,1,2],[3,2,1]]
+//
+// 示例 2：
+// 输入：nums = [0,1] 输出：[[0,1],[1,0]]
+//
+// 示例 3：
+// 输入：nums = [1] 输出：[[1]]
+//
+// 提示：
+// 1 <= nums.length <= 6
+// -10 <= nums[i] <= 10
+// nums 中的所有整数 互不相同
+func permute(nums []int) [][]int {
+	result := make([][]int, 0)
+
+	n := len(nums)
+	// 回溯
+	var back func(visited []bool, resNums []int)
+	back = func(visited []bool, resNums []int) {
+		if len(resNums) == n {
+			tmpNums := make([]int, len(resNums))
+			copy(tmpNums, resNums)
+			result = append(result, tmpNums)
+		}
+		l := len(resNums)
+		for i, num := range nums {
+			if visited[i] {
+				continue
+			}
+			visited[i] = true
+			resNums = append(resNums, num)
+			back(visited, resNums)
+			resNums = resNums[0:l]
+			visited[i] = false
+
+		}
+	}
+
+	back(make([]bool, n), make([]int, 0))
+	return result
+}
+
+// 47. 全排列 II
+// 给定一个可包含重复数字的序列 nums ，按任意顺序 返回所有不重复的全排列。
+//
+// 示例 1：
+// 输入：nums = [1,1,2]  输出： [[1,1,2], [1,2,1], [2,1,1]]
+//
+// 示例 2：
+// 输入：nums = [1,2,3] 输出：[[1,2,3],[1,3,2],[2,1,3],[2,3,1],[3,1,2],[3,2,1]]
+//
+// 提示：
+// 1 <= nums.length <= 8
+// -10 <= nums[i] <= 10
+func permuteUnique(nums []int) [][]int {
+	sort.Ints(nums)
+	result := make([][]int, 0)
+
+	n := len(nums)
+	// 回溯
+	var back func(visited []bool, resNums []int)
+	back = func(visited []bool, resNums []int) {
+		if len(resNums) == n {
+			tmpNums := make([]int, len(resNums))
+			copy(tmpNums, resNums)
+			result = append(result, tmpNums)
+		}
+		l := len(resNums)
+		for i, num := range nums {
+			if visited[i] {
+				continue
+			}
+			last := i - 1
+			for last >= 0 && !visited[last] {
+				last--
+			}
+			// 找到上一个
+			if last >= 0 && num == nums[last] {
+				continue
+			}
+			visited[i] = true
+			resNums = append(resNums, num)
+			back(visited, resNums)
+			resNums = resNums[0:l]
+			visited[i] = false
+
+		}
+	}
+
+	back(make([]bool, n), make([]int, 0))
+	return result
+}

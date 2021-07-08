@@ -2,6 +2,7 @@ package hash
 
 import (
 	"sort"
+	"strconv"
 	"strings"
 )
 
@@ -553,4 +554,52 @@ func isValidSudoku(board [][]byte) bool {
 	}
 
 	return true
+}
+
+// 49. 字母异位词分组
+// 给定一个字符串数组，将字母异位词组合在一起。字母异位词指字母相同，但排列不同的字符串。
+//
+// 示例:
+// 输入: ["eat", "tea", "tan", "ate", "nat", "bat"]
+// 输出:
+// [
+//  ["ate","eat","tea"],
+//  ["nat","tan"],
+//  ["bat"]
+// ]
+// 说明：
+// 所有输入均为小写字母。
+// 不考虑答案输出的顺序。
+func groupAnagrams(strs []string) [][]string {
+	result := make([][]string, 0)
+
+	getAnagramsKey := func(str string) string {
+		letters := make([]int, 26)
+		for _, c := range str {
+			letters[c-'a']++
+		}
+		var builder strings.Builder
+		for _, num := range letters {
+			builder.WriteString(strconv.Itoa(num))
+			builder.WriteByte(',')
+		}
+		return builder.String()
+	}
+
+	strMap := make(map[string][]string)
+
+	for i := range strs {
+		key := getAnagramsKey(strs[i])
+		if _, ok := strMap[key]; ok {
+			strMap[key] = append(strMap[key], strs[i])
+		} else {
+			strMap[key] = []string{strs[i]}
+		}
+	}
+
+	for _, v := range strMap {
+		result = append(result, v)
+	}
+
+	return result
 }
