@@ -466,3 +466,116 @@ func permuteUnique(nums []int) [][]int {
 	back(make([]bool, n), make([]int, 0))
 	return result
 }
+
+// 51. N 皇后
+// n 皇后问题 研究的是如何将 n 个皇后放置在 n×n 的棋盘上，并且使皇后彼此之间不能相互攻击。
+//
+// 给你一个整数 n ，返回所有不同的 n 皇后问题 的解决方案。
+// 每一种解法包含一个不同的 n 皇后问题 的棋子放置方案，该方案中 'Q' 和 '.' 分别代表了皇后和空位。
+//
+// 示例 1：
+// 输入：n = 4 输出：[[".Q..","...Q","Q...","..Q."],["..Q.","Q...","...Q",".Q.."]]
+// 解释：如上图所示，4 皇后问题存在两个不同的解法。
+//
+// 示例 2：
+// 输入：n = 1 输出：[["Q"]]
+//
+// 提示：
+// 1 <= n <= 9
+// 皇后彼此不能相互攻击，也就是说：任何两个皇后都不能处于同一条横行、纵行或斜线上。
+func solveNQueens(n int) [][]string {
+	result := make([][]string, 0)
+
+	cols := make([]bool, n)
+	slashs, backslashs := make([]bool, 2*n-1), make([]bool, 2*n-1)
+	// 反斜线
+
+	var back func(i int, res [][]byte)
+
+	back = func(i int, res [][]byte) {
+		if i == n {
+			tmp := make([]string, n)
+			for row := 0; row < n; row++ {
+				tmp[row] = string(res[row])
+			}
+			result = append(result, tmp)
+			return
+		}
+
+		for j := 0; j < n; j++ {
+			if cols[j] || slashs[i+j] || backslashs[n-1-i+j] {
+				continue
+			}
+			cols[j] = true
+			res[i][j] = 'Q'
+			slashs[i+j] = true
+			backslashs[n-1-i+j] = true
+			back(i+1, res)
+			res[i][j] = '.'
+			cols[j] = false
+			backslashs[n-1-i+j] = false
+			slashs[i+j] = false
+		}
+
+	}
+	res := make([][]byte, n)
+	for i := 0; i < n; i++ {
+		res[i] = make([]byte, n)
+		for j := 0; j < n; j++ {
+			res[i][j] = '.'
+		}
+	}
+
+	back(0, res)
+
+	return result
+}
+
+// 52. N皇后 II
+// n 皇后问题 研究的是如何将 n 个皇后放置在 n×n 的棋盘上，并且使皇后彼此之间不能相互攻击。
+//
+// 给你一个整数 n ，返回 n 皇后问题 不同的解决方案的数量。
+//
+// 示例 1：
+// 输入：n = 4 输出：2
+// 解释：如上图所示，4 皇后问题存在两个不同的解法。
+//
+// 示例 2：
+// 输入：n = 1 输出：1
+//
+// 提示：
+// 1 <= n <= 9
+// 皇后彼此不能相互攻击，也就是说：任何两个皇后都不能处于同一条横行、纵行或斜线上。
+func totalNQueens(n int) int {
+	result := 0
+
+	cols := make([]bool, n)
+	slashs, backslashs := make([]bool, 2*n-1), make([]bool, 2*n-1)
+	// 反斜线
+
+	var back func(i int)
+
+	back = func(i int) {
+		if i == n {
+			result++
+			return
+		}
+
+		for j := 0; j < n; j++ {
+			if cols[j] || slashs[i+j] || backslashs[n-1-i+j] {
+				continue
+			}
+			cols[j] = true
+			slashs[i+j] = true
+			backslashs[n-1-i+j] = true
+			back(i + 1)
+			cols[j] = false
+			backslashs[n-1-i+j] = false
+			slashs[i+j] = false
+		}
+
+	}
+	back(0)
+
+	return result
+}

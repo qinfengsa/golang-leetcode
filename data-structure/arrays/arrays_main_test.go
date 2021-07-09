@@ -32,3 +32,9 @@ func Test_firstMissingPositive(t *testing.T) {
 	result := firstMissingPositive(nums)
 	fmt.Println(result)
 }
+
+func Test_spiralOrder(t *testing.T) {
+	matrix := [][]int{{3}, {2}}
+	result := spiralOrder(matrix)
+	fmt.Println(result)
+}

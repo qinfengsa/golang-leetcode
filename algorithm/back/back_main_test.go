@@ -49,3 +49,15 @@ func Test_permuteUnique(t *testing.T) {
 	result := permuteUnique(nums)
 	fmt.Println(result)
 }
+
+func Test_solveNQueens(t *testing.T) {
+	n := 4
+	result := solveNQueens(n)
+	fmt.Println(result)
+}
+
+func Test_totalNQueens(t *testing.T) {
+	n := 4
+	result := totalNQueens(n)
+	fmt.Println(result)
+}

@@ -1927,3 +1927,112 @@ func rotate(matrix [][]int) {
 		}
 	}
 }
+
+// 面试题 17.10. 主要元素
+// 数组中占比超过一半的元素称之为主要元素。给你一个 整数 数组，找出其中的主要元素。若没有，返回 -1 。请设计时间复杂度为 O(N) 、空间复杂度为 O(1) 的解决方案。
+//
+// 示例 1：
+// 输入：[1,2,5,9,5,9,5,5,5] 输出：5
+//
+// 示例 2：
+// 输入：[3,2] 输出：-1
+//
+// 示例 3：
+// 输入：[2,2,1,1,1,2,2] 输出：2
+func majorityElement2(nums []int) int {
+	//摩尔投票算法
+	count, n := 0, len(nums)
+	var result int
+	for _, num := range nums {
+		if count == 0 {
+			result = num
+		}
+		if result == num {
+			count++
+		} else {
+			count--
+		}
+	}
+	if count <= 0 {
+		return -1
+	}
+	count = 0
+	for _, num := range nums {
+		if num == result {
+			count++
+		}
+	}
+	half := (n >> 1) + 1
+	if count < half {
+		return -1
+	}
+	return result
+}
+
+// 54. 螺旋矩阵
+// 给你一个 m 行 n 列的矩阵 matrix ，请按照 顺时针螺旋顺序 ，返回矩阵中的所有元素。
+//
+// 示例 1：
+// 输入：matrix = [[1,2,3],[4,5,6],[7,8,9]] 输出：[1,2,3,6,9,8,7,4,5]
+//
+// 示例 2：
+// 输入：matrix = [[1,2,3,4],[5,6,7,8],[9,10,11,12]] 输出：[1,2,3,4,8,12,11,10,9,5,6,7]
+//
+// 提示：
+// m == matrix.length
+// n == matrix[i].length
+// 1 <= m, n <= 10
+// -100 <= matrix[i][j] <= 100
+func spiralOrder(matrix [][]int) []int {
+	m, n := len(matrix), len(matrix[0])
+	result := make([]int, m*n)
+	// move 方向 0 右 1 下  2 左 3 上
+	move, i, j := 0, 0, 0
+	startRow, endRow, startCol, endCol := 1, m-1, 0, n-1
+	if n == 1 {
+		move = 1
+	}
+	for idx := 0; idx < m*n; idx++ {
+		move = move % 4
+		result[idx] = matrix[i][j]
+		switch move {
+		case 0:
+			{
+
+				j++
+				if j == endCol {
+					endCol--
+					move++
+				}
+			}
+		case 1:
+			{
+				i++
+				if i == endRow {
+					endRow--
+					move++
+				}
+			}
+		case 2:
+			{
+
+				j--
+				if j == startCol {
+					startCol++
+					move++
+				}
+			}
+		case 3:
+			{
+				i--
+				if i == startRow {
+					startRow++
+					move++
+				}
+			}
+		}
+
+	}
+
+	return result
+}
