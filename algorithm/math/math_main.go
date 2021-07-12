@@ -5,6 +5,8 @@ import (
 	"log"
 	"math"
 	"math/bits"
+	"strconv"
+	"strings"
 )
 
 func reverseTest() {
@@ -1044,4 +1046,68 @@ func myPow(x float64, n int) float64 {
 		return 1.0 / result
 	}
 	return result
+}
+
+// 60. 排列序列
+// 给出集合 [1,2,3,...,n]，其所有元素共有 n! 种排列。
+//
+// 按大小顺序列出所有排列情况，并一一标记，当 n = 3 时, 所有排列如下：
+//
+// "123"
+// "132"
+// "213"
+// "231"
+// "312"
+// "321"
+// 给定 n 和 k，返回第 k 个排列。
+//
+// 示例 1：
+// 输入：n = 3, k = 3 输出："213"
+//
+// 示例 2：
+// 输入：n = 4, k = 9 输出："2314"
+//
+// 示例 3：
+// 输入：n = 3, k = 1 输出："123"
+//
+// 提示：
+// 1 <= n <= 9
+// 1 <= k <= n!
+func getPermutation(n int, k int) string {
+	nums := make([]int, n)
+	for i := 0; i < n; i++ {
+		nums[i] = i + 1
+	}
+
+	var getLen = func(num int) int {
+		result := 1
+		for i := num; i > 1; i-- {
+			result *= i
+		}
+		return result
+	}
+
+	var builder strings.Builder
+
+	for i := n - 1; i > 0; i-- {
+		idx := 0
+		if k > 1 {
+			// 剩余 i 个 元素共有 cnt 种 排列
+			cnt := getLen(i)
+			//  移除 若干 cnt 个排列  idx 表示轮到 第 idx个 元素开头
+			idx = (k - 1) / cnt
+			k -= idx * cnt
+		}
+		builder.WriteString(strconv.Itoa(nums[idx]))
+		tmp := make([]int, n)
+		for j := 0; j < idx; j++ {
+			tmp[j] = nums[j]
+		}
+		for j := idx + 1; j < n; j++ {
+			tmp[j-1] = nums[j]
+		}
+		nums = tmp
+	}
+	builder.WriteString(strconv.Itoa(nums[0]))
+	return builder.String()
 }

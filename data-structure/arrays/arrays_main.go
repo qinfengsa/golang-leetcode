@@ -2036,3 +2036,171 @@ func spiralOrder(matrix [][]int) []int {
 
 	return result
 }
+
+// 56. 合并区间
+// 以数组 intervals 表示若干个区间的集合，其中单个区间为 intervals[i] = [starti, endi] 。
+// 请你合并所有重叠的区间，并返回一个不重叠的区间数组，该数组需恰好覆盖输入中的所有区间。
+//
+// 示例 1：
+// 输入：intervals = [[1,3],[2,6],[8,10],[15,18]] 输出：[[1,6],[8,10],[15,18]]
+// 解释：区间 [1,3] 和 [2,6] 重叠, 将它们合并为 [1,6].
+//
+// 示例 2：
+// 输入：intervals = [[1,4],[4,5]] 输出：[[1,5]]
+// 解释：区间 [1,4] 和 [4,5] 可被视为重叠区间。
+//
+// 提示：
+// 1 <= intervals.length <= 104
+// intervals[i].length == 2
+// 0 <= starti <= endi <= 104
+func mergeII(intervals [][]int) [][]int {
+	result := make([][]int, 0)
+	sort.Slice(intervals, func(i, j int) bool {
+		a, b := intervals[i][0], intervals[j][0]
+		return a < b
+	})
+	fmt.Println(intervals)
+
+	for i, _ := range intervals {
+		nums := intervals[i]
+		n := len(result)
+		if n == 0 {
+			result = append(result, nums)
+		} else {
+			lastNums := result[n-1]
+			// 判断是否包含
+			if nums[0] > lastNums[1] {
+				// 不包含
+				result = append(result, nums)
+			} else if lastNums[1] < nums[1] {
+				// 部分包含
+				lastNums[1] = nums[1]
+			}
+			// 整个包含直接跳过
+
+		}
+	}
+
+	return result
+}
+
+// 57. 插入区间
+// 给你一个 无重叠的 ，按照区间起始端点排序的区间列表。
+//
+// 在列表中插入一个新的区间，你需要确保列表中的区间仍然有序且不重叠（如果有必要的话，可以合并区间）。
+//
+// 示例 1：
+// 输入：intervals = [[1,3],[6,9]], newInterval = [2,5] 输出：[[1,5],[6,9]]
+//
+// 示例 2：
+// 输入：intervals = [[1,2],[3,5],[6,7],[8,10],[12,16]], newInterval = [4,8]
+// 输出：[[1,2],[3,10],[12,16]]
+// 解释：这是因为新的区间 [4,8] 与 [3,5],[6,7],[8,10] 重叠。
+//
+// 示例 3：
+// 输入：intervals = [], newInterval = [5,7] 输出：[[5,7]]
+//
+// 示例 4：
+// 输入：intervals = [[1,5]], newInterval = [2,3] 输出：[[1,5]]
+//
+// 示例 5：
+// 输入：intervals = [[1,5]], newInterval = [2,7]
+// 输出：[[1,7]]
+//
+// 提示：
+// 0 <= intervals.length <= 104
+// intervals[i].length == 2
+// 0 <= intervals[i][0] <= intervals[i][1] <= 105
+// intervals 根据 intervals[i][0] 按 升序 排列
+// newInterval.length == 2
+// 0 <= newInterval[0] <= newInterval[1] <= 105
+func insert(intervals [][]int, newInterval []int) [][]int {
+	result := make([][]int, 0)
+	i, n := 0, len(intervals)
+
+	// 先插入 所有比 newInterval[0] 小 的 interval
+	for i < n && intervals[i][1] < newInterval[0] {
+		result = append(result, intervals[i])
+		i++
+	}
+	// 所有 和 newInterval 重合的 interval
+	for i < n && intervals[i][0] <= newInterval[1] {
+		newInterval[0] = min(intervals[i][0], newInterval[0])
+		newInterval[1] = max(intervals[i][1], newInterval[1])
+		i++
+	}
+	result = append(result, newInterval)
+
+	for i < n {
+		result = append(result, intervals[i])
+		i++
+	}
+	return result
+}
+
+// 59. 螺旋矩阵 II
+// 给你一个正整数 n ，生成一个包含 1 到 n2 所有元素，且元素按顺时针顺序螺旋排列的 n x n 正方形矩阵 matrix 。
+// 示例 1：
+// 输入：n = 3 输出：[[1,2,3],[8,9,4],[7,6,5]]
+//
+// 示例 2：
+// 输入：n = 1 输出：[[1]]
+//
+// 提示：
+// 1 <= n <= 20
+func generateMatrix(n int) [][]int {
+	matrix := make([][]int, n)
+	for i := 0; i < n; i++ {
+		matrix[i] = make([]int, n)
+	}
+	if n == 1 {
+		matrix[0][0] = 1
+		return matrix
+	}
+	// move 方向 0 右 1 下  2 左 3 上
+	move, i, j := 0, 0, 0
+	startRow, endRow, startCol, endCol := 1, n-1, 0, n-1
+
+	for num := 1; num <= n*n; num++ {
+		move = move % 4
+		matrix[i][j] = num
+		switch move {
+		case 0:
+			{
+
+				j++
+				if j == endCol {
+					endCol--
+					move++
+				}
+			}
+		case 1:
+			{
+				i++
+				if i == endRow {
+					endRow--
+					move++
+				}
+			}
+		case 2:
+			{
+
+				j--
+				if j == startCol {
+					startCol++
+					move++
+				}
+			}
+		case 3:
+			{
+				i--
+				if i == startRow {
+					startRow++
+					move++
+				}
+			}
+		}
+	}
+
+	return matrix
+}
