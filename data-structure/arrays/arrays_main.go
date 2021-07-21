@@ -2204,3 +2204,102 @@ func generateMatrix(n int) [][]int {
 
 	return matrix
 }
+
+// 73. 矩阵置零
+// 给定一个 m x n 的矩阵，如果一个元素为 0 ，则将其所在行和列的所有元素都设为 0 。请使用 原地 算法。
+//
+// 进阶：
+// 一个直观的解决方案是使用  O(mn) 的额外空间，但这并不是一个好的解决方案。
+// 一个简单的改进方案是使用 O(m + n) 的额外空间，但这仍然不是最好的解决方案。
+// 你能想出一个仅使用常量空间的解决方案吗？
+//
+// 示例 1：
+// 输入：matrix = [[1,1,1],[1,0,1],[1,1,1]] 输出：[[1,0,1],[0,0,0],[1,0,1]]
+//
+// 示例 2：
+// 输入：matrix = [[0,1,2,0],[3,4,5,2],[1,3,1,5]] 输出：[[0,0,0,0],[0,4,5,0],[0,3,1,0]]
+//
+// 提示：
+// m == matrix.length
+// n == matrix[0].length
+// 1 <= m, n <= 200
+// -231 <= matrix[i][j] <= 231 - 1
+func setZeroes(matrix [][]int) {
+	m, n := len(matrix), len(matrix[0])
+	zeroRow, zeroCol := make([]bool, m), make([]bool, n)
+	for i := 0; i < m; i++ {
+		for j := 0; j < n; j++ {
+			if matrix[i][j] == 0 {
+				zeroRow[i] = true
+				zeroCol[j] = true
+			}
+		}
+	}
+	for i := 0; i < m; i++ {
+		if zeroRow[i] {
+			for j := 0; j < n; j++ {
+				matrix[i][j] = 0
+			}
+		}
+	}
+	for j := 0; j < n; j++ {
+		if zeroCol[j] {
+			for i := 0; i < m; i++ {
+				matrix[i][j] = 0
+			}
+		}
+	}
+
+}
+
+// 75. 颜色分类
+// 给定一个包含红色、白色和蓝色，一共 n 个元素的数组，原地对它们进行排序，使得相同颜色的元素相邻，并按照红色、白色、蓝色顺序排列。
+//
+// 此题中，我们使用整数 0、 1 和 2 分别表示红色、白色和蓝色。
+//
+// 示例 1：
+// 输入：nums = [2,0,2,1,1,0] 输出：[0,0,1,1,2,2]
+//
+// 示例 2：
+// 输入：nums = [2,0,1] 输出：[0,1,2]
+//
+// 示例 3：
+// 输入：nums = [0] 输出：[0]
+//
+// 示例 4：
+// 输入：nums = [1] 输出：[1]
+//
+// 提示：
+// n == nums.length
+// 1 <= n <= 300
+// nums[i] 为 0、1 或 2
+func sortColors(nums []int) {
+	red, white, blue := 0, 0, 0
+	for _, num := range nums {
+		switch num {
+		case 0:
+			red++
+		case 1:
+			white++
+		case 2:
+			blue++
+		}
+	}
+	idx := 0
+	for red > 0 {
+		nums[idx] = 0
+		red--
+		idx++
+	}
+	for white > 0 {
+		nums[idx] = 1
+		white--
+		idx++
+	}
+	for blue > 0 {
+		nums[idx] = 2
+		blue--
+		idx++
+	}
+
+}

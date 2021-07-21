@@ -32,3 +32,9 @@ func Test_multiply(t *testing.T) {
 	result := multiply(num1, num2)
 	fmt.Println(result)
 }
+
+func Test_simplifyPath(t *testing.T) {
+	path := "/a/./b/../../c/"
+	result := simplifyPath(path)
+	fmt.Println(result)
+}
