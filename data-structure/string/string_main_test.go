@@ -38,3 +38,10 @@ func Test_simplifyPath(t *testing.T) {
 	result := simplifyPath(path)
 	fmt.Println(result)
 }
+
+func Test_minWindow(t *testing.T) {
+
+	s, ts := "ab", "A"
+	result := minWindow(s, ts)
+	fmt.Println(result)
+}

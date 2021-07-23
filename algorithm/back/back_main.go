@@ -579,3 +579,161 @@ func totalNQueens(n int) int {
 
 	return result
 }
+
+// 77. 组合
+// 给定两个整数 n 和 k，返回范围 [1, n] 中所有可能的 k 个数的组合。
+//
+// 你可以按 任何顺序 返回答案。
+// 示例 1：
+// 输入：n = 4, k = 2
+// 输出：
+// [
+//  [2,4],
+//  [3,4],
+//  [2,3],
+//  [1,2],
+//  [1,3],
+//  [1,4],
+// ]
+//
+// 示例 2：
+// 输入：n = 1, k = 1 输出：[[1]]
+//
+// 提示：
+// 1 <= n <= 20
+// 1 <= k <= n
+func combine(n int, k int) [][]int {
+	result := make([][]int, 0)
+
+	// 回溯
+	var back func(visited []bool, nums []int, start, idx int)
+	back = func(visited []bool, nums []int, start, idx int) {
+		if idx == k {
+			tmpNums := make([]int, k)
+			copy(tmpNums, nums)
+			result = append(result, tmpNums)
+			return
+		}
+		for i := 0; i < n; i++ {
+			if visited[i] {
+				continue
+			}
+			visited[i] = true
+			nums[idx] = i + 1
+			back(visited, nums, i+1, idx+1)
+			nums[idx] = 0
+			visited[i] = false
+
+		}
+	}
+
+	back(make([]bool, n), make([]int, k), 0, 0)
+
+	return result
+}
+
+// 78. 子集
+// 给你一个整数数组 nums ，数组中的元素 互不相同 。返回该数组所有可能的子集（幂集）。
+//
+// 解集 不能 包含重复的子集。你可以按 任意顺序 返回解集。
+//
+// 示例 1：
+// 输入：nums = [1,2,3]
+// 输出：[[],[1],[2],[1,2],[3],[1,3],[2,3],[1,2,3]]
+//
+// 示例 2：
+// 输入：nums = [0] 输出：[[],[0]]
+//
+// 提示：
+// 1 <= nums.length <= 10
+// -10 <= nums[i] <= 10
+// nums 中的所有元素 互不相同
+func subsets(nums []int) [][]int {
+	n := len(nums)
+	result := make([][]int, 0)
+	for i := 0; i < 1<<n; i++ {
+		tmp := make([]int, 0)
+
+		for j := 0; j < n; j++ {
+			if i&(1<<j) > 0 {
+				tmp = append(tmp, nums[j])
+			}
+		}
+
+		result = append(result, tmp)
+	}
+	return result
+}
+
+// 79. 单词搜索
+// 给定一个 m x n 二维字符网格 board 和一个字符串单词 word 。如果 word 存在于网格中，返回 true ；否则，返回 false 。
+//
+// 单词必须按照字母顺序，通过相邻的单元格内的字母构成，其中“相邻”单元格是那些水平相邻或垂直相邻的单元格。同一个单元格内的字母不允许被重复使用。
+//
+// 示例 1：
+// 输入：board = [["A","B","C","E"],["S","F","C","S"],["A","D","E","E"]], word = "ABCCED"
+// 输出：true
+//
+// 示例 2：
+// 输入：board = [["A","B","C","E"],["S","F","C","S"],["A","D","E","E"]], word = "SEE"
+// 输出：true
+//
+// 示例 3：
+// 输入：board = [["A","B","C","E"],["S","F","C","S"],["A","D","E","E"]], word = "ABCB"
+// 输出：false
+//
+// 提示：
+// m == board.length
+// n = board[i].length
+// 1 <= m, n <= 6
+// 1 <= word.length <= 15
+// board 和 word 仅由大小写英文字母组成
+func exist(board [][]byte, word string) bool {
+	m, n := len(board), len(board[0])
+	visited := make([][]bool, m)
+	for i := 0; i < m; i++ {
+		visited[i] = make([]bool, n)
+	}
+	// var back func(visited []bool, nums []int, start, idx int)
+	var back func(row, col, idx int) bool
+	size := len(word)
+	back = func(row, col, idx int) bool {
+		if idx == size-1 {
+			return board[row][col] == word[idx]
+		}
+		if board[row][col] == word[idx] {
+			visited[row][col] = true
+
+			for i := 0; i < 4; i++ {
+				nextRow, nextCol := row+DirRow[i], col+DirCol[i]
+				if !inArea(nextRow, nextCol, m, n) || visited[nextRow][nextCol] {
+					continue
+				}
+				if back(nextRow, nextCol, idx+1) {
+					return true
+				}
+			}
+			visited[row][col] = false
+		}
+		return false
+	}
+
+	for i := 0; i < m; i++ {
+		for j := 0; j < n; j++ {
+			if back(i, j, 0) {
+				return true
+			}
+		}
+	}
+
+	return false
+}
+
+var (
+	DirCol = []int{1, -1, 0, 0}
+	DirRow = []int{0, 0, 1, -1}
+)
+
+func inArea(row, col, rows, cols int) bool {
+	return row >= 0 && row < rows && col >= 0 && col < cols
+}
