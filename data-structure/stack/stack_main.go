@@ -196,3 +196,57 @@ func calPoints(ops []string) int {
 	}
 	return score
 }
+
+// 84. 柱状图中最大的矩形
+// 给定 n 个非负整数，用来表示柱状图中各个柱子的高度。每个柱子彼此相邻，且宽度为 1 。
+//
+// 求在该柱状图中，能够勾勒出来的矩形的最大面积。
+//
+// 示例 1:
+//
+// 输入：heights = [2,1,5,6,2,3] 输出：10
+// 解释：最大的矩形为图中红色区域，面积为 10
+//
+// 示例 2：
+// 输入： heights = [2,4] 输出： 4
+//
+// 提示：
+// 1 <= heights.length <=105
+// 0 <= heights[i] <= 104
+func largestRectangleArea(heights []int) int {
+	stack := list.New()
+	stack.PushBack(-1)
+	// 如果当前高度比栈顶的高度小, 出栈, 把 大的移走
+	maxArea, size := 0, len(heights)
+
+	for i := 0; i < size; i++ {
+		back := stack.Back()
+		lastIdx := back.Value.(int)
+		for lastIdx != -1 && heights[lastIdx] >= heights[i] {
+			stack.Remove(back)
+			tmpIdx := lastIdx
+			back = stack.Back()
+			lastIdx = back.Value.(int)
+			maxArea = max(maxArea, heights[tmpIdx]*(i-lastIdx-1))
+		}
+
+		stack.PushBack(i)
+	}
+	back := stack.Back()
+	lastIdx := back.Value.(int)
+	for lastIdx != -1 {
+		stack.Remove(back)
+		tmpIdx := lastIdx
+		back = stack.Back()
+		lastIdx = back.Value.(int)
+		maxArea = max(maxArea, heights[tmpIdx]*(size-lastIdx-1))
+	}
+	return maxArea
+}
+
+func max(x, y int) int {
+	if x > y {
+		return x
+	}
+	return y
+}
