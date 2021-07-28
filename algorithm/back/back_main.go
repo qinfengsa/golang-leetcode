@@ -737,3 +737,93 @@ var (
 func inArea(row, col, rows, cols int) bool {
 	return row >= 0 && row < rows && col >= 0 && col < cols
 }
+
+// 89. 格雷编码
+// 格雷编码是一个二进制数字系统，在该系统中，两个连续的数值仅有一个位数的差异。
+//
+// 给定一个代表编码总位数的非负整数 n，打印其格雷编码序列。即使有多个不同答案，你也只需要返回其中一种。
+//
+// 格雷编码序列必须以 0 开头。
+//
+// 示例 1:
+// 输入: 2 输出: [0,1,3,2]
+// 解释:
+// 00 - 0
+// 01 - 1
+// 11 - 3
+// 10 - 2
+//
+// 对于给定的 n，其格雷编码序列并不唯一。
+// 例如，[0,2,3,1] 也是一个有效的格雷编码序列。
+// 00 - 0
+// 10 - 2
+// 11 - 3
+// 01 - 1
+//
+// 示例 2:
+// 输入: 0 输出: [0]
+// 解释: 我们定义格雷编码序列必须以 0 开头。
+//     给定编码总位数为 n 的格雷编码序列，其长度为 2n。当 n = 0 时，长度为 20 = 1。
+//     因此，当 n = 0 时，其格雷编码序列为 [0]。
+func grayCode(n int) []int {
+	result := make([]int, 0)
+
+	result = append(result, 0)
+	if n == 0 {
+		return result
+	}
+	head := 1
+	for i := 0; i < n; i++ {
+		// 遍历之前的元素 + head 1 10 100 1000
+		for j := len(result) - 1; j >= 0; j-- {
+			result = append(result, head+result[j])
+		}
+		head <<= 1
+	}
+
+	return result
+}
+
+// 90. 子集 II
+// 给你一个整数数组 nums ，其中可能包含重复元素，请你返回该数组所有可能的子集（幂集）。
+//
+// 解集 不能 包含重复的子集。返回的解集中，子集可以按 任意顺序 排列。
+//
+// 示例 1：
+// 输入：nums = [1,2,2] 输出：[[],[1],[1,2],[1,2,2],[2],[2,2]]
+//
+// 示例 2：
+// 输入：nums = [0] 输出：[[],[0]]
+//
+// 提示：
+// 1 <= nums.length <= 10
+// -10 <= nums[i] <= 10
+func subsetsWithDup(nums []int) [][]int {
+	n := len(nums)
+	sort.Ints(nums)
+	result := make([][]int, 0)
+
+	var back func(start int, subset []int)
+
+	back = func(start int, subset []int) {
+		size := len(subset)
+		tmp := make([]int, size)
+		copy(tmp, subset)
+		result = append(result, tmp)
+
+		for i := start; i < n; i++ {
+			// 去除重复
+			if i > start && nums[i] == nums[i-1] {
+				continue
+			}
+			subset = append(subset, nums[i])
+
+			back(i+1, subset)
+			subset = subset[0:size]
+		}
+
+	}
+
+	back(0, make([]int, 0))
+	return result
+}
