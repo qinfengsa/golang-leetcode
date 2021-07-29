@@ -3,6 +3,8 @@ package back
 import (
 	"fmt"
 	"sort"
+	"strconv"
+	"strings"
 )
 
 // 回溯算法
@@ -826,4 +828,77 @@ func subsetsWithDup(nums []int) [][]int {
 
 	back(0, make([]int, 0))
 	return result
+}
+
+// 93. 复原 IP 地址
+// 给定一个只包含数字的字符串，用以表示一个 IP 地址，返回所有可能从 s 获得的 有效 IP 地址 。你可以按任何顺序返回答案。
+//
+// 有效 IP 地址 正好由四个整数（每个整数位于 0 到 255 之间组成，且不能含有前导 0），整数之间用 '.' 分隔。
+//
+// 例如："0.1.2.201" 和 "192.168.1.1" 是 有效 IP 地址，但是 "0.011.255.245"、"192.168.1.312" 和 "192.168@1.1" 是 无效 IP 地址。
+//
+// 示例 1：
+// 输入：s = "25525511135" 输出：["255.255.11.135","255.255.111.35"]
+//
+// 示例 2：
+// 输入：s = "0000" 输出：["0.0.0.0"]
+//
+// 示例 3：
+// 输入：s = "1111" 输出：["1.1.1.1"]
+//
+// 示例 4：
+// 输入：s = "010010" 输出：["0.10.0.10","0.100.1.0"]
+//
+// 示例 5：
+// 输入：s = "101023"
+// 输出：["1.0.10.23","1.0.102.3","10.1.0.23","10.10.2.3","101.0.2.3"]
+//
+// 提示：
+// 0 <= s.length <= 3000
+// s 仅由数字组成
+func restoreIpAddresses(s string) []string {
+
+	var checkIp func(str string, count int) []string
+
+	checkIp = func(str string, count int) []string {
+		result := make([]string, 0)
+		if count == 1 {
+			if str[0] == '0' && len(str) > 1 {
+				return result
+			}
+			num, _ := strconv.Atoi(str)
+			if num <= 255 {
+				result = append(result, str)
+			}
+			return result
+		}
+		if len(str) > count*3 {
+			return result
+		}
+
+		for i := 1; i <= 3 && i < len(str); i++ {
+			segment := str[:i]
+			// 剪枝条件：不能以0开头，不能大于255
+			if segment[0] == '0' && len(segment) > 1 {
+				break
+			}
+			num, _ := strconv.Atoi(segment)
+			if i == 3 && num > 255 {
+				break
+			}
+			var builder strings.Builder
+			builder.WriteString(strconv.Itoa(num))
+			builder.WriteString(".")
+
+			nextIps := checkIp(str[i+1:], count-1)
+			for _, ip := range nextIps {
+				var nextIp strings.Builder
+				nextIp.WriteString(builder.String())
+				nextIp.WriteString(ip)
+				result = append(result, nextIp.String())
+			}
+		}
+		return result
+	}
+	return checkIp(s, 4)
 }

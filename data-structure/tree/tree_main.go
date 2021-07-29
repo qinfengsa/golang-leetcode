@@ -1100,3 +1100,86 @@ func rangeSumBST(root *TreeNode, low int, high int) int {
 	result += rangeSumBST(root.Right, low, high)
 	return result
 }
+
+// 94. 二叉树的中序遍历
+// 给定一个二叉树的根节点 root ，返回它的 中序 遍历。
+//
+// 示例 1：
+// 输入：root = [1,null,2,3] 输出：[1,3,2]
+//
+// 示例 2：
+// 输入：root = [] 输出：[]
+//
+// 示例 3：
+// 输入：root = [1] 输出：[1]
+//
+// 示例 4：
+// 输入：root = [1,2] 输出：[2,1]
+//
+// 示例 5：
+// 输入：root = [1,null,2] 输出：[1,2]
+//
+// 提示：
+// 树中节点数目在范围 [0, 100] 内
+// -100 <= Node.val <= 100
+//
+// 进阶: 递归算法很简单，你可以通过迭代算法完成吗？
+func inorderTraversal(root *TreeNode) []int {
+	result := make([]int, 0)
+
+	var inorder func(node *TreeNode)
+
+	inorder = func(node *TreeNode) {
+		if node == nil {
+			return
+		}
+		inorder(node.Left)
+		result = append(result, node.Val)
+		inorder(node.Right)
+	}
+	inorder(root)
+	return result
+}
+
+// 95. 不同的二叉搜索树 II
+// 给你一个整数 n ，请你生成并返回所有由 n 个节点组成且节点值从 1 到 n 互不相同的不同 二叉搜索树 。可以按 任意顺序 返回答案。
+//
+// 示例 1：
+// 输入：n = 3
+// 输出：[[1,null,2,null,3],[1,null,3,2],[2,1,3],[3,1,null,null,2],[3,2,null,1]]
+//
+// 示例 2：
+// 输入：n = 1 输出：[[1]]
+//
+// 提示：
+// 1 <= n <= 8
+func generateTrees(n int) []*TreeNode {
+
+	var createTree func(start, end int) []*TreeNode
+
+	createTree = func(start, end int) []*TreeNode {
+		trees := make([]*TreeNode, 0)
+		if start > end {
+			trees = append(trees, nil)
+			return trees
+		}
+		for i := start; i <= end; i++ {
+			leftTrees := createTree(start, i-1)
+			rightTrees := createTree(i+1, end)
+			for _, left := range leftTrees {
+				for _, right := range rightTrees {
+					root := &TreeNode{
+						Val:   i,
+						Left:  left,
+						Right: right,
+					}
+					trees = append(trees, root)
+				}
+			}
+		}
+
+		return trees
+	}
+
+	return createTree(1, n)
+}
