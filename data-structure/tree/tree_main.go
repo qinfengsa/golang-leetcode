@@ -1183,3 +1183,123 @@ func generateTrees(n int) []*TreeNode {
 
 	return createTree(1, n)
 }
+
+// 96. 不同的二叉搜索树
+// 给你一个整数 n ，求恰由 n 个节点组成且节点值从 1 到 n 互不相同的 二叉搜索树 有多少种？返回满足题意的二叉搜索树的种数。
+//
+// 示例 1：
+// 输入：n = 3 输出：5
+//
+// 示例 2：
+// 输入：n = 1 输出：1
+//
+// 提示：
+// 1 <= n <= 19
+func numTrees(n int) int {
+	dp := make([]int, n+1)
+	dp[0], dp[1] = 1, 1
+	for i := 2; i <= n; i++ {
+		count := 0
+		for j := 1; j <= i; j++ {
+			// 左子树个数 j -1  右子树个数 i - j
+			count += dp[j-1] * dp[i-j]
+		}
+		dp[i] = count
+	}
+
+	return dp[n]
+}
+
+// 98. 验证二叉搜索树
+// 给定一个二叉树，判断其是否是一个有效的二叉搜索树。
+//
+// 假设一个二叉搜索树具有如下特征：
+//
+// 节点的左子树只包含小于当前节点的数。
+// 节点的右子树只包含大于当前节点的数。
+// 所有左子树和右子树自身必须也是二叉搜索树。
+//
+// 示例 1:
+// 输入:
+//    2
+//   / \
+//  1   3
+// 输出: true
+//
+// 示例 2:
+// 输入:
+//    5
+//   / \
+//  1   4
+//     / \
+//    3   6
+// 输出: false
+// 解释: 输入为: [5,1,4,null,null,3,6]。
+//     根节点的值为 5 ，但是其右子节点值为 4 。
+func isValidBST(root *TreeNode) bool {
+
+	result := true
+	var prevNode *TreeNode
+	var inOrder func(*TreeNode)
+	inOrder = func(node *TreeNode) {
+		if node == nil {
+			return
+		}
+		inOrder(node.Left)
+		if prevNode != nil && prevNode.Val >= node.Val {
+			result = false
+			return
+		} else {
+			prevNode = node
+		}
+		inOrder(node.Right)
+	}
+	// 中序遍历
+	inOrder(root)
+	return result
+}
+
+// 99. 恢复二叉搜索树
+// 给你二叉搜索树的根节点 root ，该树中的两个节点被错误地交换。请在不改变其结构的情况下，恢复这棵树。
+//
+// 进阶：使用 O(n) 空间复杂度的解法很容易实现。你能想出一个只使用常数空间的解决方案吗？
+//
+// 示例 1：
+// 输入：root = [1,3,null,null,2] 输出：[3,1,null,null,2]
+// 解释：3 不能是 1 左孩子，因为 3 > 1 。交换 1 和 3 使二叉搜索树有效。
+//
+// 示例 2：
+// 输入：root = [3,1,4,null,null,2] 输出：[2,1,4,null,null,3]
+// 解释：2 不能在 3 的右子树中，因为 2 < 3 。交换 2 和 3 使二叉搜索树有效。
+//
+// 提示：
+// 树上节点的数目在范围 [2, 1000] 内
+// -231 <= Node.val <= 231 - 1
+func recoverTree(root *TreeNode) {
+
+	var prevNode, node1, node2 *TreeNode
+	var inOrder func(*TreeNode)
+	inOrder = func(node *TreeNode) {
+		if node == nil {
+			return
+		}
+		inOrder(node.Left)
+		if prevNode != nil && prevNode.Val > node.Val {
+
+			node2 = node
+			if node1 == nil {
+				node1 = prevNode
+			} else {
+				return
+			}
+
+		} else {
+			prevNode = node
+		}
+		inOrder(node.Right)
+	}
+	// 中序遍历
+	inOrder(root)
+	node1.Val, node2.Val = node2.Val, node1.Val
+
+}
