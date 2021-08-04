@@ -71,14 +71,14 @@ func isSameTree(p *TreeNode, q *TreeNode) bool {
 // ]
 func levelOrderBottom(root *TreeNode) [][]int {
 	queue := list.New()
-	result := [][]int{}
+	result := make([][]int, 0)
 	if root == nil {
 		return result
 	}
 	queue.PushBack(root)
 	for queue.Len() != 0 {
 		size := queue.Len()
-		nodeList := []int{}
+		nodeList := make([]int, 0)
 		for i := 0; i < size; i++ {
 			obj := queue.Front()
 			queue.Remove(obj)
@@ -120,26 +120,19 @@ func levelOrderBottom(root *TreeNode) [][]int {
 //   /   /
 // -10  5
 func sortedArrayToBST(nums []int) *TreeNode {
+	var getTreeNodeSortedArray func(nums []int, left int, right int) *TreeNode
+	getTreeNodeSortedArray = func(nums []int, left int, right int) *TreeNode {
+		if left > right {
+			return nil
+		}
+		mid := (left + right) >> 1
+		root := &TreeNode{Val: nums[mid]}
+		root.Left = getTreeNodeSortedArray(nums, left, mid-1)
+		root.Right = getTreeNodeSortedArray(nums, mid+1, right)
+		return root
+	}
 	// 二分
 	return getTreeNodeSortedArray(nums, 0, len(nums)-1)
-}
-
-func getTreeNodeSortedArray(nums []int, left int, right int) *TreeNode {
-	if left > right {
-		return nil
-	}
-	mid := (left + right) >> 1
-	root := &TreeNode{Val: nums[mid]}
-	root.Left = getTreeNodeSortedArray(nums, left, mid-1)
-	root.Right = getTreeNodeSortedArray(nums, mid+1, right)
-	return root
-}
-
-func isBalancedTest() {
-	root := TreeNode{Val: 1}
-	node1 := TreeNode{Val: 2}
-	root.Right = &node1
-	fmt.Println(isBalanced(&root))
 }
 
 // 110. 平衡二叉树
@@ -169,17 +162,17 @@ func isBalancedTest() {
 // 4   4
 // 返回 false 。
 func isBalanced(root *TreeNode) bool {
+	var height func(root *TreeNode) int
+	height = func(root *TreeNode) int {
+		if root == nil {
+			return 0
+		}
+		return max(height(root.Left), height(root.Right)) + 1
+	}
 	if root == nil {
 		return true
 	}
 	return abs(height(root.Left)-height(root.Right)) <= 1 && isBalanced(root.Left) && isBalanced(root.Right)
-}
-
-func height(root *TreeNode) int {
-	if root == nil {
-		return 0
-	}
-	return max(height(root.Left), height(root.Right)) + 1
 }
 
 func max(x, y int) int {
@@ -1465,4 +1458,105 @@ func buildTree(preorder []int, inorder []int) *TreeNode {
 	}
 	size := len(preorder)
 	return build(0, size-1, 0, size-1)
+}
+
+// 106. 从中序与后序遍历序列构造二叉树
+//
+// 根据一棵树的中序遍历与后序遍历构造二叉树。
+//
+// 注意:
+// 你可以假设树中没有重复的元素。
+//
+// 例如，给出
+//
+// 中序遍历 inorder = [9,3,15,20,7]
+// 后序遍历 postorder = [9,15,7,20,3]
+// 返回如下的二叉树：
+//
+//    3
+//   / \
+//  9  20
+//    /  \
+//   15   7
+func buildTreeII(inorder []int, postorder []int) *TreeNode {
+	idxMap := make(map[int]int)
+	for i := range inorder {
+		idxMap[inorder[i]] = i
+	}
+	var build func(postStart, postEnd, inStart, inEnd int) *TreeNode
+
+	build = func(postStart, postEnd, inStart, inEnd int) *TreeNode {
+		if postStart > postEnd || inStart > inEnd {
+			return nil
+		}
+		rootVal := postorder[postEnd]
+		root := &TreeNode{
+			Val: rootVal,
+		}
+		inRootIdx := idxMap[rootVal]
+		leftLen, rightLen := inRootIdx-inStart, inEnd-inRootIdx
+		if leftLen > 0 {
+			root.Left = build(postStart, postStart+leftLen-1, inStart, inRootIdx-1)
+		}
+		if rightLen > 0 {
+			root.Right = build(postEnd-rightLen, postEnd-1, inRootIdx+1, inEnd)
+		}
+
+		return root
+	}
+	size := len(inorder)
+	return build(0, size-1, 0, size-1)
+}
+
+type ListNode struct {
+	Val  int
+	Next *ListNode
+}
+
+// 109. 有序链表转换二叉搜索树
+// 给定一个单链表，其中的元素按升序排序，将其转换为高度平衡的二叉搜索树。
+//
+// 本题中，一个高度平衡二叉树是指一个二叉树每个节点 的左右两个子树的高度差的绝对值不超过 1。
+//
+// 示例:
+//
+// 给定的有序链表： [-10, -3, 0, 5, 9],
+//
+// 一个可能的答案是：[0, -3, 9, -10, null, 5], 它可以表示下面这个高度平衡二叉搜索树：
+//
+//      0
+//     / \
+//   -3   9
+//   /   /
+// -10  5
+func sortedListToBST(head *ListNode) *TreeNode {
+
+	var getSize = func(node *ListNode) int {
+		size := 0
+		for node != nil {
+			size++
+			node = node.Next
+		}
+		return size
+	}
+	size := getSize(head)
+
+	var build func(left, right int) *TreeNode
+
+	build = func(left, right int) *TreeNode {
+		if left > right {
+			return nil
+		}
+		mid := (left + right + 1) >> 1
+		root := &TreeNode{}
+		root.Left = build(left, mid-1)
+		root.Val = head.Val
+		head = head.Next
+		root.Right = build(mid+1, right)
+
+		return root
+
+	}
+
+	return build(0, size-1)
 }
