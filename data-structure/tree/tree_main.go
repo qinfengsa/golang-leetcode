@@ -1560,3 +1560,91 @@ func sortedListToBST(head *ListNode) *TreeNode {
 
 	return build(0, size-1)
 }
+
+// 113. 路径总和 II
+// 给你二叉树的根节点 root 和一个整数目标和 targetSum ，找出所有 从根节点到叶子节点 路径总和等于给定目标和的路径。
+//
+// 叶子节点 是指没有子节点的节点。
+//
+// 示例 1：
+// 输入：root = [5,4,8,11,null,13,4,7,2,null,null,5,1], targetSum = 22
+// 输出：[[5,4,11,2],[5,8,4,5]]
+//
+// 示例 2：
+// 输入：root = [1,2,3], targetSum = 5 输出：[]
+//
+// 示例 3：
+// 输入：root = [1,2], targetSum = 0 输出：[]
+//
+// 提示：
+// 树中节点总数在范围 [0, 5000] 内
+// -1000 <= Node.val <= 1000
+// -1000 <= targetSum <= 1000
+func pathSum(root *TreeNode, targetSum int) [][]int {
+	result := make([][]int, 0)
+	// 深度优先遍历
+	var dfs func(node *TreeNode, sum int, path []int)
+
+	dfs = func(node *TreeNode, sum int, path []int) {
+		if node == nil {
+			return
+		}
+		path = append(path, node.Val)
+		if node.Left == nil && node.Right == nil && node.Val == sum {
+			tmp := make([]int, len(path))
+			copy(tmp, path)
+			result = append(result, tmp)
+			return
+		}
+		sum -= node.Val
+
+		dfs(node.Left, sum, path)
+		dfs(node.Right, sum, path)
+	}
+	dfs(root, targetSum, make([]int, 0))
+	return result
+}
+
+// 114. 二叉树展开为链表
+// 给你二叉树的根结点 root ，请你将它展开为一个单链表：
+//
+// 展开后的单链表应该同样使用 TreeNode ，其中 right 子指针指向链表中下一个结点，而左子指针始终为 null 。
+// 展开后的单链表应该与二叉树 先序遍历 顺序相同。
+//
+// 示例 1：
+// 输入：root = [1,2,5,3,4,null,6] 输出：[1,null,2,null,3,null,4,null,5,null,6]
+//
+// 示例 2：
+// 输入：root = [] 输出：[]
+//
+// 示例 3：
+// 输入：root = [0] 输出：[0]
+//
+// 提示：
+// 树中结点数在范围 [0, 2000] 内
+// -100 <= Node.val <= 100
+//
+// 进阶：你可以使用原地算法（O(1) 额外空间）展开这棵树吗？
+func flatten(root *TreeNode) {
+	if root == nil {
+		return
+	}
+	// 先序遍历
+	var preorder func(node *TreeNode)
+
+	head := &TreeNode{
+		Val: -1,
+	}
+	preorder = func(node *TreeNode) {
+		if node == nil {
+			return
+		}
+		left, right := node.Left, node.Right
+		node.Left, node.Right = nil, nil
+		head.Right = node
+		head = head.Right
+		preorder(left)
+		preorder(right)
+	}
+	preorder(root)
+}
