@@ -271,7 +271,7 @@ func addBinary(a string, b string) string {
 // 示例 1: 输入: "A man, a plan, a canal: Panama" 输出: true
 // 示例 2: 输入: "race a car" 输出: false
 func isPalindrome(s string) bool {
-	left, right := 0, len(s)
+	left, right := 0, len(s)-1
 
 	for left < right {
 		for left < right && !isNumber(s[left]) && !isLetter(s[left]) {
