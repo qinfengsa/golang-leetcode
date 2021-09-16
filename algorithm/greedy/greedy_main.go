@@ -1,6 +1,9 @@
 package greedy
 
-import "sort"
+import (
+	"math"
+	"sort"
+)
 
 // 贪心算法
 
@@ -139,4 +142,112 @@ func lemonadeChange(bills []int) bool {
 
 	}
 	return true
+}
+
+// 134. 加油站
+// 在一条环路上有 N 个加油站，其中第 i 个加油站有汽油 gas[i] 升。
+// 你有一辆油箱容量无限的的汽车，从第 i 个加油站开往第 i+1 个加油站需要消耗汽油 cost[i] 升。你从其中的一个加油站出发，开始时油箱为空。
+// 如果你可以绕环路行驶一周，则返回出发时加油站的编号，否则返回 -1。
+//
+// 说明:
+// 如果题目有解，该答案即为唯一答案。
+// 输入数组均为非空数组，且长度相同。
+// 输入数组中的元素均为非负数。
+//
+// 示例 1:
+// 输入:  gas  = [1,2,3,4,5] cost = [3,4,5,1,2]
+// 输出: 3
+// 解释:
+// 从 3 号加油站(索引为 3 处)出发，可获得 4 升汽油。此时油箱有 = 0 + 4 = 4 升汽油
+// 开往 4 号加油站，此时油箱有 4 - 1 + 5 = 8 升汽油
+// 开往 0 号加油站，此时油箱有 8 - 2 + 1 = 7 升汽油
+// 开往 1 号加油站，此时油箱有 7 - 3 + 2 = 6 升汽油
+// 开往 2 号加油站，此时油箱有 6 - 4 + 3 = 5 升汽油
+// 开往 3 号加油站，你需要消耗 5 升汽油，正好足够你返回到 3 号加油站。
+// 因此，3 可为起始索引。
+//
+// 示例 2:
+// 输入:  gas  = [2,3,4] cost = [3,4,3]
+// 输出: -1
+// 解释:
+// 你不能从 0 号或 1 号加油站出发，因为没有足够的汽油可以让你行驶到下一个加油站。
+// 我们从 2 号加油站出发，可以获得 4 升汽油。 此时油箱有 = 0 + 4 = 4 升汽油
+// 开往 0 号加油站，此时油箱有 4 - 3 + 2 = 3 升汽油
+// 开往 1 号加油站，此时油箱有 3 - 3 + 3 = 3 升汽油
+// 你无法返回 2 号加油站，因为返程需要消耗 4 升汽油，但是你的油箱只有 3 升汽油。
+// 因此，无论怎样，你都不可能绕环路行驶一周。
+func canCompleteCircuit(gas []int, cost []int) int {
+
+	left, size := 0, len(gas)
+	// 最小剩余的油量 最小剩余油量的idx
+	minLeft, minIdx := math.MaxInt32, 0
+
+	for i := 0; i < size; i++ {
+		left += gas[i] - cost[i]
+		if left < minLeft {
+			minLeft = left
+			minIdx = i
+		}
+	}
+
+	if left < 0 {
+		return -1
+	}
+
+	return (minIdx + 1) % size
+}
+
+// 135. 分发糖果
+// 老师想给孩子们分发糖果，有 N 个孩子站成了一条直线，老师会根据每个孩子的表现，预先给他们评分。
+//
+// 你需要按照以下要求，帮助老师给这些孩子分发糖果：
+// 每个孩子至少分配到 1 个糖果。
+// 评分更高的孩子必须比他两侧的邻位孩子获得更多的糖果。
+// 那么这样下来，老师至少需要准备多少颗糖果呢？
+//
+// 示例 1：
+// 输入：[1,0,2] 输出：5
+// 解释：你可以分别给这三个孩子分发 2、1、2 颗糖果。
+//
+// 示例 2：
+// 输入：[1,2,2] 输出：4
+// 解释：你可以分别给这三个孩子分发 1、2、1 颗糖果。
+//     第三个孩子只得到 1 颗糖果，这已满足上述两个条件。
+func candy(ratings []int) int {
+	// 找谷底 最低的孩子只得1颗糖果
+	size := len(ratings)
+	leftNums, rightNums := make([]int, size), make([]int, size)
+	leftNums[0], rightNums[size-1] = 1, 1
+	for i := 1; i < size; i++ {
+		if ratings[i] > ratings[i-1] {
+			leftNums[i] = leftNums[i-1] + 1
+		} else {
+			leftNums[i] = 1
+		}
+	}
+	for i := size - 2; i >= 0; i-- {
+		if ratings[i] > ratings[i+1] {
+			rightNums[i] = rightNums[i+1] + 1
+		} else {
+			rightNums[i] = 1
+		}
+	}
+	result := 0
+	for i := 0; i < size; i++ {
+		result += max(leftNums[i], rightNums[i])
+	}
+	return result
+}
+
+func min(x, y int) int {
+	if x > y {
+		return y
+	}
+	return x
+}
+func max(x, y int) int {
+	if x > y {
+		return x
+	}
+	return y
 }

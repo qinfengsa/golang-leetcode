@@ -858,3 +858,112 @@ func maxProfitIII(prices []int) int {
 	// 返回最大值
 	return dp4
 }
+
+// 131. 分割回文串
+// 给你一个字符串 s，请你将 s 分割成一些子串，使每个子串都是 回文串 。返回 s 所有可能的分割方案。
+// 回文串 是正着读和反着读都一样的字符串。
+//
+// 示例 1：
+// 输入：s = "aab" 输出：[["a","a","b"],["aa","b"]]
+//
+// 示例 2：
+// 输入：s = "a" 输出：[["a"]]
+//
+// 提示：
+// 1 <= s.length <= 16
+// s 仅由小写英文字母组成
+func partition(s string) [][]string {
+	result := make([][]string, 0)
+	size := len(s)
+	//状态：dp[i][j] 表示 s.substring(i,j) 是否是回文
+	dp := make([][]bool, size)
+	for i := 0; i < size; i++ {
+		dp[i] = make([]bool, size)
+		dp[i][i] = true
+	}
+
+	var back func(start int, part []string)
+
+	checkPalindrome := func(str string, start, end int) bool {
+		for start < end {
+			if str[start] != str[end] {
+				return false
+			}
+			start++
+			end--
+		}
+		return true
+	}
+
+	back = func(start int, part []string) {
+		if start == size {
+			tmpPart := make([]string, len(part))
+			copy(tmpPart, part)
+			result = append(result, tmpPart)
+			return
+		}
+		for i := start; i < size; i++ {
+			// 不是回文
+			if !dp[start][i] && !checkPalindrome(s, start, i) {
+				continue
+			}
+			dp[start][i] = true
+			part = append(part, s[start:i+1])
+			back(i+1, part)
+			part = part[:len(part)-1]
+		}
+	}
+
+	back(0, make([]string, 0))
+
+	return result
+}
+
+// 132. 分割回文串 II
+// 给你一个字符串 s，请你将 s 分割成一些子串，使每个子串都是回文。
+// 返回符合要求的 最少分割次数 。
+//
+// 示例 1：
+// 输入：s = "aab" 输出：1
+// 解释：只需一次分割就可将 s 分割成 ["aa","b"] 这样两个回文子串。
+//
+// 示例 2：
+// 输入：s = "a" 输出：0
+//
+// 示例 3：
+// 输入：s = "ab" 输出：1
+//
+// 提示：
+// 1 <= s.length <= 2000
+// s 仅由小写英文字母组成
+func minCut(s string) int {
+	size := len(s)
+	// 预处理, 记录所有的 回文结束位置 i 的 开始位置
+	// idxList[i] 表示以s[i] 结尾的回文起始位置left列表
+	idxList := make([][]int, size)
+	for i := 0; i < size; i++ {
+		idxList[i] = make([]int, 0)
+	}
+
+	getCutIdx := func(left, right int) {
+		for left >= 0 && right < size && s[left] == s[right] {
+			idxList[right] = append(idxList[right], left)
+			left--
+			right++
+		}
+	}
+
+	for i := 0; i < size; i++ {
+		getCutIdx(i, i+1)
+		getCutIdx(i-1, i+1)
+	}
+	dp := make([]int, size+1)
+	for i := 0; i < size; i++ {
+		dp[i+1] = dp[i] + 1
+		for _, idx := range idxList[i] {
+			dp[i+1] = min(dp[i+1], dp[idx]+1)
+		}
+	}
+
+	return dp[size] - 1
+}
