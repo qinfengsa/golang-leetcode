@@ -830,3 +830,63 @@ func reverseBetween(head *ListNode, left int, right int) *ListNode {
 
 	return root.Next
 }
+
+// 143. 重排链表
+// 给定一个单链表 L 的头节点 head ，单链表 L 表示为：
+//
+// L0 → L1 → … → Ln-1 → Ln
+// 请将其重新排列后变为：
+//
+// L0 → Ln → L1 → Ln-1 → L2 → Ln-2 → …
+//
+// 不能只是单纯的改变节点内部的值，而是需要实际的进行节点交换。
+//
+// 示例 1:
+// 输入: head = [1,2,3,4] 输出: [1,4,2,3]
+//
+// 示例 2:
+// 输入: head = [1,2,3,4,5] 输出: [1,5,2,4,3]
+//
+// 提示：
+// 链表的长度范围为 [1, 5 * 104]
+// 1 <= node.val <= 1000
+func reorderList(head *ListNode) {
+
+	if head == nil {
+		return
+	}
+
+	// 用快慢指针拆分  反转 合并
+	mid := getMid(head)
+	//  1 2 3 4 5 6
+	// 拆分
+	l1, l2 := head, mid.Next
+	mid.Next = nil
+
+	// 翻转 l2
+	l2 = reverseList(l2)
+
+	mergeList(l1, l2)
+}
+
+func getMid(head *ListNode) *ListNode {
+	// 快慢指针 分成两个链表
+	slow, fast := head, head
+	for fast.Next != nil && fast.Next.Next != nil {
+		slow = slow.Next
+		fast = fast.Next.Next
+	}
+	return slow
+}
+
+func mergeList(l1, l2 *ListNode) {
+	var tmpL1, tmpL2 *ListNode
+	for l1 != nil && l2 != nil {
+		tmpL1, tmpL2 = l1.Next, l2.Next
+		l1.Next = l2
+		l1 = tmpL1
+		l2.Next = l1
+		l2 = tmpL2
+	}
+
+}
