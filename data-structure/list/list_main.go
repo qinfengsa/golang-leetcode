@@ -1,6 +1,9 @@
 package list
 
-import "log"
+import (
+	"log"
+	"math"
+)
 
 type ListNode struct {
 	Val  int
@@ -888,5 +891,104 @@ func mergeList(l1, l2 *ListNode) {
 		l2.Next = l1
 		l2 = tmpL2
 	}
+}
 
+// 147. 对链表进行插入排序
+// 对链表进行插入排序。
+//
+// 插入排序的动画演示如上。从第一个元素开始，该链表可以被认为已经部分排序（用黑色表示）。
+// 每次迭代时，从输入数据中移除一个元素（用红色表示），并原地将其插入到已排好序的链表中。
+//
+// 插入排序算法：
+//
+// 插入排序是迭代的，每次只移动一个元素，直到所有元素可以形成一个有序的输出列表。
+// 每次迭代中，插入排序只从输入数据中移除一个待排序的元素，找到它在序列中适当的位置，并将其插入。
+// 重复直到所有输入数据插入完为止。
+//
+// 示例 1：
+// 输入: 4->2->1->3
+// 输出: 1->2->3->4
+//
+// 示例 2：
+// 输入: -1->5->3->4->0
+// 输出: -1->0->3->4->5
+func insertionSortList(head *ListNode) *ListNode {
+	root := &ListNode{
+		Val: math.MinInt32,
+	}
+	node, prev := head, root
+	for node != nil {
+		next := node.Next
+
+		if node.Val < prev.Val {
+			prev = root
+		}
+		for prev.Next != nil && prev.Next.Val < node.Val {
+			prev = prev.Next
+		}
+		node.Next = prev.Next
+		prev.Next = node
+		node = next
+	}
+
+	return root.Next
+}
+
+// 148. 排序链表
+// 给你链表的头结点 head ，请将其按 升序 排列并返回 排序后的链表 。
+//
+// 进阶：
+// 你可以在 O(n log n) 时间复杂度和常数级空间复杂度下，对链表进行排序吗？
+//
+// 示例 1：
+// 输入：head = [4,2,1,3]
+// 输出：[1,2,3,4]
+//
+// 示例 2：
+// 输入：head = [-1,5,3,4,0]
+// 输出：[-1,0,3,4,5]
+//
+// 示例 3：
+// 输入：head = []
+// 输出：[]
+//
+// 提示：
+// 链表中节点的数目在范围 [0, 5 * 104] 内
+// -105 <= Node.val <= 105
+func sortList(head *ListNode) *ListNode {
+	if head == nil || head.Next == nil {
+		return head
+	}
+
+	mid := getMid(head)
+	// 拆分
+	l1, l2 := head, mid.Next
+	mid.Next = nil
+	// 归并排序
+	l1, l2 = sortList(l1), sortList(l2)
+	root := &ListNode{
+		Val: 0,
+	}
+	node := root
+	for l1 != nil || l2 != nil {
+		if l1 == nil {
+			node.Next = l2
+			break
+		}
+		if l2 == nil {
+			node.Next = l1
+			break
+		}
+		if l1.Val < l2.Val {
+			node.Next = l1
+			l1 = l1.Next
+		} else {
+			node.Next = l2
+			l2 = l2.Next
+		}
+		node = node.Next
+
+	}
+
+	return root.Next
 }

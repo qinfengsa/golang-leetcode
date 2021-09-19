@@ -900,6 +900,13 @@ func nthUglyNumber(n int) int {
 	return dp[n-1]
 }
 
+func max(x, y int) int {
+	if x > y {
+		return x
+	}
+	return y
+}
+
 func min(x, y int) int {
 	if x > y {
 		return y
@@ -1170,4 +1177,55 @@ func tribonacci(n int) int {
 // 1 <= n <= 231 - 1
 func canWinNim(n int) bool {
 	return n%4 != 0
+}
+
+// 149. 直线上最多的点数
+// 给你一个数组 points ，其中 points[i] = [xi, yi] 表示 X-Y 平面上的一个点。求最多有多少个点在同一条直线上。
+//
+// 示例 1：
+// 输入：points = [[1,1],[2,2],[3,3]] 输出：3
+//
+// 示例 2：
+// 输入：points = [[1,1],[3,2],[5,3],[4,1],[2,3],[1,4]] 输出：4
+//
+// 提示：
+// 1 <= points.length <= 300
+// points[i].length == 2
+// -104 <= xi, yi <= 104
+// points 中的所有点 互不相同
+func maxPoints(points [][]int) int {
+	size := len(points)
+	if size <= 2 {
+		return size
+	}
+
+	inLine := func(point1, point2, point3 []int) bool {
+		x1, x2, x3 := point1[0], point2[0], point3[0]
+		y1, y2, y3 := point1[1], point2[1], point3[1]
+
+		return (x2-x1)*(y3-y1) == (y2-y1)*(x3-x1)
+	}
+
+	maxCnt := 0
+	for i := 0; i < size; i++ {
+		same := 1
+		for j := i + 1; j < size; j++ {
+			count := 0
+			if points[i][0] == points[j][0] && points[i][1] == points[j][1] {
+				// 重复的点
+				same++
+				continue
+			} else {
+				count++
+				for k := j + 1; k < size; k++ {
+					if inLine(points[i], points[j], points[k]) {
+						count++
+					}
+				}
+			}
+			maxCnt = max(maxCnt, same+count)
+		}
+	}
+
+	return maxCnt
 }
