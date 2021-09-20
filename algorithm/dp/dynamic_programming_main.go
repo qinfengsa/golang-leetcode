@@ -1064,3 +1064,46 @@ func wordBreakII(s string, wordDict []string) []string {
 	fmt.Println(dpStr)
 	return dpStr[size]
 }
+
+// 152. 乘积最大子数组
+// 给你一个整数数组 nums ，请你找出数组中乘积最大的连续子数组（该子数组中至少包含一个数字），并返回该子数组所对应的乘积。
+//
+// 示例 1:
+// 输入: [2,3,-2,4]
+// 输出: 6
+// 解释: 子数组 [2,3] 有最大乘积 6。
+//
+// 示例 2:
+// 输入: [-2,0,-1]
+// 输出: 0
+// 解释: 结果不能为 2, 因为 [-2,-1] 不是子数组。
+func maxProduct(nums []int) int {
+	size := len(nums)
+	if size == 0 {
+		return 0
+	}
+	if size == 1 {
+		return nums[0]
+	}
+	minNums, maxNums := make([]int, size), make([]int, size)
+	minNums[0], maxNums[0] = nums[0], nums[0]
+
+	for i := 1; i < size; i++ {
+		maxNums[i] = max(maxNums[i-1]*nums[i], nums[i])
+		minNums[i] = min(minNums[i-1]*nums[i], nums[i])
+		if nums[i] < 0 {
+			if minNums[i-1] < 0 {
+				maxNums[i] = max(maxNums[i], minNums[i-1]*nums[i])
+			}
+			if maxNums[i-1] > 0 {
+				minNums[i] = min(maxNums[i-1]*nums[i], minNums[i])
+			}
+
+		}
+	}
+	result := maxNums[0]
+	for _, num := range maxNums {
+		result = max(result, num)
+	}
+	return result
+}
