@@ -279,7 +279,7 @@ func getRow(rowIndex int) []int {
 func twoSum2(numbers []int, target int) []int {
 	left, right := 0, len(numbers)-1
 	for left < right {
-		sum := numbers[left] + numbers[target]
+		sum := numbers[left] + numbers[right]
 		if sum == target {
 			return []int{left + 1, right + 1}
 		} else if sum < target {

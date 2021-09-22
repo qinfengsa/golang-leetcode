@@ -173,9 +173,9 @@ func convertToTitle(n int) string {
 // 输入: "AB" 输出: 28
 // 示例 3:
 // 输入: "ZY" 输出: 701
-func titleToNumber(s string) int {
+func titleToNumber(columnTitle string) int {
 	num := 0
-	for _, c := range s {
+	for _, c := range columnTitle {
 		v := c - 'A' + 1
 		num = num*26 + int(v)
 	}
