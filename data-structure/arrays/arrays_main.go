@@ -2628,3 +2628,64 @@ func rotateArray(nums []int, k int) {
 	reverse(0, k-1)
 	reverse(k, n-1)
 }
+
+// 200. 岛屿数量
+// 给你一个由 '1'（陆地）和 '0'（水）组成的的二维网格，请你计算网格中岛屿的数量。
+//
+// 岛屿总是被水包围，并且每座岛屿只能由水平方向和/或竖直方向上相邻的陆地连接形成。
+//
+// 此外，你可以假设该网格的四条边均被水包围。
+//
+// 示例 1：
+// 输入：grid = [
+//  ["1","1","1","1","0"],
+//  ["1","1","0","1","0"],
+//  ["1","1","0","0","0"],
+//  ["0","0","0","0","0"]
+// ]
+// 输出：1
+//
+// 示例 2：
+// 输入：grid = [
+//  ["1","1","0","0","0"],
+//  ["1","1","0","0","0"],
+//  ["0","0","1","0","0"],
+//  ["0","0","0","1","1"]
+// ]
+// 输出：3
+//
+// 提示：
+// m == grid.length
+// n == grid[i].length
+// 1 <= m, n <= 300
+// grid[i][j] 的值为 '0' 或 '1'
+func numIslands(grid [][]byte) int {
+	m, n := len(grid), len(grid[0])
+	result := 0
+
+	var dfs func(row, col int)
+
+	dfs = func(row, col int) {
+		if grid[row][col] != '1' {
+			return
+		}
+		grid[row][col] = '*'
+		for k := 0; k < 4; k++ {
+			nextRow, nextCol := row+DirRow[k], col+DirCol[k]
+			if inArea(nextRow, nextCol, m, n) {
+				dfs(nextRow, nextCol)
+			}
+		}
+	}
+
+	for i := 0; i < m; i++ {
+		for j := 0; j < n; j++ {
+			if grid[i][j] == '1' {
+				result++
+				dfs(i, j)
+			}
+		}
+	}
+
+	return result
+}

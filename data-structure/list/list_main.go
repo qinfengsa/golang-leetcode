@@ -1,7 +1,6 @@
 package list
 
 import (
-	"log"
 	"math"
 )
 
@@ -217,17 +216,6 @@ func removeElements(head *ListNode, val int) *ListNode {
 		node = next
 	}
 	return root.Next
-}
-
-func reverseListTest() {
-	head := ListNode{Val: 1}
-	node1, node2, node3, node4 := ListNode{Val: 2}, ListNode{Val: 3}, ListNode{Val: 4}, ListNode{Val: 5}
-	head.Next = &node1
-	node1.Next = &node2
-	node2.Next = &node3
-	node3.Next = &node4
-	root := reverseList(&head)
-	log.Print(root)
 }
 
 // 206. 反转链表
