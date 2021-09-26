@@ -1,32 +1,100 @@
 package trie
 
-type TreeNode struct {
-	Val   int
-	Left  *TreeNode
-	Right *TreeNode
+// Trie
+// 208. 实现 Trie (前缀树)
+// Trie（发音类似 "try"）或者说 前缀树 是一种树形数据结构，用于高效地存储和检索字符串数据集中的键。这一数据结构有相当多的应用情景，例如自动补完和拼写检查。
+//
+// 请你实现 Trie 类：
+// Trie() 初始化前缀树对象。
+// void insert(String word) 向前缀树中插入字符串 word 。
+// boolean search(String word) 如果字符串 word 在前缀树中，返回 true（即，在检索之前已经插入）；否则，返回 false 。
+// boolean startsWith(String prefix) 如果之前已经插入的字符串 word 的前缀之一为 prefix ，返回 true ；否则，返回 false 。
+//
+// 示例：
+// 输入
+// ["Trie", "insert", "search", "search", "startsWith", "insert", "search"]
+// [[], ["apple"], ["apple"], ["app"], ["app"], ["app"], ["app"]]
+// 输出
+// [null, null, true, false, true, null, true]
+// 解释
+// Trie trie = new Trie();
+// trie.insert("apple");
+// trie.search("apple");   // 返回 True
+// trie.search("app");     // 返回 False
+// trie.startsWith("app"); // 返回 True
+// trie.insert("app");
+// trie.search("app");     // 返回 True
+//
+// 提示：
+// 1 <= word.length, prefix.length <= 2000
+// word 和 prefix 仅由小写英文字母组成
+// insert、search 和 startsWith 调用次数 总计 不超过 3 * 104 次
+type Trie struct {
+	root *Node
 }
 
-type TrieNode struct {
-	Children []*TreeNode
-	IsEnd    bool
+type Node struct {
+	children []*Node
+	isEnd    bool
 }
 
-// 720. 词典中最长的单词
-// 给出一个字符串数组words组成的一本英语词典。从中找出最长的一个单词，该单词是由words词典中其他单词逐步添加一个字母组成。若其中有多个可行的答案，则返回答案中字典序最小的单词。
-//
-// 若无答案，则返回空字符串。
-//
-// 示例 1：
-// 输入：words = ["w","wo","wor","worl", "world"] 输出："world"
-// 解释：单词"world"可由"w", "wo", "wor", 和 "worl"添加一个字母组成。
-//
-// 示例 2：
-// 输入：words = ["a", "banana", "app", "appl", "ap", "apply", "apple"] 输出："apple"
-// 解释："apply"和"apple"都能由词典中的单词组成。但是"apple"的字典序小于"apply"。
-// 提示：所有输入的字符串都只包含小写字母。
-//
-// words数组长度范围为[1,1000]。
-// words[i]的长度范围为[1,30]。
-func longestWord(words []string) string {
-	return ""
+var SIZE = 26
+
+func Constructor() Trie {
+	return Trie{root: newNode()}
+}
+
+func newNode() *Node {
+	return &Node{
+		children: make([]*Node, SIZE),
+		isEnd:    false,
+	}
+}
+
+func (this *Trie) Insert(word string) {
+
+	if len(word) == 0 {
+		return
+	}
+	node := this.root
+	for _, c := range word {
+		if node.children[c-'a'] == nil {
+			node.children[c-'a'] = newNode()
+		}
+		node = node.children[c-'a']
+	}
+	node.isEnd = true
+}
+
+func (this *Trie) Search(word string) bool {
+	n := len(word)
+	if n == 0 {
+		return false
+	}
+	node := this.root
+	for i, c := range word {
+		if node.children[c-'a'] == nil {
+			return false
+		}
+		node = node.children[c-'a']
+		if i == n-1 && node.isEnd {
+			return true
+		}
+	}
+	return false
+}
+
+func (this *Trie) StartsWith(prefix string) bool {
+
+	if len(prefix) == 0 {
+		return false
+	}
+	node := this.root
+	for _, c := range prefix {
+		if node.children[c-'a'] == nil {
+			return false
+		}
+		node = node.children[c-'a']
+	}
+	return true
 }

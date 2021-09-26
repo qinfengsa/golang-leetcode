@@ -38,3 +38,10 @@ func Test_spiralOrder(t *testing.T) {
 	result := spiralOrder(matrix)
 	fmt.Println(result)
 }
+
+func Test_minSubArrayLen(t *testing.T) {
+	target := 7
+	nums := []int{2, 3, 1, 2, 4, 3}
+	result := minSubArrayLen(target, nums)
+	fmt.Println(result)
+}
