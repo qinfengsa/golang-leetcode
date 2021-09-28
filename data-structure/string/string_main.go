@@ -2418,3 +2418,69 @@ func largestNumber(nums []int) string {
 
 	return builder.String()
 }
+
+// 214. 最短回文串
+// 给定一个字符串 s，你可以通过在字符串前面添加字符将其转换为回文串。找到并返回可以用这种方式转换的最短回文串。
+//
+// 示例 1：
+// 输入：s = "aacecaaa"
+// 输出："aaacecaaa"
+//
+// 示例 2：
+// 输入：s = "abcd"
+// 输出："dcbabcd"
+//
+// 提示：
+// 0 <= s.length <= 5 * 104
+// s 仅由小写英文字母组成
+func shortestPalindrome(s string) string {
+	n := len(s)
+	// KMP 算法
+	fail := make([]int, n)
+	for i := 0; i < n; i++ {
+		fail[i] = -1
+	}
+	for i := 1; i < n; i++ {
+		j := fail[i-1]
+		for j != -1 && s[j+1] != s[i] {
+			j = fail[j]
+		}
+		if s[j+1] == s[i] {
+			fail[i] = j + 1
+		}
+	}
+	best := -1
+	// 反向匹配
+	for i := n - 1; i >= 0; i-- {
+		for best != -1 && s[best+1] != s[i] {
+			best = fail[best]
+		}
+		if s[best+1] == s[i] {
+			best++
+		}
+	}
+	var add string
+	if best == n-1 {
+		add = ""
+	} else {
+		add = s[best+1:]
+	}
+
+	reverse := func(str string) string {
+		size := len(str)
+
+		bytes := []byte(str)
+		for i, j := 0, size-1; i < j; {
+			bytes[i], bytes[j] = bytes[j], bytes[i]
+			i++
+			j--
+		}
+		return string(bytes)
+	}
+
+	var builder strings.Builder
+	builder.WriteString(reverse(add))
+	builder.WriteString(s)
+	return builder.String()
+
+}
