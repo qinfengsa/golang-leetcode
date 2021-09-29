@@ -85,9 +85,8 @@ func containsNearbyDuplicate(nums []int, k int) bool {
 			if i-v <= k {
 				return true
 			}
-		} else {
-			indexMap[num] = i
 		}
+		indexMap[num] = i
 	}
 	return false
 }
@@ -631,4 +630,65 @@ func findRepeatedDnaSequences(s string) []string {
 		countMap[str]++
 	}
 	return result
+}
+
+func abs(x int) int {
+	if x < 0 {
+		return -1 * x
+	}
+	return x
+}
+
+// 220. 存在重复元素 III
+// 给你一个整数数组 nums 和两个整数 k 和 t 。请你判断是否存在 两个不同下标 i 和 j，使得 abs(nums[i] - nums[j]) <= t ，同时又满足 abs(i - j) <= k 。
+//
+// 如果存在则返回 true，不存在返回 false。
+//
+// 示例 1：
+// 输入：nums = [1,2,3,1], k = 3, t = 0
+// 输出：true
+//
+// 示例 2：
+// 输入：nums = [1,0,1,1], k = 1, t = 2
+// 输出：true
+//
+// 示例 3：
+// 输入：nums = [1,5,9,1,5,9], k = 2, t = 3
+// 输出：false
+//
+// 提示：
+// 0 <= nums.length <= 2 * 104
+// -231 <= nums[i] <= 231 - 1
+// 0 <= k <= 104
+// 0 <= t <= 231 - 1
+func containsNearbyAlmostDuplicate(nums []int, k int, t int) bool {
+	// 利用桶, 把 num 分成 t + 1 份
+	getBucketId := func(x int) int {
+		if x >= 0 {
+			return x / (t + 1)
+		}
+		return ((x + 1) / (t + 1)) - 1
+	}
+	hashBucket := make(map[int]int)
+	for i, num := range nums {
+		if i-k-1 >= 0 {
+			delete(hashBucket, getBucketId(nums[i-k-1]))
+		}
+		bucketId := getBucketId(num)
+		if _, ok := hashBucket[bucketId]; ok {
+			return true
+		}
+		if v, ok := hashBucket[bucketId-1]; ok {
+			if abs(num-v) <= t {
+				return true
+			}
+		}
+		if v, ok := hashBucket[bucketId+1]; ok {
+			if abs(num-v) <= t {
+				return true
+			}
+		}
+		hashBucket[bucketId] = num
+	}
+	return false
 }

@@ -1425,6 +1425,12 @@ func min(x, y int) int {
 	}
 	return y
 }
+func abs(x int) int {
+	if x < 0 {
+		return -1 * x
+	}
+	return x
+}
 
 // 11. 盛最多水的容器
 // 给你 n 个非负整数 a1，a2，...，an，每个数代表坐标中的一个点 (i, ai) 。在坐标内画 n 条垂直线，垂直线 i 的两个端点分别为 (i, ai) 和 (i, 0) 。找出其中的两条线，使得它们与 x 轴共同构成的容器可以容纳最多的水。
@@ -2752,4 +2758,60 @@ func getIndex(nums []int, left, right, target int) int {
 		}
 	}
 	return left
+}
+
+// 215. 数组中的第K个最大元素
+// 给定整数数组 nums 和整数 k，请返回数组中第 k 个最大的元素。
+//
+// 请注意，你需要找的是数组排序后的第 k 个最大的元素，而不是第 k 个不同的元素。
+//
+// 示例 1:
+// 输入: [3,2,1,5,6,4] 和 k = 2
+// 输出: 5
+//
+// 示例 2:
+// 输入: [3,2,3,1,2,4,5,5,6] 和 k = 4
+// 输出: 4
+//
+// 提示：
+// 1 <= k <= nums.length <= 104
+// -104 <= nums[i] <= 104
+func findKthLargest(nums []int, k int) int {
+	// 快速排序 选择一个主元x 小于x放到左边 大于x放到右边 比
+
+	var findKth func(start, end int, idx int)
+
+	findKth = func(start, end int, idx int) {
+		if start >= end {
+			return
+		}
+		tmp := nums[start]
+		left, right := start, end
+		// 比tmp大的放到
+		for left < right {
+			// 从右边找 第一个比 tmp小的元素
+			for left < right && nums[right] >= tmp {
+				right--
+			}
+			nums[left] = nums[right]
+			// 从左边找 第一个比 tmp大的元素
+			for left < right && nums[left] <= tmp {
+				left++
+			}
+			nums[right] = nums[left]
+		}
+		nums[left] = tmp
+		if idx == left {
+			return
+		}
+		if idx < left {
+			findKth(start, left-1, idx)
+		} else {
+			findKth(left+1, end, idx)
+		}
+	}
+	n := len(nums)
+	findKth(0, n-1, n-k)
+
+	return nums[n-k]
 }
