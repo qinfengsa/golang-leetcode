@@ -12,3 +12,9 @@ func Test_evalRPN(t *testing.T) {
 	result := evalRPN(tokens)
 	fmt.Println(result)
 }
+
+func Test_calculate(t *testing.T) {
+	s := "1-(-2)"
+	result := calculate(s)
+	fmt.Println(result)
+}

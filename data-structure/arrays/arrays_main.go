@@ -6,6 +6,7 @@ import (
 	"math"
 	"math/bits"
 	"sort"
+	"strconv"
 )
 
 func twoSumTest() {
@@ -2814,4 +2815,133 @@ func findKthLargest(nums []int, k int) int {
 	findKth(0, n-1, n-k)
 
 	return nums[n-k]
+}
+
+// 228. 汇总区间
+// 给定一个无重复元素的有序整数数组 nums 。
+//
+// 返回 恰好覆盖数组中所有数字 的 最小有序 区间范围列表。也就是说，nums 的每个元素都恰好被某个区间范围所覆盖，并且不存在属于某个范围但不属于 nums 的数字 x 。
+// 列表中的每个区间范围 [a,b] 应该按如下格式输出：
+// "a->b" ，如果 a != b
+// "a" ，如果 a == b
+//
+// 示例 1：
+// 输入：nums = [0,1,2,4,5,7]
+// 输出：["0->2","4->5","7"]
+// 解释：区间范围是：
+// [0,2] --> "0->2"
+// [4,5] --> "4->5"
+// [7,7] --> "7"
+//
+// 示例 2：
+// 输入：nums = [0,2,3,4,6,8,9]
+// 输出：["0","2->4","6","8->9"]
+// 解释：区间范围是：
+// [0,0] --> "0"
+// [2,4] --> "2->4"
+// [6,6] --> "6"
+// [8,9] --> "8->9"
+//
+// 示例 3：
+// 输入：nums = []
+// 输出：[]
+//
+// 示例 4：
+// 输入：nums = [-1]
+// 输出：["-1"]
+//
+// 示例 5：
+// 输入：nums = [0]
+// 输出：["0"]
+//
+// 提示：
+// 0 <= nums.length <= 20
+// -231 <= nums[i] <= 231 - 1
+// nums 中的所有值都 互不相同
+// nums 按升序排列
+func summaryRanges(nums []int) []string {
+	result := make([]string, 0)
+	n := len(nums)
+	for i := 0; i < n; i++ {
+		start, end := nums[i], nums[i]
+		for i+1 < n && nums[i+1] == nums[i]+1 {
+			i++
+			end = nums[i]
+		}
+		str := ""
+		if start == end {
+			str += strconv.Itoa(start)
+		} else {
+			str += strconv.Itoa(start) + "->" + strconv.Itoa(end)
+		}
+		result = append(result, str)
+	}
+
+	return result
+}
+
+// 229. 求众数 II
+// 给定一个大小为 n 的整数数组，找出其中所有出现超过 ⌊ n/3 ⌋ 次的元素。
+//
+// 进阶：尝试设计时间复杂度为 O(n)、空间复杂度为 O(1)的算法解决此问题。
+//
+// 示例 1：
+// 输入：[3,2,3]
+// 输出：[3]
+//
+// 示例 2：
+// 输入：nums = [1]
+// 输出：[1]
+//
+// 示例 3：
+// 输入：[1,1,1,3,3,2,2,2]
+// 输出：[1,2]
+//
+// 提示：
+// 1 <= nums.length <= 5 * 104
+// -109 <= nums[i] <= 109
+func majorityElementII(nums []int) []int {
+	n := len(nums)
+	result := make([]int, 0)
+	// 摩尔投票法
+	count1, count2 := 0, 0
+	num1, num2 := nums[0], nums[0]
+	for _, num := range nums {
+		if num == num1 {
+			count1++
+			continue
+		}
+		if num == num2 {
+			count2++
+			continue
+		}
+		if count1 == 0 {
+			num1 = num
+			count1++
+			continue
+		}
+		if count2 == 0 {
+			num2 = num
+			count2++
+			continue
+		}
+		count1--
+		count2--
+	}
+	count1, count2 = 0, 0
+	for _, num := range nums {
+		if num == num1 {
+			count1++
+		} else if num == num2 {
+			count2++
+		}
+	}
+	if count1 > n/3 {
+		result = append(result, num1)
+	}
+	if count2 > n/3 {
+		result = append(result, num2)
+	}
+
+	return result
 }

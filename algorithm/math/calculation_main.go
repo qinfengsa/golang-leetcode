@@ -103,3 +103,139 @@ func calculateNum(a, b int, c byte) int {
 	}
 	return result
 }
+
+type operation struct {
+	op       byte
+	priority int
+}
+
+// 224. 基本计算器
+// 给你一个字符串表达式 s ，请你实现一个基本计算器来计算并返回它的值。
+//
+// 示例 1：
+// 输入：s = "1 + 1" 输出：2
+//
+// 示例 2：
+// 输入：s = " 2-1 + 2 " 输出：3
+//
+// 示例 3：
+// 输入：s = "(1+(4+5+2)-3)+(6+8)" 输出：23
+//
+// 提示：
+// 1 <= s.length <= 3 * 105
+// s 由数字、'+'、'-'、'('、')'、和 ' ' 组成
+// s 表示一个有效的表达式
+//
+// 227. 基本计算器 II
+// 给你一个字符串表达式 s ，请你实现一个基本计算器来计算并返回它的值。
+// 整数除法仅保留整数部分。
+//
+// 示例 1：
+// 输入：s = "3+2*2" 输出：7
+//
+// 示例 2：
+// 输入：s = " 3/2 " 输出：1
+//
+// 示例 3：
+// 输入：s = " 3+5 / 2 " 输出：5
+//
+// 提示：
+// 1 <= s.length <= 3 * 105
+// s 由整数和算符 ('+', '-', '*', '/') 组成，中间由一些空格隔开
+// s 表示一个 有效表达式
+// 表达式中的所有整数都是非负整数，且在范围 [0, 231 - 1] 内
+// 题目数据保证答案是一个 32-bit 整数
+func calculate(s string) int {
+	numStack, opStack := list.New(), list.New()
+	n := len(s)
+	opHash := map[byte]int{
+		'+': 1,
+		'-': 1,
+		'*': 2,
+		'/': 2,
+	}
+	opPriority := 0
+	for i := 0; i < n; i++ {
+		if s[i] == ' ' {
+			continue
+		} else if isCalculate(s[i]) {
+			if s[i] == '-' {
+
+				if numStack.Len() == 0 {
+					numStack.PushBack(0)
+				}
+				if i > 0 && s[i-1] == '(' {
+					numStack.PushBack(0)
+				}
+			}
+
+			oper := &operation{
+				op:       s[i],
+				priority: opPriority + opHash[s[i]],
+			}
+			for opStack.Len() > 0 {
+				back := opStack.Back()
+				tmpOper := back.Value.(*operation)
+				if tmpOper.priority < oper.priority {
+					break
+				}
+				// 栈中运算符的优先级更高（相同）先计算
+				opStack.Remove(back)
+				op := tmpOper.op
+				numBack := numStack.Back()
+				numStack.Remove(numBack)
+				b := numBack.Value.(int)
+				numBack = numStack.Back()
+				numStack.Remove(numBack)
+				a := numBack.Value.(int)
+				num := calculateNum(a, b, op)
+				numStack.PushBack(num)
+			}
+
+			opStack.PushBack(oper)
+
+		} else if s[i] == '(' {
+			opPriority += 10
+		} else if s[i] == ')' {
+			opPriority -= 10
+		} else if isNum(s[i]) {
+			num := int(s[i] - '0')
+
+			for i+1 < n && isNum(s[i+1]) {
+				i++
+				num = num*10 + int(s[i]-'0')
+			}
+			numStack.PushBack(num)
+		}
+	}
+	for opStack.Len() > 0 && numStack.Len() >= 2 {
+		back := opStack.Back()
+		opStack.Remove(back)
+		tmpOper := back.Value.(*operation)
+		op := tmpOper.op
+
+		numBack := numStack.Back()
+		numStack.Remove(numBack)
+		b := numBack.Value.(int)
+
+		numBack = numStack.Back()
+		numStack.Remove(numBack)
+		a := numBack.Value.(int)
+		num := calculateNum(a, b, op)
+		numStack.PushBack(num)
+		back = opStack.Back()
+	}
+
+	numBack := numStack.Back()
+	numStack.Remove(numBack)
+	result := numBack.Value.(int)
+	return result
+}
+
+func isMulOp(c byte) bool {
+	return c == '*' || c == '/'
+}
+
+func isNum(c byte) bool {
+	return c >= '0' && c <= '9'
+}
