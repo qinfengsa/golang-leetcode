@@ -1364,3 +1364,36 @@ func computeArea(ax1 int, ay1 int, ax2 int, ay2 int, bx1 int, by1 int, bx2 int, 
 
 	return area1 + area2 - area3
 }
+
+// 233. 数字 1 的个数
+// 给定一个整数 n，计算所有小于等于 n 的非负整数中数字 1 出现的个数。
+//
+// 示例 1：
+// 输入：n = 13
+// 输出：6
+//
+// 示例 2：
+// 输入：n = 0
+// 输出：0
+//
+// 提示：
+// 0 <= n <= 109
+func countDigitOne(n int) int {
+	if n == 0 {
+		return 0
+	}
+	count := 0
+	for i := 1; i <= n; i *= 10 {
+		// 除数 区间 10 100 1000
+		div := i * 10
+		// 倒数第 i位 是 1 的 个数
+		// 23 = 20 + 3 -> 20 中 个位有两个 1  ->  1, 11
+		count += n / div * i
+		// 查看余数中 倒数第 i位 是 1 的 个数
+		// 23 = 20 + 3 -> 3 中 个位有一个 1  ->  21
+		// 余数 小于 i -> 0 个; >= 2*i(20)  -> i 个; (10 ~19) ->
+		count += min(max(n%div-i+1, 0), i)
+	}
+
+	return count
+}
