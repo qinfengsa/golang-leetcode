@@ -1,6 +1,7 @@
 package arrays
 
 import (
+	"container/list"
 	"fmt"
 	"log"
 	"math"
@@ -2941,6 +2942,124 @@ func majorityElementII(nums []int) []int {
 	}
 	if count2 > n/3 {
 		result = append(result, num2)
+	}
+
+	return result
+}
+
+// 238. 除自身以外数组的乘积
+// 给你一个长度为 n 的整数数组 nums，其中 n > 1，返回输出数组 output ，其中 output[i] 等于 nums 中除 nums[i] 之外其余各元素的乘积。
+//
+// 示例:
+// 输入: [1,2,3,4]
+// 输出: [24,12,8,6]
+//
+// 提示：题目数据保证数组之中任意元素的全部前缀元素和后缀（甚至是整个数组）的乘积都在 32 位整数范围内。
+// 说明: 请不要使用除法，且在 O(n) 时间复杂度内完成此题。
+// 进阶：
+// 你可以在常数空间复杂度内完成这个题目吗？（ 出于对空间复杂度分析的目的，输出数组不被视为额外空间。）
+func productExceptSelf(nums []int) []int {
+	n := len(nums)
+	result := make([]int, n)
+
+	// 左边元素的乘积
+	num := 1
+
+	for i := 0; i < n; i++ {
+		result[i] = num
+		num *= nums[i]
+	}
+	num = 1
+	for i := n - 1; i >= 0; i-- {
+		result[i] *= num
+		num *= nums[i]
+	}
+
+	return result
+}
+
+// 239. 滑动窗口最大值
+// 给你一个整数数组 nums，有一个大小为 k 的滑动窗口从数组的最左侧移动到数组的最右侧。你只可以看到在滑动窗口内的 k 个数字。滑动窗口每次只向右移动一位。
+//
+// 返回滑动窗口中的最大值。
+//
+// 示例 1：
+// 输入：nums = [1,3,-1,-3,5,3,6,7], k = 3
+// 输出：[3,3,5,5,6,7]
+// 解释：
+// 滑动窗口的位置                最大值
+// ---------------               -----
+// [1  3  -1] -3  5  3  6  7       3
+//  1 [3  -1  -3] 5  3  6  7       3
+//  1  3 [-1  -3  5] 3  6  7       5
+//  1  3  -1 [-3  5  3] 6  7       5
+//  1  3  -1  -3 [5  3  6] 7       6
+//  1  3  -1  -3  5 [3  6  7]      7
+//
+// 示例 2：
+// 输入：nums = [1], k = 1
+// 输出：[1]
+//
+// 示例 3：
+// 输入：nums = [1,-1], k = 1
+// 输出：[1,-1]
+//
+// 示例 4：
+// 输入：nums = [9,11], k = 2
+// 输出：[11]
+//
+// 示例 5：
+// 输入：nums = [4,-2], k = 2
+// 输出：[4]
+//
+// 提示：
+// 1 <= nums.length <= 105
+// -104 <= nums[i] <= 104
+// 1 <= k <= nums.length
+func maxSlidingWindow(nums []int, k int) []int {
+	n := len(nums)
+	if k == 1 {
+		return nums
+	}
+	m := n - k + 1
+	result := make([]int, m)
+	// 双端队列
+	deque := list.New()
+	for i := 0; i < k; i++ {
+		for deque.Len() > 0 {
+			back := deque.Back()
+			// 前面的 元素小 移除  当前最大 nums[i]
+			if back.Value.(int) < nums[i] {
+				deque.Remove(back)
+			} else {
+				break
+			}
+		}
+
+		deque.PushBack(nums[i])
+	}
+	front := deque.Front()
+	result[0] = front.Value.(int)
+
+	for i := k; i < n; i++ {
+		if deque.Len() > 0 {
+			front = deque.Front()
+			if nums[i-k] == front.Value.(int) {
+				deque.Remove(front)
+			}
+		}
+		for deque.Len() > 0 {
+			back := deque.Back()
+			// 前面的 元素小 移除  当前最大 nums[i]
+			if back.Value.(int) < nums[i] {
+				deque.Remove(back)
+			} else {
+				break
+			}
+		}
+		deque.PushBack(nums[i])
+		front = deque.Front()
+		result[i-k+1] = front.Value.(int)
 	}
 
 	return result
