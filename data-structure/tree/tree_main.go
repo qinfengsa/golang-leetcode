@@ -349,31 +349,30 @@ func lowestCommonAncestor(root, p, q *TreeNode) *TreeNode {
 //
 // 解释: 所有根节点到叶子节点的路径为: 1->2->5, 1->3
 func binaryTreePaths(root *TreeNode) []string {
-	treePathReseult = []string{}
+	treePathReseult := []string{}
 	if root == nil {
 		return treePathReseult
 	}
+	var treePathDfs func(root *TreeNode, str string)
+	treePathDfs = func(root *TreeNode, str string) {
+		if root == nil {
+			return
+		}
+
+		if len(str) != 0 {
+			str += "->"
+		}
+		str += fmt.Sprintf("%d", root.Val)
+		if root.Left == nil && root.Right == nil {
+
+			treePathReseult = append(treePathReseult, str)
+		}
+		treePathDfs(root.Left, str)
+		treePathDfs(root.Right, str)
+	}
 	treePathDfs(root, "")
+
 	return treePathReseult
-}
-
-var treePathReseult []string
-
-func treePathDfs(root *TreeNode, str string) {
-	if root == nil {
-		return
-	}
-
-	if len(str) != 0 {
-		str += "->"
-	}
-	str += fmt.Sprintf("%d", root.Val)
-	if root.Left == nil && root.Right == nil {
-
-		treePathReseult = append(treePathReseult, str)
-	}
-	treePathDfs(root.Left, str)
-	treePathDfs(root.Right, str)
 }
 
 // 404. 左叶子之和

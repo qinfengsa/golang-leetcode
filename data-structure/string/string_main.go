@@ -633,14 +633,14 @@ func repeatedSubstringPattern(s string) bool {
 // S 的长度可能很长，请按需分配大小。K 为正整数。
 // S 只包含字母数字（a-z，A-Z，0-9）以及破折号'-'
 // S 非空
-func licenseKeyFormatting(S string, K int) string {
-	size := len(S)
-	clen := size + size/K + 1
+func licenseKeyFormatting(s string, k int) string {
+	size := len(s)
+	clen := size + size/k + 1
 	chars := make([]byte, clen)
 	index, count := clen-1, 0
 	for i := size - 1; i >= 0; i-- {
-		c := S[i]
-		if count == K {
+		c := s[i]
+		if count == k {
 			chars[index] = '-'
 			index--
 			count = 0
