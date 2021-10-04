@@ -882,7 +882,7 @@ func nthUglyNumber(n int) int {
 	dp := make([]int, n)
 	dp[0] = 1
 
-	for i := 0; i < n; i++ {
+	for i := 0; i < n-1; i++ {
 		num2, num3, num5 := dp[a]*2, dp[b]*3, dp[c]*5
 
 		minNum := min(min(num2, num3), num5)
