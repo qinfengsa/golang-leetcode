@@ -1415,3 +1415,93 @@ func addDigits(num int) int {
 	}
 	return result
 }
+
+// 273. 整数转换英文表示
+// 将非负整数 num 转换为其对应的英文表示。
+//
+// 示例 1：
+// 输入：num = 123
+// 输出："One Hundred Twenty Three"
+//
+// 示例 2：
+// 输入：num = 12345
+// 输出："Twelve Thousand Three Hundred Forty Five"
+//
+// 示例 3：
+// 输入：num = 1234567
+// 输出："One Million Two Hundred Thirty Four Thousand Five Hundred Sixty Seven"
+//
+// 示例 4：
+// 输入：num = 1234567891
+// 输出："One Billion Two Hundred Thirty Four Million Five Hundred Sixty Seven Thousand Eight Hundred Ninety One"
+//
+// 提示：
+// 0 <= num <= 231 - 1
+func numberToWords(num int) string {
+	if num == 0 {
+		return "Zero"
+	}
+	Num019 := []string{
+		"",
+		"One",
+		"Two",
+		"Three",
+		"Four",
+		"Five",
+		"Six",
+		"Seven",
+		"Eight",
+		"Nine",
+		"Ten",
+		"Eleven",
+		"Twelve",
+		"Thirteen",
+		"Fourteen",
+		"Fifteen",
+		"Sixteen",
+		"Seventeen",
+		"Eighteen",
+		"Nineteen"}
+	Num090 := []string{
+		"", "", "Twenty", "Thirty", "Forty", "Fifty", "Sixty", "Seventy", "Eighty", "Ninety"}
+	GENS := []string{"Billion", "Million", "Thousand", ""}
+	factors := []int{1000000000, 1000000, 1000}
+
+	var numToWords func(n int)
+	numList := make([]string, 0)
+	numToWords = func(n int) {
+		for i := 0; i < 3; i++ {
+			if n >= factors[i] {
+				bigNum := n / factors[i]
+				n %= factors[i]
+				numToWords(bigNum)
+				numList = append(numList, GENS[i])
+			}
+		}
+		if n >= 100 {
+			hundredNum := n / 100
+			n %= 100
+			numToWords(hundredNum)
+			numList = append(numList, "Hundred")
+		}
+		if n >= 20 {
+			tenIdx := n / 10
+			n %= 10
+			numList = append(numList, Num090[tenIdx])
+		}
+		numList = append(numList, Num019[n])
+	}
+	numToWords(num)
+	var builder strings.Builder
+	for _, str := range numList {
+		if len(str) == 0 {
+			continue
+		}
+		if builder.Len() > 0 {
+			builder.WriteString(" ")
+		}
+		builder.WriteString(str)
+	}
+
+	return builder.String()
+}
