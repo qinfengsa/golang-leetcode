@@ -5,9 +5,9 @@ type NumArray struct {
 }
 
 func Constructor(nums []int) NumArray {
-	size := len(nums)
-	sums := make([]int, size+1)
-	for i := 0; i < size; i++ {
+	n := len(nums)
+	sums := make([]int, n+1)
+	for i := 0; i < n; i++ {
 		sums[i+1] = nums[i] + sums[i]
 	}
 	return NumArray{sums: sums}
