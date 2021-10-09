@@ -1007,3 +1007,158 @@ func addOperators(num string, target int) []string {
 
 	return result
 }
+
+// 301. 删除无效的括号
+// 给你一个由若干括号和字母组成的字符串 s ，删除最小数量的无效括号，使得输入的字符串有效。
+//
+// 返回所有可能的结果。答案可以按 任意顺序 返回。
+//
+// 示例 1：
+// 输入：s = "()())()"
+// 输出：["(())()","()()()"]
+//
+// 示例 2：
+// 输入：s = "(a)())()"
+// 输出：["(a())()","(a)()()"]
+//
+// 示例 3：
+// 输入：s = ")("
+// 输出：[""]
+//
+// 提示：
+// 1 <= s.length <= 25
+// s 由小写英文字母以及括号 '(' 和 ')' 组成
+// s 中至多含 20 个括号
+func removeInvalidParentheses(s string) []string {
+	result := make([]string, 0)
+	left, right := 0, 0
+	n := len(s)
+	for i := 0; i < n; i++ {
+		if s[i] == '(' {
+			left++
+		} else if s[i] == ')' {
+			if left > 0 {
+				left--
+			} else {
+				right++
+			}
+		}
+	}
+	resultMap := make(map[string]bool)
+	var dfs func(idx, leftCount, rightCount, leftRemove, rightRemove int, str string)
+
+	dfs = func(idx, leftCount, rightCount, leftRemove, rightRemove int, str string) {
+		if idx == n {
+			if leftRemove == 0 && rightRemove == 0 {
+				resultMap[str] = true
+			}
+			return
+		}
+		c := s[idx]
+		// 删除当前字符
+		if c == '(' && leftRemove > 0 {
+			dfs(idx+1, leftCount, rightCount, leftRemove-1, rightRemove, str)
+		} else if c == ')' && rightRemove > 0 {
+			dfs(idx+1, leftCount, rightCount, leftRemove, rightRemove-1, str)
+		}
+		// 保留当前字符
+		if c != '(' && c != ')' {
+			dfs(idx+1, leftCount, rightCount, leftRemove, rightRemove, str+string(c))
+		} else if c == '(' {
+			// 左括号
+			dfs(idx+1, leftCount+1, rightCount, leftRemove, rightRemove, str+string(c))
+		} else if leftCount > rightCount {
+			// 有效右括号
+			dfs(idx+1, leftCount, rightCount+1, leftRemove, rightRemove, str+string(c))
+		}
+	}
+	dfs(0, 0, 0, left, right, "")
+
+	for k, _ := range resultMap {
+		result = append(result, k)
+	}
+	return result
+}
+
+func max(x, y int) int {
+	if x > y {
+		return x
+	}
+	return y
+}
+
+// 306. 累加数
+// 累加数是一个字符串，组成它的数字可以形成累加序列。
+//
+// 一个有效的累加序列必须至少包含 3 个数。除了最开始的两个数以外，字符串中的其他数都等于它之前两个数相加的和。
+// 给定一个只包含数字 '0'-'9' 的字符串，编写一个算法来判断给定输入是否是累加数。
+// 说明: 累加序列里的数不会以 0 开头，所以不会出现 1, 2, 03 或者 1, 02, 3 的情况。
+//
+// 示例 1:
+// 输入: "112358"
+// 输出: true
+// 解释: 累加序列为: 1, 1, 2, 3, 5, 8 。1 + 1 = 2, 1 + 2 = 3, 2 + 3 = 5, 3 + 5 = 8
+//
+// 示例 2:
+// 输入: "199100199"
+// 输出: true
+// 解释: 累加序列为: 1, 99, 100, 199。1 + 99 = 100, 99 + 100 = 199
+// 进阶:
+// 你如何处理一个溢出的过大的整数输入?
+func isAdditiveNumber(num string) bool {
+	n := len(num)
+	if n < 3 {
+		return false
+	}
+	// a, b , c 第1,2,3个数字开始的索引
+	var additive func(a, b, c int) bool
+
+	additive = func(a, b, c int) bool {
+		// 0开头的数字无效
+		if (b-a > 1 && num[a] == '0') || (c-b > 1 && num[b] == '0') {
+			return false
+		}
+		numLen := max(b-a, c-b)
+		if c+numLen > n {
+			return false
+		}
+		num1, _ := strconv.Atoi(num[a:b])
+		num2, _ := strconv.Atoi(num[b:c])
+		num3, _ := strconv.Atoi(num[c : c+numLen])
+		if num3 > 0 && num[c] == '0' {
+			return false
+		}
+		if num1+num2 == num3 {
+			if c+numLen == n {
+				return true
+			}
+			return additive(b, c, c+numLen)
+		}
+		if c+numLen+1 > n {
+			return false
+		}
+		num4, _ := strconv.Atoi(num[c : c+numLen+1])
+
+		if num4 > 0 && num[c] == '0' {
+			return false
+		}
+		if num1+num2 == num4 {
+			if c+numLen+1 == n {
+				return true
+			}
+			return additive(b, c, c+numLen+1)
+		}
+
+		return false
+	}
+
+	for i := 1; i <= n>>1; i++ {
+		for j := i + 1; j < n; j++ {
+			if additive(0, i, j) {
+				return true
+			}
+		}
+	}
+
+	return false
+}
