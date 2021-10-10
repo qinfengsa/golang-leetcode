@@ -497,7 +497,7 @@ func arrangeCoins(n int) int {
 		mid := (low + high) >> 1
 		sum := mid * (mid + 1) >> 1
 		if sum > n {
-			high = mid - 1
+			high = mid
 		} else { //判断是最后一个元素
 			if sum == n || (1+mid+1)*(mid+1)>>1 > n {
 				return mid
@@ -507,7 +507,7 @@ func arrangeCoins(n int) int {
 
 	}
 
-	return 0
+	return low
 }
 
 // 461. 汉明距离
@@ -1504,4 +1504,93 @@ func numberToWords(num int) string {
 	}
 
 	return builder.String()
+}
+
+// 313. 超级丑数
+// 超级丑数 是一个正整数，并满足其所有质因数都出现在质数数组 primes 中。
+//
+// 给你一个整数 n 和一个整数数组 primes ，返回第 n 个 超级丑数 。
+// 题目数据保证第 n 个 超级丑数 在 32-bit 带符号整数范围内。
+//
+// 示例 1：
+// 输入：n = 12, primes = [2,7,13,19]
+// 输出：32
+// 解释：给定长度为 4 的质数数组 primes = [2,7,13,19]，前 12 个超级丑数序列为：[1,2,4,7,8,13,14,16,19,26,28,32] 。
+//
+// 示例 2：
+// 输入：n = 1, primes = [2,3,5]
+// 输出：1
+// 解释：1 不含质因数，因此它的所有质因数都在质数数组 primes = [2,3,5] 中。
+//
+// 提示：
+// 1 <= n <= 106
+// 1 <= primes.length <= 100
+// 2 <= primes[i] <= 1000
+// 题目数据 保证 primes[i] 是一个质数
+// primes 中的所有值都 互不相同 ，且按 递增顺序 排列
+func nthSuperUglyNumber(n int, primes []int) int {
+	m := len(primes)
+	dp, indexs := make([]int, n), make([]int, m)
+
+	for i := 0; i < n; i++ {
+		dp[i] = math.MaxInt32
+	}
+	dp[0] = 1
+	for i := 1; i < n; i++ {
+		for j := 0; j < m; j++ {
+			dp[i] = min(dp[i], primes[j]*dp[indexs[j]])
+		}
+		for j := 0; j < m; j++ {
+			if primes[j]*dp[indexs[j]] == dp[i] {
+				indexs[j]++
+			}
+		}
+	}
+
+	// primeIndexs[i] 表示 primes[i] 作为 因子的与 nums[j] 得到的最小值 的 j
+
+	return dp[n-1]
+}
+
+// 318. 最大单词长度乘积
+// 给定一个字符串数组 words，找到 length(word[i]) * length(word[j]) 的最大值，并且这两个单词不含有公共字母。你可以认为每个单词只包含小写字母。如果不存在这样的两个单词，返回 0。
+//
+// 示例 1:
+// 输入: ["abcw","baz","foo","bar","xtfn","abcdef"]
+// 输出: 16
+// 解释: 这两个单词为 "abcw", "xtfn"。
+//
+// 示例 2:
+// 输入: ["a","ab","abc","d","cd","bcd","abcd"]
+// 输出: 4
+// 解释: 这两个单词为 "ab", "cd"。
+//
+// 示例 3:
+// 输入: ["a","aa","aaa","aaaa"]
+// 输出: 0
+// 解释: 不存在这样的两个单词。
+//
+// 提示：
+// 2 <= words.length <= 1000
+// 1 <= words[i].length <= 1000
+// words[i] 仅包含小写字母
+func maxProduct(words []string) int {
+	result, n := 0, len(words)
+	wordBits := make([]int, n)
+	for i, word := range words {
+		wordBit := 0
+		for j := 0; j < len(word); j++ {
+			wordBit |= 1 << (word[j] - 'a')
+		}
+		wordBits[i] = wordBit
+	}
+	for i := 0; i < n; i++ {
+		for j := i + 1; j < n; j++ {
+			if wordBits[i]&wordBits[j] == 0 {
+				result = max(result, len(words[i])*len(words[j]))
+			}
+		}
+	}
+
+	return result
 }

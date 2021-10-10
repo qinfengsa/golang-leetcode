@@ -4,6 +4,7 @@ import (
 	"container/list"
 	"log"
 	"strconv"
+	"strings"
 )
 
 // 20. 有效的括号
@@ -249,4 +250,58 @@ func max(x, y int) int {
 		return x
 	}
 	return y
+}
+
+// 316. 去除重复字母
+// 给你一个字符串 s ，请你去除字符串中重复的字母，使得每个字母只出现一次。需保证 返回结果的字典序最小（要求不能打乱其他字符的相对位置）。
+//
+// 注意：该题与 1081 https://leetcode-cn.com/problems/smallest-subsequence-of-distinct-characters 相同
+//
+// 示例 1：
+// 输入：s = "bcabc"
+// 输出："abc"
+//
+// 示例 2：
+// 输入：s = "cbacdcbc"
+// 输出："acdb"
+//
+// 提示：
+// 1 <= s.length <= 104
+// s 由小写英文字母组成
+func removeDuplicateLetters(s string) string {
+
+	stack := list.New()
+	visited := make([]bool, 26)
+	lastIndex := make(map[byte]int)
+	n := len(s)
+	for i := 0; i < n; i++ {
+		c := s[i]
+		lastIndex[c] = i
+	}
+	for i := 0; i < n; i++ {
+		c := s[i]
+		if visited[c-'a'] {
+			continue
+		}
+		for stack.Len() > 0 {
+			back := stack.Back()
+
+			prev := back.Value.(byte)
+			// c 的字典序比 前面的 prev 小 并且 prev 不是最后一个（后面还有prev）
+			if c < prev && lastIndex[prev] > i {
+				stack.Remove(back)
+				visited[prev-'a'] = false
+			} else {
+				break
+			}
+
+		}
+		visited[c-'a'] = true
+		stack.PushBack(c)
+	}
+	var builder strings.Builder
+	for e := stack.Front(); e != nil; e = e.Next() {
+		builder.WriteByte(e.Value.(byte))
+	}
+	return builder.String()
 }
