@@ -3190,3 +3190,244 @@ func gameOfLife(board [][]int) {
 		}
 	}
 }
+
+// 315. 计算右侧小于当前元素的个数
+// 给你`一个整数数组 nums ，按要求返回一个新数组 counts 。数组 counts 有该性质： counts[i] 的值是  nums[i] 右侧小于 nums[i] 的元素的数量。
+//
+// 示例 1：
+// 输入：nums = [5,2,6,1]
+// 输出：[2,1,1,0]
+// 解释：
+// 5 的右侧有 2 个更小的元素 (2 和 1)
+// 2 的右侧仅有 1 个更小的元素 (1)
+// 6 的右侧有 1 个更小的元素 (1)
+// 1 的右侧有 0 个更小的元素
+//
+// 示例 2：
+// 输入：nums = [-1]
+// 输出：[0]
+//
+// 示例 3：
+// 输入：nums = [-1,-1]
+// 输出：[0,0]
+//
+// 提示：
+// 1 <= nums.length <= 105
+// -104 <= nums[i] <= 104
+func countSmaller(nums []int) []int {
+	n := len(nums)
+
+	tmpNums, counts := make([]int, n), make([]int, n)
+	index, tmpIndex := make([]int, n), make([]int, n)
+
+	for i := 0; i < n; i++ {
+		index[i] = i
+	}
+	counts[n-1] = 0
+
+	// 两个有序数组合并
+	var merge = func(left, mid, right int) {
+		i, j, idx := left, mid+1, left
+		for i <= mid && j <= right {
+			if nums[i] <= nums[j] {
+				tmpNums[idx] = nums[i]
+				tmpIndex[idx] = index[i]
+				counts[index[i]] += j - mid - 1
+				i++
+			} else {
+				tmpNums[idx] = nums[j]
+				tmpIndex[idx] = index[j]
+				j++
+			}
+
+			idx++
+		}
+		for i <= mid {
+			tmpNums[idx] = nums[i]
+			tmpIndex[idx] = index[i]
+			counts[index[i]] += j - mid - 1
+			i++
+			idx++
+		}
+		for j <= right {
+			tmpNums[idx] = nums[j]
+			tmpIndex[idx] = index[j]
+			j++
+			idx++
+		}
+		for k := left; k <= right; k++ {
+			index[k] = tmpIndex[k]
+			nums[k] = tmpNums[k]
+		}
+	}
+
+	// 归并排序
+	var mergeSort func(left, right int)
+
+	mergeSort = func(left, right int) {
+		if left >= right {
+			return
+		}
+		mid := (left + right) >> 1
+		mergeSort(left, mid)
+		mergeSort(mid+1, right)
+		merge(left, mid, right)
+	}
+	mergeSort(0, n-1)
+	return counts
+}
+
+// 321. 拼接最大数
+// 给定长度分别为 m 和 n 的两个数组，其元素由 0-9 构成，表示两个自然数各位上的数字。现在从这两个数组中选出 k (k <= m + n) 个数字拼接成一个新的数，要求从同一个数组中取出的数字保持其在原数组中的相对顺序。
+//
+// 求满足该条件的最大数。结果返回一个表示该最大数的长度为 k 的数组。
+// 说明: 请尽可能地优化你算法的时间和空间复杂度。
+//
+// 示例 1:
+// 输入:
+// nums1 = [3, 4, 6, 5]
+// nums2 = [9, 1, 2, 5, 8, 3]
+// k = 5
+// 输出:
+// [9, 8, 6, 5, 3]
+//
+// 示例 2:
+// 输入:
+// nums1 = [6, 7]
+// nums2 = [6, 0, 4]
+// k = 5
+// 输出:
+// [6, 7, 6, 0, 4]
+//
+// 示例 3:
+// 输入:
+// nums1 = [3, 9]
+// nums2 = [8, 9]
+// k = 3
+// 输出:
+// [9, 8, 9]
+func maxNumber(nums1 []int, nums2 []int, k int) []int {
+	m, n := len(nums1), len(nums2)
+	result := make([]int, k)
+
+	start, end := max(0, k-n), min(k, m)
+
+	for i := start; i <= end; i++ {
+		// nums1 取 i 个 ; nums2 取 k - i 个
+		list1, list2 := getMaxSubsequence(nums1, i), getMaxSubsequence(nums2, k-i)
+		nums := mergeMaxNumber(list1, list2)
+		if compare(nums, result, 0, 0) {
+			result = nums
+		}
+	}
+
+	return result
+}
+
+func compare(nums1, nums2 []int, i, j int) bool {
+	m, n := len(nums1), len(nums2)
+	if j >= n {
+		return true
+	}
+	if i >= m {
+		return false
+	}
+	if nums1[i] > nums2[j] {
+		return true
+	}
+	if nums1[i] < nums2[j] {
+		return false
+	}
+
+	return compare(nums1, nums2, i+1, j+1)
+}
+
+// 合并数组
+func mergeMaxNumber(nums1, nums2 []int) []int {
+	m, n := len(nums1), len(nums2)
+	if m == 0 {
+		return nums2
+	}
+	if n == 0 {
+		return nums1
+	}
+	result := make([]int, m+n)
+	i, j, idx := 0, 0, 0
+	for i < m || j < n {
+		if compare(nums1, nums2, i, j) {
+			result[idx] = nums1[i]
+			i++
+		} else {
+			result[idx] = nums2[j]
+			j++
+		}
+		idx++
+	}
+
+	return result
+}
+
+// 获取 nums 长度为k的最大子序列
+func getMaxSubsequence(nums []int, k int) []int {
+	result := make([]int, k)
+	if k == 0 {
+		return result
+	}
+	idx, rem := 0, len(nums)-k
+
+	for _, num := range nums {
+		for idx > 0 && rem > 0 && result[idx-1] < num {
+			idx--
+			rem--
+		}
+		if idx < k {
+			result[idx] = num
+			idx++
+		} else {
+			rem--
+		}
+	}
+	return result
+}
+
+// 324. 摆动排序 II
+// 给你一个整数数组 nums，将它重新排列成 nums[0] < nums[1] > nums[2] < nums[3]... 的顺序。
+//
+// 你可以假设所有输入数组都可以得到满足题目要求的结果。
+//
+// 示例 1：
+// 输入：nums = [1,5,1,1,6,4]
+// 输出：[1,6,1,5,1,4]
+// 解释：[1,4,1,5,1,6] 同样是符合题目要求的结果，可以被判题程序接受。
+//
+// 示例 2：
+// 输入：nums = [1,3,2,2,3,1]
+// 输出：[2,3,1,3,1,2]
+//
+// 提示：
+// 1 <= nums.length <= 5 * 104
+// 0 <= nums[i] <= 5000
+// 题目数据保证，对于给定的输入 nums ，总能产生满足题目要求的结果
+//
+// 进阶：你能用 O(n) 时间复杂度和 / 或原地 O(1) 额外空间来实现吗？
+func wiggleSort(nums []int) {
+	n := len(nums)
+	if n < 2 {
+		return
+	}
+	newNums := make([]int, n)
+	copy(newNums, nums)
+	sort.Ints(newNums)
+	right := n - 1
+	left := right >> 1
+	for i := 0; i < n; i++ {
+		if i&1 == 1 {
+			nums[i] = newNums[right]
+			right--
+		} else {
+			nums[i] = newNums[left]
+			left--
+		}
+	}
+
+}

@@ -481,20 +481,20 @@ func findTheDifference(s string, t string) byte {
 //    "FizzBuzz"
 // ]
 func fizzBuzz(n int) []string {
-	list := make([]string, n)
+	result := make([]string, n)
 	for i := 1; i <= n; i++ {
 		b1, b2 := i%3 == 0, i%5 == 0
 		if b1 && b2 {
-			list[i] = "FizzBuzz"
+			result[i-1] = "FizzBuzz"
 		} else if b1 {
-			list[i] = "Fizz"
+			result[i-1] = "Fizz"
 		} else if b2 {
-			list[i] = "Buzz"
+			result[i-1] = "Buzz"
 		} else {
-			list[i] = fmt.Sprintf("%d", i)
+			result[i-1] = fmt.Sprintf("%d", i)
 		}
 	}
-	return list
+	return result
 }
 
 // 415. 字符串相加
