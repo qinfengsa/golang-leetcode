@@ -4,6 +4,7 @@ import (
 	"container/list"
 	"fmt"
 	"math"
+	"strings"
 )
 
 type TreeNode struct {
@@ -2006,4 +2007,100 @@ func lowestCommonAncestorII(root, p, q *TreeNode) *TreeNode {
 		return left
 	}
 	return right
+}
+
+// 331. 验证二叉树的前序序列化
+// 序列化二叉树的一种方法是使用前序遍历。当我们遇到一个非空节点时，我们可以记录下这个节点的值。如果它是一个空节点，我们可以使用一个标记值记录，例如 #。
+//
+//      _9_
+//     /   \
+//    3     2
+//   / \   / \
+//  4   1  #  6
+// / \ / \   / \
+// # # # #   # #
+// 例如，上面的二叉树可以被序列化为字符串 "9,3,4,#,#,1,#,#,2,#,6,#,#"，其中 # 代表一个空节点。
+//
+// 给定一串以逗号分隔的序列，验证它是否是正确的二叉树的前序序列化。编写一个在不重构树的条件下的可行算法。
+//
+// 每个以逗号分隔的字符或为一个整数或为一个表示 null 指针的 '#' 。
+//
+// 你可以认为输入格式总是有效的，例如它永远不会包含两个连续的逗号，比如 "1,,3" 。
+//
+// 示例 1:
+// 输入: "9,3,4,#,#,1,#,#,2,#,6,#,#"
+// 输出: true
+//
+// 示例 2:
+// 输入: "1,#"
+// 输出: false
+//
+// 示例 3:
+// 输入: "9,#,#,1"
+// 输出: false
+func isValidSerialization(preorder string) bool {
+	strs := strings.Split(preorder, ",")
+
+	count := 1
+	// 一个结点 都会有个两个子结点
+	for _, str := range strs {
+		count--
+		if count < 0 {
+			return false
+		}
+		if str != "#" {
+			count += 2
+		}
+	}
+	return count == 0
+
+}
+
+// 337. 打家劫舍 III
+// 在上次打劫完一条街道之后和一圈房屋后，小偷又发现了一个新的可行窃的地区。这个地区只有一个入口，我们称之为“根”。
+// 除了“根”之外，每栋房子有且只有一个“父“房子与之相连。一番侦察之后，聪明的小偷意识到“这个地方的所有房屋的排列类似于一棵二叉树”。
+// 如果两个直接相连的房子在同一天晚上被打劫，房屋将自动报警。
+//
+// 计算在不触动警报的情况下，小偷一晚能够盗取的最高金额。
+//
+// 示例 1:
+// 输入: [3,2,3,null,3,null,1]
+//
+//     3
+//    / \
+//   2   3
+//    \   \
+//     3   1
+// 输出: 7
+// 解释: 小偷一晚能够盗取的最高金额 = 3 + 3 + 1 = 7.
+//
+// 示例 2:
+// 输入: [3,4,5,1,3,null,1]
+//
+//     3
+//    / \
+//   4   5
+//  / \   \
+// 1   3   1
+// 输出: 9
+// 解释: 小偷一晚能够盗取的最高金额 = 4 + 5 = 9.
+func rob(root *TreeNode) int {
+
+	// 偷当前node 获得的最大金额  不偷当前node 活动的最大金额
+	var getRob func(node *TreeNode) (int, int)
+
+	getRob = func(node *TreeNode) (int, int) {
+		if node == nil {
+			return 0, 0
+		}
+		leftRobAmount, leftNoRobAmount := getRob(node.Left)
+		rightRobAmount, rightNoRobAmount := getRob(node.Right)
+
+		robAmount := node.Val + leftNoRobAmount + rightNoRobAmount
+		noRobAmount := max(leftRobAmount, leftNoRobAmount) + max(rightRobAmount, rightNoRobAmount)
+		return robAmount, noRobAmount
+	}
+
+	robAmount, noRobAmount := getRob(root)
+	return max(robAmount, noRobAmount)
 }

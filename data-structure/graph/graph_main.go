@@ -1,6 +1,9 @@
 package graph
 
-import "container/list"
+import (
+	"container/list"
+	"sort"
+)
 
 type Node struct {
 	Val       int
@@ -343,6 +346,70 @@ func findMinHeightTrees(n int, edges [][]int) []int {
 				}
 			}
 		}
+	}
+
+	return result
+}
+
+// 332. 重新安排行程
+// 给你一份航线列表 tickets ，其中 tickets[i] = [fromi, toi] 表示飞机出发和降落的机场地点。请你对该行程进行重新规划排序。
+//
+// 所有这些机票都属于一个从 JFK（肯尼迪国际机场）出发的先生，所以该行程必须从 JFK 开始。如果存在多种有效的行程，请你按字典排序返回最小的行程组合。
+//
+// 例如，行程 ["JFK", "LGA"] 与 ["JFK", "LGB"] 相比就更小，排序更靠前。
+// 假定所有机票至少存在一种合理的行程。且所有的机票 必须都用一次 且 只能用一次。
+//
+// 示例 1：
+// 输入：tickets = [["MUC","LHR"],["JFK","MUC"],["SFO","SJC"],["LHR","SFO"]]
+// 输出：["JFK","MUC","LHR","SFO","SJC"]
+//
+// 示例 2：
+// 输入：tickets = [["JFK","SFO"],["JFK","ATL"],["SFO","ATL"],["ATL","JFK"],["ATL","SFO"]]
+// 输出：["JFK","ATL","JFK","SFO","ATL","SFO"]
+// 解释：另一种有效的行程是 ["JFK","SFO","ATL","JFK","ATL","SFO"] ，但是它字典排序更大更靠后。
+//
+// 提示：
+// 1 <= tickets.length <= 300
+// tickets[i].length == 2
+// fromi.length == 3
+// toi.length == 3
+// fromi 和 toi 由大写英文字母组成
+// fromi != toi
+func findItinerary(tickets [][]string) []string {
+	graph := make(map[string][]string)
+	result := make([]string, 0)
+
+	for _, ticket := range tickets {
+		from, to := ticket[0], ticket[1]
+		graph[from] = append(graph[from], to)
+	}
+	for _, v := range graph {
+		sort.Strings(v)
+	}
+
+	// 深度优先遍历
+	var dfs func(from string)
+
+	dfs = func(from string) {
+		for {
+			if v, ok := graph[from]; !ok || len(v) == 0 {
+				break
+			}
+			tolist := graph[from]
+			next := tolist[0]
+			graph[from] = tolist[1:]
+			dfs(next)
+		}
+
+		result = append(result, from)
+	}
+
+	dfs("JFK")
+	left, right := 0, len(result)-1
+	for left < right {
+		result[left], result[right] = result[right], result[left]
+		left++
+		right--
 	}
 
 	return result
