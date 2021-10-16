@@ -735,3 +735,82 @@ func getHint(secret string, guess string) string {
 	}
 	return fmt.Sprintf("%dA%dB", countA, countB-countA)
 }
+
+// 336. 回文对
+// 给定一组 互不相同 的单词， 找出所有 不同 的索引对 (i, j)，使得列表中的两个单词， words[i] + words[j] ，可拼接成回文串。
+//
+// 示例 1：
+// 输入：words = ["abcd","dcba","lls","s","sssll"]
+// 输出：[[0,1],[1,0],[3,2],[2,4]]
+// 解释：可拼接成的回文串为 ["dcbaabcd","abcddcba","slls","llssssll"]
+//
+// 示例 2：
+// 输入：words = ["bat","tab","cat"]
+// 输出：[[0,1],[1,0]]
+// 解释：可拼接成的回文串为 ["battab","tabbat"]
+//
+// 示例 3：
+// 输入：words = ["a",""]
+// 输出：[[0,1],[1,0]]
+//
+// 提示：
+// 1 <= words.length <= 5000
+// 0 <= words[i].length <= 300
+// words[i] 由小写英文字母组成
+func palindromePairs(words []string) [][]int {
+	indexMap := make(map[string]int)
+	for i, word := range words {
+		indexMap[reverseString(word)] = i
+	}
+
+	checkPalindrome := func(word string, left, right int) bool {
+		for left < right {
+			if word[left] != word[right] {
+				return false
+			}
+			left++
+			right--
+
+		}
+		return true
+	}
+
+	result := make([][]int, 0)
+	for i, word := range words {
+		n := len(word)
+		if n == 0 {
+			continue
+		}
+		for j := 0; j <= n; j++ {
+			// 截取前缀 0:j 判断 j~n-1 是否回文
+			if checkPalindrome(word, j, n-1) {
+				if v, ok := indexMap[word[0:j]]; ok {
+					if v != i {
+						result = append(result, []int{i, v})
+					}
+				}
+			}
+			// 截取后缀 j:n 判断 0~j-1 是否回文
+			if j != 0 && checkPalindrome(word, 0, j-1) {
+				if v, ok := indexMap[word[j:]]; ok {
+					if v != i {
+						result = append(result, []int{v, i})
+					}
+				}
+			}
+		}
+	}
+
+	return result
+}
+
+func reverseString(s string) string {
+	arr := []byte(s)
+	left, right := 0, len(arr)-1
+	for left < right {
+		arr[left], arr[right] = arr[right], arr[left]
+		left++
+		right--
+	}
+	return string(arr)
+}
