@@ -1,6 +1,7 @@
 package hash
 
 import (
+	"container/heap"
 	"fmt"
 	"sort"
 	"strconv"
@@ -813,4 +814,73 @@ func reverseString(s string) string {
 		right--
 	}
 	return string(arr)
+}
+
+// 347. 前 K 个高频元素
+// 给你一个整数数组 nums 和一个整数 k ，请你返回其中出现频率前 k 高的元素。你可以按 任意顺序 返回答案。
+//
+// 示例 1:
+// 输入: nums = [1,1,1,2,2,3], k = 2
+// 输出: [1,2]
+//
+// 示例 2:
+// 输入: nums = [1], k = 1
+// 输出: [1]
+//
+// 提示：
+// 1 <= nums.length <= 105
+// k 的取值范围是 [1, 数组中不相同的元素的个数]
+// 题目数据保证答案唯一，换句话说，数组中前 k 个高频元素的集合是唯一的
+//
+// 进阶：你所设计算法的时间复杂度 必须 优于 O(n log n) ，其中 n 是数组大小。
+func topKFrequent(nums []int, k int) []int {
+	countMap := make(map[int]int)
+	for _, num := range nums {
+		countMap[num]++
+	}
+	// topK 用堆 或者 快速排序
+	h := hp{}
+
+	for key, v := range countMap {
+		heap.Push(&h, element{num: key, count: v})
+		if h.Len() > k {
+			heap.Pop(&h)
+		}
+	}
+	result := make([]int, k)
+	for i := 0; i < k; i++ {
+		result[k-i-1] = h[i].num
+	}
+
+	return result
+}
+
+type element struct {
+	num   int
+	count int
+}
+
+type hp []element
+
+func (h hp) Len() int {
+	return len(h)
+}
+
+func (h hp) Less(i, j int) bool {
+	return h[i].count < h[j].count
+}
+
+func (h hp) Swap(i, j int) {
+	h[i], h[j] = h[j], h[i]
+}
+
+func (h *hp) Push(x interface{}) {
+	*h = append(*h, x.(element))
+}
+
+func (h *hp) Pop() interface{} {
+	tmp := *h
+	v := tmp[len(tmp)-1]
+	*h = tmp[:len(tmp)-1]
+	return v
 }
