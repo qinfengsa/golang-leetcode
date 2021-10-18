@@ -1493,3 +1493,30 @@ func maxEnvelopes(envelopes [][]int) int {
 	}
 	return lengthOfLIS(heights)
 }
+
+// 357. 计算各个位数不同的数字个数
+// 给定一个非负整数 n，计算各位数字都不同的数字 x 的个数，其中 0 ≤ x < 10n 。
+//
+// 示例:
+// 输入: 2
+// 输出: 91
+// 解释: 答案应为除去 11,22,33,44,55,66,77,88,99 外，在 [0,100) 区间内的所有数字。
+func countNumbersWithUniqueDigits(n int) int {
+	dp := make([]int, 11)
+
+	// 排列组合 从10位数字中找出1 ~ 10个数字都不同的组合
+	dp[0] = 1
+	dp[1] = 9
+	// 1 -> 10
+	// 2 -> 9 * 9
+	// 3 -> 9 * 9 * 8
+	// 4 -> 9 * 9 * 8 * 7
+	for i := 2; i <= n; i++ {
+		dp[i] = dp[i-1] * (11 - i)
+	}
+	result := 0
+	for i := 0; i <= min(10, n); i++ {
+		result += dp[i]
+	}
+	return result
+}
