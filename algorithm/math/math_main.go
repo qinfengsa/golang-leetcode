@@ -1818,3 +1818,95 @@ func integerBreak(n int) int {
 
 	return result
 }
+
+// 365. 水壶问题
+// 有两个容量分别为 x升 和 y升 的水壶以及无限多的水。请判断能否通过使用这两个水壶，从而可以得到恰好 z升 的水？
+//
+// 如果可以，最后请用以上水壶中的一或两个来盛放取得的 z升 水。
+//
+// 你允许：
+// 装满任意一个水壶
+// 清空任意一个水壶
+// 从一个水壶向另外一个水壶倒水，直到装满或者倒空
+//
+// 示例 1: (From the famous "Die Hard" example)
+// 输入: x = 3, y = 5, z = 4 输出: True
+//
+// 示例 2:
+// 输入: x = 2, y = 6, z = 5 输出: False
+func canMeasureWater(jug1Capacity int, jug2Capacity int, targetCapacity int) bool {
+	// 贝祖定理告诉 ax+by=z 有解当且仅当 z 是 x, y 的最大公约数的倍数。
+	// 因此我们只需要找到 x, y 的最大公约数并判断 z 是否是它的倍数即可。
+	if jug1Capacity+jug2Capacity < targetCapacity {
+		return false
+	}
+	if jug1Capacity == 0 || jug2Capacity == 0 {
+		return targetCapacity == 0 || targetCapacity == jug1Capacity+jug2Capacity
+	}
+	return targetCapacity%getGcd(jug1Capacity, jug2Capacity) == 0
+}
+
+func getGcd(num1, num2 int) int {
+	num1, num2 = max(num1, num2), min(num1, num2)
+	if num2 == 0 {
+		return num1
+	}
+	if num1%num2 != 0 {
+		return getGcd(num2, num1%num2)
+	}
+
+	return num2
+}
+
+// 372. 超级次方
+// 你的任务是计算 a^b 对 1337 取模，a 是一个正整数，b 是一个非常大的正整数且会以数组形式给出。
+//
+// 示例 1：
+// 输入：a = 2, b = [3] 输出：8
+//
+// 示例 2：
+// 输入：a = 2, b = [1,0] 输出：1024
+//
+// 示例 3：
+// 输入：a = 1, b = [4,3,3,8,5,2] 输出：1
+//
+// 示例 4：
+// 输入：a = 2147483647, b = [2,0,0] 输出：1198
+//
+// 提示：
+// 1 <= a <= 231 - 1
+// 1 <= b.length <= 2000
+// 0 <= b[i] <= 9
+// b 不含前导 0
+func superPow(a int, b []int) int {
+	if a == 1 {
+		return 1
+	}
+	base := 1337
+	// x^n
+	mypow := func(x, n int) int {
+		if n == 0 {
+			return 1
+		}
+		result := 1
+		for i := n; i != 0; i >>= 1 {
+			// 奇数
+			if i&1 == 1 {
+				result *= x
+				result %= base
+			}
+			x *= x
+			x %= base
+		}
+		return result
+	}
+	a %= base
+
+	result := mypow(a, b[0])
+
+	for i := 1; i < len(b); i++ {
+		result = mypow(result, 10) * mypow(a, b[i]) % base
+	}
+
+	return result
+}
