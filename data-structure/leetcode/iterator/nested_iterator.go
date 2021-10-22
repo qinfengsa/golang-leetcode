@@ -1,5 +1,9 @@
 package iterator
 
+import (
+	"strconv"
+)
+
 // NestedIterator
 //
 // 341. 扁平化嵌套列表迭代器
@@ -70,26 +74,99 @@ func (this *NestedIterator) HasNext() bool {
 	return this.index < n
 }
 
-// This is the interface that allows for creating nested lists.
+// NestedInteger This is the interface that allows for creating nested lists.
 // You should not implement it, or speculate about its implementation
 type NestedInteger struct {
 }
 
-// Return true if this NestedInteger holds a single integer, rather than a nested list.
+// IsInteger Return true if this NestedInteger holds a single integer, rather than a nested list.
 func (this NestedInteger) IsInteger() bool { return false }
 
-// Return the single integer that this NestedInteger holds, if it holds a single integer
+// GetInteger Return the single integer that this NestedInteger holds, if it holds a single integer
 // The result is undefined if this NestedInteger holds a nested list
 // So before calling this method, you should have a check
 func (this NestedInteger) GetInteger() int { return 0 }
 
-// Set this NestedInteger to hold a single integer.
+// SetInteger Set this NestedInteger to hold a single integer.
 func (n *NestedInteger) SetInteger(value int) {}
 
-// Set this NestedInteger to hold a nested list and adds a nested integer to it.
+// Add Set this NestedInteger to hold a nested list and adds a nested integer to it.
 func (this *NestedInteger) Add(elem NestedInteger) {}
 
-// Return the nested list that this NestedInteger holds, if it holds a nested list
+// GetList Return the nested list that this NestedInteger holds, if it holds a nested list
 // The list length is zero if this NestedInteger holds a single integer
 // You can access NestedInteger's List element directly if you want to modify it
 func (this NestedInteger) GetList() []*NestedInteger { return nil }
+
+// 385. 迷你语法分析器
+// 给定一个用字符串表示的整数的嵌套列表，实现一个解析它的语法分析器。
+//
+// 列表中的每个元素只可能是整数或整数嵌套列表
+// 提示：你可以假定这些字符串都是格式良好的：
+//
+// 字符串非空
+// 字符串不包含空格
+// 字符串只包含数字0-9、[、-、,、]
+//
+// 示例 1：
+// 给定 s = "324",
+// 你应该返回一个 NestedInteger 对象，其中只包含整数值 324。
+//
+// 示例 2：
+// 给定 s = "[123,[456,[789]]]",
+// 返回一个 NestedInteger 对象包含一个有两个元素的嵌套列表：
+// 1. 一个 integer 包含值 123
+// 2. 一个包含两个元素的嵌套列表：
+//    i.  一个 integer 包含值 456
+//    ii. 一个包含一个元素的嵌套列表
+//         a. 一个 integer 包含值 789
+func deserialize(s string) *NestedInteger {
+
+	result := &NestedInteger{}
+	if s[0] != '[' {
+		num, _ := strconv.Atoi(s)
+		result.SetInteger(num)
+		return result
+	}
+
+	var dfs func() NestedInteger
+	idx, n := 0, len(s)
+	dfs = func() NestedInteger {
+		nest := NestedInteger{}
+
+		negative := false
+		num := 0
+		for idx < n-1 {
+			idx++
+			if s[idx] == ',' {
+				continue
+			} else if s[idx] == '[' {
+				nest.Add(dfs())
+			} else if s[idx] == ']' {
+				return nest
+			} else if s[idx] == '-' {
+				negative = true
+			} else {
+				num = num*10 + int(s[idx]-'0')
+				if idx < n-1 && (s[idx+1] == ',' || s[idx+1] == ']') {
+					child := NestedInteger{}
+					if negative {
+						num *= -1
+					}
+					child.SetInteger(num)
+					nest.Add(child)
+					negative = false
+					num = 0
+				}
+			}
+
+		}
+		return nest
+	}
+	nest := dfs()
+	return &nest
+}
+
+func isNum(c byte) bool {
+	return c >= '0' && c <= '9'
+}
