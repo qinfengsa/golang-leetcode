@@ -1944,3 +1944,110 @@ func lexicalOrder(n int) []int {
 	dfs(0)
 	return result
 }
+
+// 390. 消除游戏
+// 给定一个从1 到 n 排序的整数列表。
+// 首先，从左到右，从第一个数字开始，每隔一个数字进行删除，直到列表的末尾。
+// 第二步，在剩下的数字中，从右到左，从倒数第一个数字开始，每隔一个数字进行删除，直到列表开头。
+// 我们不断重复这两步，从左到右和从右到左交替进行，直到只剩下一个数字。
+// 返回长度为 n 的列表中，最后剩下的数字。
+//
+// 示例：
+// 输入:
+// n = 9,
+// 1 2 3 4 5 6 7 8 9
+// 2 4 6 8
+// 2 6
+// 6
+//
+// 输出: 6
+func lastRemaining(n int) int {
+	if n == 1 {
+		return 1
+	}
+	helf := n >> 1
+	return 2 * (helf + 1 - lastRemaining(helf))
+}
+
+// 393. UTF-8 编码验证
+// UTF-8 中的一个字符可能的长度为 1 到 4 字节，遵循以下的规则：
+//
+// 对于 1 字节的字符，字节的第一位设为 0 ，后面 7 位为这个符号的 unicode 码。
+// 对于 n 字节的字符 (n > 1)，第一个字节的前 n 位都设为1，第 n+1 位设为 0 ，后面字节的前两位一律设为 10 。剩下的没有提及的二进制位，全部为这个符号的 unicode 码。
+// 这是 UTF-8 编码的工作方式：
+//
+//   Char. number range  |        UTF-8 octet sequence
+//      (hexadecimal)    |              (binary)
+//   --------------------+---------------------------------------------
+//   0000 0000-0000 007F | 0xxxxxxx
+//   0000 0080-0000 07FF | 110xxxxx 10xxxxxx
+//   0000 0800-0000 FFFF | 1110xxxx 10xxxxxx 10xxxxxx
+//   0001 0000-0010 FFFF | 11110xxx 10xxxxxx 10xxxxxx 10xxxxxx
+// 给定一个表示数据的整数数组，返回它是否为有效的 utf-8 编码。
+//
+// 注意：
+// 输入是整数数组。只有每个整数的 最低 8 个有效位 用来存储数据。这意味着每个整数只表示 1 字节的数据。
+//
+// 示例 1：
+// data = [197, 130, 1], 表示 8 位的序列: 11000101 10000010 00000001.
+// 返回 true 。
+// 这是有效的 utf-8 编码，为一个2字节字符，跟着一个1字节字符。
+//
+// 示例 2：
+// data = [235, 140, 4], 表示 8 位的序列: 11101011 10001100 00000100.
+// 返回 false 。
+// 前 3 位都是 1 ，第 4 位为 0 表示它是一个3字节字符。
+// 下一个字节是开头为 10 的延续字节，这是正确的。
+// 但第二个延续字节不以 10 开头，所以是不符合规则的。
+func validUtf8(data []int) bool {
+	n := len(data)
+	if n == 0 {
+		return false
+	}
+	for _, num := range data {
+		if num >= (1<<8) || num < 0 {
+			return false
+		}
+	}
+	mask1, mask2 := 1<<7, 1<<6
+	// 获取字节数
+	getByteCount := func(num int) int {
+		// 字节的第一位是0 1个字节
+		if num&mask1 == 0 {
+			return 1
+		}
+		count := 0
+
+		mask := mask1
+		for mask&num != 0 {
+			count++
+			if count > 4 {
+				return 0
+			}
+			mask >>= 1
+		}
+		if count == 1 {
+			return 0
+		}
+		return count
+	}
+	idx := 0
+	for idx < n {
+		byteCount := getByteCount(data[idx])
+		if byteCount == 0 {
+			return false
+		}
+		if idx+byteCount > n {
+			return false
+		}
+		// 10 开头
+		for i := 1; i < byteCount; i++ {
+			if data[idx+i]&mask1 == 0 || data[idx+i]&mask2 != 0 {
+				return false
+			}
+		}
+		idx += byteCount
+	}
+
+	return true
+}

@@ -3,6 +3,7 @@ package sweep
 import (
 	"container/heap"
 	"fmt"
+	"math"
 	"sort"
 )
 
@@ -104,4 +105,96 @@ func getSkyline(buildings [][]int) [][]int {
 	}
 
 	return result
+}
+
+// 391. 完美矩形
+// 我们有 N 个与坐标轴对齐的矩形, 其中 N > 0, 判断它们是否能精确地覆盖一个矩形区域。
+//
+// 每个矩形用左下角的点和右上角的点的坐标来表示。例如， 一个单位正方形可以表示为 [1,1,2,2]。 ( 左下角的点的坐标为 (1, 1) 以及右上角的点的坐标为 (2, 2) )。
+//
+// 示例 1:
+// rectangles = [
+//  [1,1,3,3],
+//  [3,1,4,2],
+//  [3,2,4,4],
+//  [1,3,2,4],
+//  [2,3,3,4]
+// ]
+// 返回 true。5个矩形一起可以精确地覆盖一个矩形区域。
+//
+// 示例 2:
+// rectangles = [
+//  [1,1,2,3],
+//  [1,3,2,4],
+//  [3,1,4,2],
+//  [3,2,4,4]
+// ]
+// 返回 false。两个矩形之间有间隔，无法覆盖成一个矩形。
+//
+// 示例 3:
+// rectangles = [
+//  [1,1,3,3],
+//  [3,1,4,2],
+//  [1,3,2,4],
+//  [3,2,4,4]
+// ]
+// 返回 false。图形顶端留有间隔，无法覆盖成一个矩形。
+//
+// 示例 4:
+// rectangles = [
+//  [1,1,3,3],
+//  [3,1,4,2],
+//  [1,3,2,4],
+//  [2,2,4,4]
+// ]
+// 返回 false。因为中间有相交区域，虽然形成了矩形，但不是精确覆盖。
+func isRectangleCover(rectangles [][]int) bool {
+	// 1,总面积等于小块的面积和
+	// 2,除大矩形4个顶点外其它点都出现偶数(2或4)次
+	left, right := math.MaxInt32, 0
+	bottom, top := math.MaxInt32, 0
+	area := 0
+	countMap := make(map[string]int)
+
+	for _, rectangle := range rectangles {
+		left = min(left, rectangle[0])
+		bottom = min(bottom, rectangle[1])
+		right = max(right, rectangle[2])
+		top = max(top, rectangle[3])
+		area += (rectangle[3] - rectangle[1]) * (rectangle[2] - rectangle[0])
+		leftTop, leftBottom := fmt.Sprintf("%d-%d", rectangle[0], rectangle[3]), fmt.Sprintf("%d-%d", rectangle[0], rectangle[1])
+		rightTop, rightBottom := fmt.Sprintf("%d-%d", rectangle[2], rectangle[3]), fmt.Sprintf("%d-%d", rectangle[2], rectangle[1])
+		countMap[leftTop]++
+		countMap[leftBottom]++
+		countMap[rightTop]++
+		countMap[rightBottom]++
+	}
+	if area != (right-left)*(top-bottom) {
+		return false
+	}
+	leftTop, leftBottom := fmt.Sprintf("%d-%d", left, top), fmt.Sprintf("%d-%d", left, bottom)
+	rightTop, rightBottom := fmt.Sprintf("%d-%d", right, top), fmt.Sprintf("%d-%d", right, bottom)
+	countMap[leftTop]++
+	countMap[leftBottom]++
+	countMap[rightTop]++
+	countMap[rightBottom]++
+	for _, v := range countMap {
+		if v&1 == 1 {
+			return false
+		}
+	}
+	return true
+}
+
+func min(x, y int) int {
+	if x > y {
+		return y
+	}
+	return x
+}
+func max(x, y int) int {
+	if x > y {
+		return x
+	}
+	return y
 }
