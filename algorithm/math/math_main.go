@@ -2051,3 +2051,95 @@ func validUtf8(data []int) bool {
 
 	return true
 }
+
+// 397. 整数替换
+// 给定一个正整数 n ，你可以做如下操作：
+//
+// 如果 n 是偶数，则用 n / 2替换 n 。
+// 如果 n 是奇数，则可以用 n + 1或n - 1替换 n 。
+// n 变为 1 所需的最小替换次数是多少？
+//
+// 示例 1：
+// 输入：n = 8
+// 输出：3
+// 解释：8 -> 4 -> 2 -> 1
+//
+// 示例 2：
+// 输入：n = 7
+// 输出：4
+// 解释：7 -> 8 -> 4 -> 2 -> 1
+// 或 7 -> 6 -> 3 -> 2 -> 1
+//
+// 示例 3：
+// 输入：n = 4
+// 输出：2
+//
+// 提示：
+// 1 <= n <= 231 - 1
+func integerReplacement(n int) int {
+	if n == 1 {
+		return 0
+	}
+	if n == math.MaxInt32 {
+		return 32
+	}
+	dp := make(map[int]int)
+
+	var getReplacement func(num int) int
+
+	getReplacement = func(num int) int {
+		if num == 1 {
+			return 0
+		}
+		if v, ok := dp[num]; ok {
+			return v
+		}
+		var result int
+
+		if num&1 == 0 {
+			result = 1 + getReplacement(num>>1)
+		} else {
+			result = 1 + min(getReplacement(num+1), getReplacement(num-1))
+		}
+		dp[num] = result
+		return result
+	}
+	return getReplacement(n)
+}
+
+// 396. 旋转函数
+// 给定一个长度为 n 的整数数组 A 。
+//
+// 假设 Bk 是数组 A 顺时针旋转 k 个位置后的数组，我们定义 A 的“旋转函数” F 为：
+// F(k) = 0 * Bk[0] + 1 * Bk[1] + ... + (n-1) * Bk[n-1]。
+//
+// 计算F(0), F(1), ..., F(n-1)中的最大值。
+//
+// 注意:
+// 可以认为 n 的值小于 105。
+//
+// 示例:
+//
+// A = [4, 3, 2, 6]
+// F(0) = (0 * 4) + (1 * 3) + (2 * 2) + (3 * 6) = 0 + 3 + 4 + 18 = 25
+// F(1) = (0 * 6) + (1 * 4) + (2 * 3) + (3 * 2) = 0 + 4 + 6 + 6 = 16
+// F(2) = (0 * 2) + (1 * 6) + (2 * 4) + (3 * 3) = 0 + 6 + 8 + 9 = 23
+// F(3) = (0 * 3) + (1 * 2) + (2 * 6) + (3 * 4) = 0 + 2 + 12 + 12 = 26
+//
+// 所以 F(0), F(1), F(2), F(3) 中的最大值是 F(3) = 26 。
+func maxRotateFunction(nums []int) int {
+	n := len(nums)
+	rotateSum, sum := 0, 0
+	for i, num := range nums {
+		rotateSum += i * num
+		sum += num
+	}
+	result := rotateSum
+
+	for i := n - 1; i > 0; i-- {
+		rotateSum += sum - n*nums[i]
+		result = max(result, rotateSum)
+	}
+
+	return result
+}
