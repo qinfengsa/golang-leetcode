@@ -392,20 +392,22 @@ func sumOfLeftLeaves(root *TreeNode) int {
 	if root == nil {
 		return 0
 	}
+	var sumOfLeft func(node *TreeNode, left bool) int
 
-	return sumOfLeftLeavesLeft(root, false)
-}
-func sumOfLeftLeavesLeft(root *TreeNode, left bool) int {
-	if root == nil {
-		return 0
+	sumOfLeft = func(node *TreeNode, left bool) int {
+		if node == nil {
+			return 0
+		}
+		if left && node.Left == nil && node.Right == nil {
+			return node.Val
+		}
+		result := 0
+		result += sumOfLeft(node.Left, true)
+		result += sumOfLeft(node.Right, false)
+		return result
 	}
-	if left && root.Left == nil && root.Right == nil {
-		return root.Val
-	}
-	result := 0
-	result += sumOfLeftLeavesLeft(root.Left, true)
-	result += sumOfLeftLeavesLeft(root.Right, false)
-	return result
+
+	return sumOfLeft(root, false)
 }
 
 // 501. 二叉搜索树中的众数
