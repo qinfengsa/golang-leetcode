@@ -3475,3 +3475,112 @@ func increasingTriplet(nums []int) bool {
 
 	return false
 }
+
+// 406. 根据身高重建队列
+// 假设有打乱顺序的一群人站成一个队列，数组 people 表示队列中一些人的属性（不一定按顺序）。每个 people[i] = [hi, ki] 表示第 i 个人的身高为 hi ，前面 正好 有 ki 个身高大于或等于 hi 的人。
+//
+// 请你重新构造并返回输入数组 people 所表示的队列。返回的队列应该格式化为数组 queue ，其中 queue[j] = [hj, kj] 是队列中第 j 个人的属性（queue[0] 是排在队列前面的人）。
+//
+// 示例 1：
+// 输入：people = [[7,0],[4,4],[7,1],[5,0],[6,1],[5,2]]
+// 输出：[[5,0],[7,0],[5,2],[6,1],[4,4],[7,1]]
+// 解释：
+// 编号为 0 的人身高为 5 ，没有身高更高或者相同的人排在他前面。
+// 编号为 1 的人身高为 7 ，没有身高更高或者相同的人排在他前面。
+// 编号为 2 的人身高为 5 ，有 2 个身高更高或者相同的人排在他前面，即编号为 0 和 1 的人。
+// 编号为 3 的人身高为 6 ，有 1 个身高更高或者相同的人排在他前面，即编号为 1 的人。
+// 编号为 4 的人身高为 4 ，有 4 个身高更高或者相同的人排在他前面，即编号为 0、1、2、3 的人。
+// 编号为 5 的人身高为 7 ，有 1 个身高更高或者相同的人排在他前面，即编号为 1 的人。
+// 因此 [[5,0],[7,0],[5,2],[6,1],[4,4],[7,1]] 是重新构造后的队列。
+//
+// 示例 2：
+// 输入：people = [[6,0],[5,0],[4,0],[3,2],[2,2],[1,4]]
+// 输出：[[4,0],[5,0],[2,2],[3,2],[1,4],[6,0]]
+//
+// 提示：
+// 1 <= people.length <= 2000
+// 0 <= hi <= 106
+// 0 <= ki < people.length
+// 题目数据确保队列可以被重建
+func reconstructQueue(people [][]int) [][]int {
+
+	result := make([][]int, 0)
+	// 按 身高 高 -> 低 , k 小 -> 大 排序
+	sort.Slice(people, func(i, j int) bool {
+		// 身高相同
+		if people[i][0] == people[j][0] {
+			return people[i][1] < people[j][1]
+		}
+		return people[i][0] > people[j][0]
+	})
+
+	for _, person := range people {
+		idx := person[1]
+		tmp := append([][]int{person}, result[idx:]...)
+		result = append(result[:idx], tmp...)
+	}
+
+	return result
+
+}
+
+// 410. 分割数组的最大值
+// 给定一个非负整数数组 nums 和一个整数 m ，你需要将这个数组分成 m 个非空的连续子数组。
+//
+// 设计一个算法使得这 m 个子数组各自和的最大值最小。
+//
+// 示例 1：
+// 输入：nums = [7,2,5,10,8], m = 2
+// 输出：18
+// 解释：
+// 一共有四种方法将 nums 分割为 2 个子数组。 其中最好的方式是将其分为 [7,2,5] 和 [10,8] 。
+// 因为此时这两个子数组各自的和的最大值为18，在所有情况中最小。
+//
+// 示例 2：
+// 输入：nums = [1,2,3,4,5], m = 2
+// 输出：9
+//
+// 示例 3：
+// 输入：nums = [1,4,4], m = 3
+// 输出：4
+//
+// 提示：
+// 1 <= nums.length <= 1000
+// 0 <= nums[i] <= 106
+// 1 <= m <= min(50, nums.length)
+func splitArray(nums []int, m int) int {
+	maxVal, sum := 0, 0
+	for _, num := range nums {
+		maxVal = max(maxVal, num)
+		sum += num
+	}
+	if m == 1 {
+		return sum
+	}
+	// 思路 子数组的最大值是有范围的，即在区间 [max(nums),sum(nums)] 之中。
+	// 令 l = max(nums)，h = sum(nums)  mid=(l+h)/2
+	// 计算数组和最大值不大于mid对应的子数组个数 cnt(这个是关键！)
+	// 如果 cnt>m，说明划分的子数组多了，即我们找到的 mid 偏小，故 l=mid+1l=mid+1；
+	// 否则，说明划分的子数组少了，即 mid 偏大(或者正好就是目标值)，故 h=midh=mid。
+	low, high := maxVal, sum
+	for low < high {
+		mid := (low + high) >> 1
+
+		count, tmpSum := 1, 0
+		for _, num := range nums {
+			tmpSum += num
+			if tmpSum > mid {
+				count++
+				tmpSum = num
+			}
+		}
+		// count>m，说明划分的子数组多了， mid 偏小
+		if count > m {
+			low = mid + 1
+		} else {
+			high = mid
+		}
+
+	}
+	return low
+}
