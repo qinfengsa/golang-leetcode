@@ -2570,3 +2570,124 @@ func lengthLongestPath(input string) int {
 
 	return result - 1
 }
+
+// 424. 替换后的最长重复字符
+// 给你一个仅由大写英文字母组成的字符串，你可以将任意位置上的字符替换成另外的字符，总共可最多替换 k 次。在执行上述操作后，找到包含重复字母的最长子串的长度。
+//
+// 注意：字符串长度 和 k 不会超过 104。
+//
+// 示例 1：
+// 输入：s = "ABAB", k = 2
+// 输出：4
+// 解释：用两个'A'替换为两个'B',反之亦然。
+//
+// 示例 2：
+// 输入：s = "AABABBA", k = 1
+// 输出：4
+// 解释：
+// 将中间的一个'A'替换为'B',字符串变为 "AABBBBA"。
+// 子串 "BBBB" 有最长重复字母, 答案为 4。
+func characterReplacement(s string, k int) int {
+	n := len(s)
+	left, maxCount, result := 0, 0, 0
+	letters := [26]int{}
+	for right := 0; right < n; right++ {
+		letters[s[right]-'A']++
+		//
+		maxCount = max(maxCount, letters[s[right]-'A'])
+		if right-left+1-maxCount > k {
+			letters[s[left]-'A']--
+			left++
+		}
+		result = max(result, right-left+1)
+	}
+	return result
+}
+
+// 420. 强密码检验器
+// 一个强密码应满足以下所有条件：
+//
+// 由至少6个，至多20个字符组成。
+// 至少包含一个小写字母，一个大写字母，和一个数字。
+// 同一字符不能连续出现三次 (比如 "...aaa..." 是不允许的, 但是 "...aa...a..." 是可以的)。
+// 编写函数 strongPasswordChecker(s)，s 代表输入字符串，如果 s 已经符合强密码条件，则返回0；否则返回要将 s 修改为满足强密码条件的字符串所需要进行修改的最小步数。
+//
+// 插入、删除、替换任一字符都算作一次修改。
+func strongPasswordChecker(password string) int {
+	// 缺失个数
+	missCounts := [3]int{1, 1, 1}
+	// mod 3 求余个数
+	modCounts := [3]int{0, 0, 0}
+
+	modifyCount, n := 0, len(password)
+
+	for i := 0; i < n; {
+		c := password[i]
+		if '0' <= c && c <= '9' {
+			missCounts[0] = 0
+		} else if 'a' <= c && c <= 'z' {
+			missCounts[1] = 0
+		} else if 'A' <= c && c <= 'Z' {
+			missCounts[2] = 0
+		}
+		// 判断 连续
+		start := i
+		for i < n && password[i] == c {
+			i++
+		}
+		subSize := i - start
+		if subSize >= 3 {
+			// 每3个替换1个，可保证不连续
+			modifyCount += subSize / 3
+			modCounts[subSize%3]++
+		}
+	}
+	missCount := missCounts[0] + missCounts[1] + missCounts[2]
+	// 字符串长度限制为 [6，20]
+
+	// 1. 长度过短，仅考虑字符长度缺失和字符类型缺失
+	if n < 6 {
+		return max(6-n, missCount)
+	}
+	// 2. 长度合法，仅考虑连续字符串和字符类型缺失
+	if n <= 20 {
+		return max(modifyCount, missCount)
+	}
+	// 3. 长度过长，考虑删除过长的长度、连续字符串、字符类型缺失
+	delCount := n - 20
+
+	// 3n型子串，部分能通过删除一个转化成 3n + 2 型子串，每个子串删 1
+	// aaa -> aa
+	if delCount < modCounts[0] {
+		modifyCount -= delCount
+		return max(modifyCount, missCount) + n - 20
+	}
+	// 3n 型子串，全部都能通过删除转化成 3n + 2 型子串
+	delCount -= modCounts[0]
+	modifyCount -= modCounts[0]
+
+	// 3n + 1 型子串，部分能通过删除转化成 3n + 2 型子串，每个子串删 2
+	// aaa a  -> aa
+	if delCount < modCounts[1]*2 {
+		// 需要修改的 元素 每个 删除两个
+		modifyCount -= delCount / 2
+		return max(modifyCount, missCount) + n - 20
+	}
+
+	// 3n + 1 型子串，全部都能通过删除转化成 3n + 2 型子串
+	delCount -= modCounts[1] << 1
+	modifyCount -= modCounts[1]
+	// 3n + 2型子串
+	// (1) 删除 len - 20 个字符，使字符串长度降到合法长度
+	// (2) 根据合法长度的公式，应为 Math.max(modifyCount, missCount);
+	// (3) 由于删除时可以删除连续子串中的字符，减少 modifyCount
+	//    aaa aaa aa  原需替换 2 次
+	//    aaa aaa a   删除 1 次，仍需替换 2 次
+	//    aaa aaa     删除 2 次，仍需替换 2 次
+	//    aaa aa      删除 3 次，仍需替换 1 次
+	// 即对于 3n + 2 型子串，删除 3 次可抵消替换 1 次
+	// 其他型的子串可以转换成 3n + 2 型
+	modifyCount -= delCount / 3
+
+	return max(modifyCount, missCount) + n - 20
+}

@@ -2172,3 +2172,166 @@ func findNthDigit(n int) int {
 	idx := (n - 1) % digit
 	return int(s[idx] - '0')
 }
+
+// 869. 重新排序得到 2 的幂
+// 给定正整数 N ，我们按任何顺序（包括原始顺序）将数字重新排序，注意其前导数字不能为零。
+//
+// 如果我们可以通过上述方式得到 2 的幂，返回 true；否则，返回 false。
+//
+// 示例 1：
+// 输入：1 输出：true
+//
+// 示例 2：
+// 输入：10 输出：false
+//
+// 示例 3：
+// 输入：16 输出：true
+//
+// 示例 4：
+// 输入：24 输出：false
+//
+// 示例 5：
+// 输入：46 输出：true
+//
+// 提示：
+// 1 <= N <= 10^9
+func reorderedPowerOf2(n int) bool {
+	if isPowerOfTwo(n) {
+		return true
+	}
+	compareNum := func(num1, num2 [10]int) bool {
+		for i := 0; i < 10; i++ {
+			if num1[i] != num2[i] {
+				return false
+			}
+		}
+		return true
+	}
+	getNums := func(num int) [10]int {
+		var nums [10]int
+
+		for num > 0 {
+			nums[num%10]++
+			num /= 10
+		}
+		return nums
+	}
+
+	nNums := getNums(n)
+	for i := 0; i <= 31; i++ {
+		if compareNum(nNums, getNums(1<<i)) {
+			return true
+		}
+	}
+
+	return false
+}
+
+// 423. 从英文中重建数字
+// 给定一个非空字符串，其中包含字母顺序打乱的英文单词表示的数字0-9。按升序输出原始的数字。
+//
+// 注意:
+// 输入只包含小写英文字母。
+// 输入保证合法并可以转换为原始的数字，这意味着像 "abc" 或 "zerone" 的输入是不允许的。
+// 输入字符串的长度小于 50,000。
+//
+// 示例 1:
+// 输入: "owoztneoer" 输出: "012" (zeroonetwo)
+//
+// 示例 2:
+// 输入: "fviefuro" 输出: "45" (fourfive)
+func originalDigits(s string) string {
+	// 建立字符 到 数字的映射
+	// z => 0 zero
+	// w => 2 two
+	// u => 4 four
+	// x => 6 six
+	// g => 8 eight
+	// h => 3 - 8  three eight
+	// f => 5 - 4  five four
+	// s => 7 - 6  seven six
+	// i => 9 - 5 - 6 - 8  nine five six eight
+	// n => 1 - 7 - 2 * 9  one seven nine
+	letters := [26]int{}
+	for i := 0; i < len(s); i++ {
+		letters[s[i]-'a']++
+	}
+	counts := [10]int{}
+	counts[0] = letters['z'-'a']
+	counts[2] = letters['w'-'a']
+	counts[4] = letters['u'-'a']
+	counts[6] = letters['x'-'a']
+	counts[8] = letters['g'-'a']
+	counts[3] = letters['h'-'a'] - counts[8]
+	counts[5] = letters['f'-'a'] - counts[4]
+	counts[7] = letters['s'-'a'] - counts[6]
+
+	counts[9] = letters['i'-'a'] - counts[5] - counts[6] - counts[8]
+	counts[1] = letters['n'-'a'] - counts[7] - 2*counts[9]
+
+	var builder strings.Builder
+	for i := 0; i < 10; i++ {
+		num := strconv.Itoa(i)
+		builder.WriteString(strings.Repeat(num, counts[i]))
+	}
+	return builder.String()
+}
+
+// 421. 数组中两个数的最大异或值
+// 给你一个整数数组 nums ，返回 nums[i] XOR nums[j] 的最大运算结果，其中 0 ≤ i ≤ j < n 。
+//
+// 进阶：你可以在 O(n) 的时间解决这个问题吗？
+//
+// 示例 1：
+// 输入：nums = [3,10,5,25,2,8]
+// 输出：28
+// 解释：最大运算结果是 5 XOR 25 = 28.
+//
+// 示例 2：
+// 输入：nums = [0]
+// 输出：0
+//
+// 示例 3：
+// 输入：nums = [2,4]
+// 输出：6
+//
+// 示例 4：
+// 输入：nums = [8,10,2]
+// 输出：10
+//
+// 示例 5：
+// 输入：nums = [14,70,53,83,49,91,36,80,92,51,66,70]
+// 输出：127
+//
+// 提示：
+// 1 <= nums.length <= 2 * 104
+// 0 <= nums[i] <= 231 - 1
+func findMaximumXOR(nums []int) int {
+	x := 0
+
+	for k := 30; k >= 0; k-- {
+		seen := make(map[int]bool)
+		// 判断 第 k 为有没有1
+		for _, num := range nums {
+			seen[num>>k] = true
+		}
+		next := (x << 1) + 1
+
+		found := false
+		for _, num := range nums {
+			if seen[num>>k^next] {
+				found = true
+				break
+			}
+		}
+		if found {
+			x = next
+		} else {
+			//
+			x = next - 1
+		}
+
+	}
+
+	return x
+}
