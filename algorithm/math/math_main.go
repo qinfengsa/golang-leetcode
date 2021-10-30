@@ -2335,3 +2335,44 @@ func findMaximumXOR(nums []int) int {
 
 	return x
 }
+
+// 440. 字典序的第K小数字
+// 给定整数 n 和 k，找到 1 到 n 中字典序第 k 小的数字。
+//
+// 注意：1 ≤ k ≤ n ≤ 109。
+//
+// 示例 :
+// 输入: n: 13   k: 2
+// 输出: 10
+// 解释:
+// 字典序的排列是 [1, 10, 11, 12, 13, 2, 3, 4, 5, 6, 7, 8, 9]，所以第二小的数字是 10。
+func findKthNumber(n int, k int) int {
+
+	getCount := func(first, last int) int {
+		count := 0
+		for first <= n {
+			count += min(n+1, last) - first
+			first *= 10
+			last *= 10
+		}
+		return count
+	}
+
+	num := 1
+	k--
+	for k > 0 {
+		// 计算 num 和 num + 1 直接有多少 个元素
+		count := getCount(num, num+1)
+		if count <= k {
+			// 正常序的下一位 2 -> 3
+			num++
+			k -= count
+		} else {
+			// 字典序 下一位 2 -> 20
+			num *= 10
+			k--
+		}
+	}
+
+	return num
+}
