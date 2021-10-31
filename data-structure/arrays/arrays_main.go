@@ -440,7 +440,7 @@ func thirdMax(nums []int) int {
 // [5,6]
 func findDisappearedNumbers(nums []int) []int {
 
-	result := []int{}
+	var result []int
 	for _, num := range nums {
 		if num < 0 {
 			num = -num

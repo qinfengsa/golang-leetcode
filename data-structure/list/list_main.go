@@ -1,6 +1,7 @@
 package list
 
 import (
+	"container/list"
 	"math"
 )
 
@@ -979,4 +980,65 @@ func sortList(head *ListNode) *ListNode {
 	}
 
 	return root.Next
+}
+
+// 445. 两数相加 II
+// 给你两个 非空 链表来代表两个非负整数。数字最高位位于链表开始位置。它们的每个节点只存储一位数字。将这两数相加会返回一个新的链表。
+//
+// 你可以假设除了数字 0 之外，这两个数字都不会以零开头。
+//
+// 示例1：
+// 输入：l1 = [7,2,4,3], l2 = [5,6,4]
+// 输出：[7,8,0,7]
+//
+// 示例2：
+// 输入：l1 = [2,4,3], l2 = [5,6,4]
+// 输出：[8,0,7]
+//
+// 示例3：
+// 输入：l1 = [0], l2 = [0]
+// 输出：[0]
+//
+// 提示：
+// 链表的长度范围为 [1, 100]
+// 0 <= node.val <= 9
+// 输入数据保证链表代表的数字无前导 0
+//
+// 进阶：如果输入链表不能修改该如何处理？换句话说，不能对列表中的节点进行翻转。
+func addTwoNumbersII(l1 *ListNode, l2 *ListNode) *ListNode {
+	stack1, stack2 := list.New(), list.New()
+
+	for l1 != nil {
+		stack1.PushBack(l1)
+		l1 = l1.Next
+	}
+	for l2 != nil {
+		stack2.PushBack(l2)
+		l2 = l2.Next
+	}
+	var head *ListNode
+	lastVal := 0
+	for stack1.Len() > 0 || stack2.Len() > 0 || lastVal > 0 {
+		val := lastVal
+		if stack1.Len() > 0 {
+			back1 := stack1.Back()
+			stack1.Remove(back1)
+			val += back1.Value.(*ListNode).Val
+		}
+		if stack2.Len() > 0 {
+			back2 := stack2.Back()
+			stack2.Remove(back2)
+			val += back2.Value.(*ListNode).Val
+		}
+		if val >= 10 {
+			val -= 10
+			lastVal = 1
+		} else {
+			lastVal = 0
+		}
+		node := &ListNode{Val: val, Next: head}
+		head = node
+	}
+
+	return head
 }
