@@ -584,6 +584,9 @@ func countSegments(s string) int {
 // 解释: 可由子字符串 "abc" 重复四次构成。 (或者子字符串 "abcabc" 重复两次构成。)
 func repeatedSubstringPattern(s string) bool {
 	size := len(s)
+	if size < 2 {
+		return false
+	}
 	ch := s[0]
 	flag := true
 	for i := 1; i < size; i++ {
