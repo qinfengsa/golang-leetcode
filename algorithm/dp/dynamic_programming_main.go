@@ -1901,3 +1901,111 @@ func numberOfArithmeticSlicesII(nums []int) int {
 
 	return count
 }
+
+// 464. 我能赢吗
+// 在 "100 game" 这个游戏中，两名玩家轮流选择从 1 到 10 的任意整数，累计整数和，先使得累计整数和达到或超过 100 的玩家，即为胜者。
+//
+// 如果我们将游戏规则改为 “玩家不能重复使用整数” 呢？
+//
+// 例如，两个玩家可以轮流从公共整数池中抽取从 1 到 15 的整数（不放回），直到累计整数和 >= 100。
+//
+// 给定一个整数 maxChoosableInteger （整数池中可选择的最大数）和另一个整数 desiredTotal（累计和），判断先出手的玩家是否能稳赢（假设两位玩家游戏时都表现最佳）？
+//
+// 你可以假设 maxChoosableInteger 不会大于 20， desiredTotal 不会大于 300。
+//
+// 示例：
+// 输入：
+// maxChoosableInteger = 10
+// desiredTotal = 11
+// 输出：
+// false
+//
+// 解释：
+// 无论第一个玩家选择哪个整数，他都会失败。
+// 第一个玩家可以选择从 1 到 10 的整数。
+// 如果第一个玩家选择 1，那么第二个玩家只能选择从 2 到 10 的整数。
+// 第二个玩家可以通过选择整数 10（那么累积和为 11 >= desiredTotal），从而取得胜利.
+// 同样地，第一个玩家选择任意其他整数，第二个玩家都会赢。
+func canIWin(maxChoosableInteger int, desiredTotal int) bool {
+	if maxChoosableInteger >= desiredTotal {
+		return true
+	}
+	// sum(1 ~ maxChoosableInteger) 总和 <  desiredTotal
+	if maxChoosableInteger*(1+maxChoosableInteger)/2 < desiredTotal {
+		return false
+	}
+
+	// dp[state] 表示 state 状态下
+	dp := make([]int, 1<<maxChoosableInteger)
+
+	var dfs func(state, total int) int
+
+	dfs = func(state, total int) int {
+		if dp[state] != 0 {
+			return dp[state]
+		}
+
+		for i := 1; i <= maxChoosableInteger; i++ {
+			cur := 1 << (i - 1)
+			if state&cur != 0 {
+				continue
+			}
+			// 我赢 || 下一回合输
+			if total <= i || dfs(state|cur, total-i) == -1 {
+				dp[state] = 1
+				return 1
+			}
+		}
+
+		dp[state] = -1
+		return dp[state]
+	}
+
+	return dfs(0, desiredTotal) == 1
+}
+
+// 467. 环绕字符串中唯一的子字符串
+// 把字符串 s 看作是“abcdefghijklmnopqrstuvwxyz”的无限环绕字符串，所以 s 看起来是这样的："...zabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcd....".
+//
+// 现在我们有了另一个字符串 p 。你需要的是找出 s 中有多少个唯一的 p 的非空子串，尤其是当你的输入是字符串 p ，你需要输出字符串 s 中 p 的不同的非空子串的数目。
+// 注意: p 仅由小写的英文字母组成，p 的大小可能超过 10000。
+//
+// 示例 1:
+// 输入: "a"
+// 输出: 1
+// 解释: 字符串 S 中只有一个"a"子字符。
+//
+// 示例 2:
+// 输入: "cac"
+// 输出: 2
+// 解释: 字符串 S 中的字符串“cac”只有两个子串“a”、“c”。.
+//
+// 示例 3:
+// 输入: "zab"
+// 输出: 6
+// 解释: 在字符串 S 中有六个子串“z”、“a”、“b”、“za”、“ab”、“zab”。.
+func findSubstringInWraproundString(p string) int {
+
+	n := len(p)
+	if n == 0 {
+		return 0
+	}
+	dp := [26]int{}
+	count := 0
+	for i := 0; i < n; i++ {
+		c := p[i]
+		// p[i - 1] 是 c 的 上一位  p[i]-p[i-1] == 1 || p[i]-p[i-1] == -25
+		if i > 0 && (c-p[i-1]+25)%26 == 0 {
+			count++
+		} else {
+			count = 1
+		}
+		dp[c-'a'] = max(dp[c-'a'], count)
+	}
+
+	result := 0
+	for _, num := range dp {
+		result += num
+	}
+	return result
+}
