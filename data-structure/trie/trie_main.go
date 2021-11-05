@@ -1,5 +1,7 @@
 package trie
 
+import "sort"
+
 // Trie
 // 208. 实现 Trie (前缀树)
 // Trie（发音类似 "try"）或者说 前缀树 是一种树形数据结构，用于高效地存储和检索字符串数据集中的键。这一数据结构有相当多的应用情景，例如自动补完和拼写检查。
@@ -174,6 +176,63 @@ func findWords(board [][]byte, words []string) []string {
 
 	for k := range resultMap {
 		result = append(result, k)
+	}
+
+	return result
+}
+
+// 472. 连接词
+// 给定一个 不含重复 单词的字符串数组 words ，编写一个程序，返回 words 中的所有 连接词 。
+//
+// 连接词 的定义为：一个字符串完全是由至少两个给定数组中的单词组成的。
+//
+// 示例 1：
+// 输入：words = ["cat","cats","catsdogcats","dog","dogcatsdog","hippopotamuses","rat","ratcatdogcat"]
+// 输出：["catsdogcats","dogcatsdog","ratcatdogcat"]
+// 解释："catsdogcats"由"cats", "dog" 和 "cats"组成;
+//     "dogcatsdog"由"dog", "cats"和"dog"组成;
+//     "ratcatdogcat"由"rat", "cat", "dog"和"cat"组成。
+//
+// 示例 2：
+// 输入：words = ["cat","dog","catdog"]
+// 输出：["catdog"]
+//
+// 提示：
+// 1 <= words.length <= 104
+// 0 <= words[i].length <= 1000
+// words[i] 仅由小写字母组成
+// 0 <= sum(words[i].length) <= 105
+func findAllConcatenatedWordsInADict(words []string) []string {
+
+	sort.Slice(words, func(i, j int) bool {
+		return len(words[i]) < len(words[j])
+	})
+	result := make([]string, 0)
+	trie := &Trie{root: newNode()}
+
+	var dfs func(word string, start int) bool
+
+	dfs = func(word string, start int) bool {
+		node := trie.root
+		for i := start; i < len(word); i++ {
+			c := word[i]
+			if node.children[c-'a'] == nil {
+				return false
+			}
+			node = node.children[c-'a']
+			if node.isEnd && dfs(word, i+1) {
+				return true
+			}
+		}
+		return node.isEnd && start != 0
+	}
+	for _, word := range words {
+
+		if len(word) > 0 && dfs(word, 0) {
+			result = append(result, word)
+		} else {
+			trie.Insert(word)
+		}
 	}
 
 	return result

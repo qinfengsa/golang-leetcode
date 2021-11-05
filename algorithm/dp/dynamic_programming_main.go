@@ -196,7 +196,6 @@ func max(x, y int) int {
 // 示例 3：
 // 输入：nums = [0] 输出：0
 //
-//
 // 提示：
 // 1 <= nums.length <= 100
 // 0 <= nums[i] <= 1000
@@ -2008,4 +2007,94 @@ func findSubstringInWraproundString(p string) int {
 		result += num
 	}
 	return result
+}
+
+// 1218. 最长定差子序列
+// 给你一个整数数组 arr 和一个整数 difference，请你找出并返回 arr 中最长等差子序列的长度，该子序列中相邻元素之间的差等于 difference 。
+//
+// 子序列 是指在不改变其余元素顺序的情况下，通过删除一些元素或不删除任何元素而从 arr 派生出来的序列。
+//
+// 示例 1：
+// 输入：arr = [1,2,3,4], difference = 1
+// 输出：4
+// 解释：最长的等差子序列是 [1,2,3,4]。
+//
+// 示例 2：
+// 输入：arr = [1,3,5,7], difference = 1
+// 输出：1
+// 解释：最长的等差子序列是任意单个元素。
+//
+// 示例 3：
+// 输入：arr = [1,5,7,8,5,3,4,2,1], difference = -2
+// 输出：4
+// 解释：最长的等差子序列是 [7,5,3,1]。
+//
+// 提示：
+// 1 <= arr.length <= 105
+// -104 <= arr[i], difference <= 104
+func longestSubsequence(arr []int, difference int) int {
+	result := 0
+	subMap := make(map[int]int)
+	for _, num := range arr {
+		count := subMap[num-difference] + 1
+		subMap[num] = count
+		result = max(result, count)
+	}
+
+	return result
+}
+
+// 466. 统计重复个数
+// 定义 str = [s, n] 表示 str 由 n 个字符串 s 连接构成。
+//
+// 例如，str == ["abc", 3] =="abcabcabc" 。
+// 如果可以从 s2 中删除某些字符使其变为 s1，则称字符串 s1 可以从字符串 s2 获得。
+//
+// 例如，根据定义，s1 = "abc" 可以从 s2 = "abdbec" 获得，仅需要删除加粗且用斜体标识的字符。
+// 现在给你两个字符串 s1 和 s2 和两个整数 n1 和 n2 。由此构造得到两个字符串，其中 str1 = [s1, n1]、str2 = [s2, n2] 。
+//
+// 请你找出一个最大整数 m ，以满足 str = [str2, m] 可以从 str1 获得。
+//
+// 示例 1：
+// 输入：s1 = "acb", n1 = 4, s2 = "ab", n2 = 2
+// 输出：2
+//
+// 示例 2：
+// 输入：s1 = "acb", n1 = 1, s2 = "acb", n2 = 1
+// 输出：1
+//
+// 提示：
+// 1 <= s1.length, s2.length <= 100
+// s1 和 s2 由小写英文字母组成
+// 1 <= n1, n2 <= 106
+func getMaxRepetitions(s1 string, n1 int, s2 string, n2 int) int {
+	m, n := len(s1), len(s2)
+	if m*n*n1*n2 == 0 {
+		return 0
+	}
+	if m*n1 < n*n2 {
+		return 0
+	}
+	// dp[i]表示从s2的i字符开始匹配s1，可以匹配多少个字符
+	dp := make([]int, n)
+	for i := 0; i < n; i++ {
+		k := i
+		for j := 0; j < m; j++ {
+			if s1[j] == s2[k] {
+				k++
+				k %= n
+				dp[i]++
+			}
+		}
+	}
+	count, index := 0, 0
+
+	for i := 0; i < n1; i++ {
+		num := dp[index]
+		index += num
+		index %= n
+		count += num
+	}
+
+	return count / n / n2
 }

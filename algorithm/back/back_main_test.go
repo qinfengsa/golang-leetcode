@@ -61,3 +61,9 @@ func Test_totalNQueens(t *testing.T) {
 	result := totalNQueens(n)
 	fmt.Println(result)
 }
+
+func Test_makesquare(t *testing.T) {
+	matchsticks := []int{13, 11, 1, 8, 6, 7, 8, 8, 6, 7, 8, 9, 8}
+	result := makesquare(matchsticks)
+	fmt.Println(result)
+}
