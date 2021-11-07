@@ -2456,3 +2456,83 @@ func rand10() int {
 
 	return result
 }
+
+// 477. 汉明距离总和
+// 两个整数的 汉明距离 指的是这两个数字的二进制数对应位不同的数量。
+// 给你一个整数数组 nums，请你计算并返回 nums 中任意两个数之间 汉明距离的总和 。
+//
+// 示例 1：
+// 输入：nums = [4,14,2]
+// 输出：6
+// 解释：在二进制表示中，4 表示为 0100 ，14 表示为 1110 ，2表示为 0010 。（这样表示是为了体现后四位之间关系）
+// 所以答案为：
+// HammingDistance(4, 14) + HammingDistance(4, 2) + HammingDistance(14, 2) = 2 + 2 + 2 = 6
+//
+// 示例 2：
+// 输入：nums = [4,14,4]
+// 输出：4
+//
+// 提示：
+// 1 <= nums.length <= 104
+// 0 <= nums[i] <= 109
+// 给定输入的对应答案符合 32-bit 整数范围
+func totalHammingDistance(nums []int) int {
+	// 计算每位 1 的个数
+	counts := make([]int, 32)
+	for _, num := range nums {
+		for i := 0; num > 0; i++ {
+			counts[i] += 1 & num
+			num >>= 1
+		}
+	}
+	result, n := 0, len(nums)
+	for _, count := range counts {
+		// count 个1  n-count个0
+		result += count * (n - count)
+	}
+
+	return result
+}
+
+// 479. 最大回文数乘积
+// 你需要找到由两个 n 位数的乘积组成的最大回文数。
+// 由于结果会很大，你只需返回最大回文数 mod 1337得到的结果。
+//
+// 示例:
+// 输入: 2
+// 输出: 987
+// 解释: 99 x 91 = 9009, 9009 % 1337 = 987
+//
+// 说明:
+// n 的取值范围为 [1,8]。
+func largestPalindrome(n int) int {
+	if n == 1 {
+		return 9
+	}
+	maxVal := 1
+	for i := 0; i < n; i++ {
+		maxVal *= 10
+	}
+	mod := 1337
+	maxVal--
+	// 而相乘可以构成9的尾数只有3(33),7(77),9(9*1)
+	for i := maxVal - 1; i > maxVal/10; i-- {
+		// 构造回文数 9889 后缀
+		prev, sufNum := i, i
+		for sufNum > 0 {
+			prev = prev*10 + sufNum%10
+			sufNum /= 10
+		}
+		num := maxVal
+		for num > 0 && num*num >= prev {
+			if prev%num == 0 {
+				return prev % mod
+			} else if num%10 == 9 {
+				num -= 2
+			} else {
+				num -= 4
+			}
+		}
+	}
+	return -1
+}
