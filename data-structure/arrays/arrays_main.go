@@ -534,18 +534,16 @@ func validMountainArray(A []int) bool {
 // 输入的数组只包含 0 和1。
 // 输入数组的长度是正整数，且不超过 10,000。
 func findMaxConsecutiveOnes(nums []int) int {
-	max, count := 0, 0
+	maxVal, count := 0, 0
 	for _, num := range nums {
-		if num != 0 {
+		if num == 0 {
 			count = 0
 		} else {
 			count++
-			if count > max {
-				max = count
-			}
+			maxVal = max(maxVal, count)
 		}
 	}
-	return max
+	return maxVal
 }
 
 // 506. 相对名次
