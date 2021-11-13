@@ -1235,3 +1235,53 @@ func makesquare(matchsticks []int) bool {
 
 	return back(0, 0, 0)
 }
+
+// 491. 递增子序列
+// 给你一个整数数组 nums ，找出并返回所有该数组中不同的递增子序列，递增子序列中 至少有两个元素 。你可以按 任意顺序 返回答案。
+//
+// 数组中可能含有重复元素，如出现两个整数相等，也可以视作递增序列的一种特殊情况。
+//
+// 示例 1：
+// 输入：nums = [4,6,7,7]
+// 输出：[[4,6],[4,6,7],[4,6,7,7],[4,7],[4,7,7],[6,7],[6,7,7],[7,7]]
+//
+// 示例 2：
+// 输入：nums = [4,4,3,2,1]
+// 输出：[[4,4]]
+//
+// 提示：
+// 1 <= nums.length <= 15
+// -100 <= nums[i] <= 100
+func findSubsequences(nums []int) [][]int {
+	result := make([][]int, 0)
+	n := len(nums)
+	if n < 2 {
+		return result
+	}
+	var back func(index int, arrs []int)
+
+	back = func(index int, arrs []int) {
+		l := len(arrs)
+		if index == n {
+			if l >= 2 {
+				tmp := make([]int, l)
+				copy(tmp, arrs)
+				result = append(result, tmp)
+			}
+			return
+		}
+		// 把第 index 个元素加进 arrs 中
+		if l == 0 || arrs[l-1] <= nums[index] {
+			tmp := append(arrs, nums[index])
+			back(index+1, tmp)
+		}
+		if index > 0 && l > 0 && arrs[l-1] == nums[index] {
+			return
+		}
+		// 不加 arrs
+		back(index+1, arrs)
+	}
+
+	back(0, make([]int, 0))
+	return result
+}

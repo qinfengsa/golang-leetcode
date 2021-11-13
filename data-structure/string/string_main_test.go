@@ -52,3 +52,11 @@ func Test_findLadders(t *testing.T) {
 	result := findLadders(beginWord, endWord, wordList)
 	fmt.Println(result)
 }
+
+// func findMinStep(board string, hand string)
+func Test_findMinStep(t *testing.T) {
+	board, hand := "RRWWRRW", "WR"
+
+	result := findMinStep(board, hand)
+	fmt.Println(result)
+}
