@@ -3789,3 +3789,75 @@ func findPoisonedDuration(timeSeries []int, duration int) int {
 
 	return result
 }
+
+// 493. 翻转对
+// 给定一个数组 nums ，如果 i < j 且 nums[i] > 2*nums[j] 我们就将 (i, j) 称作一个重要翻转对。
+//
+// 你需要返回给定数组中的重要翻转对的数量。
+//
+// 示例 1:
+// 输入: [1,3,2,3,1]
+// 输出: 2
+//
+// 示例 2:
+// 输入: [2,4,3,5,1]
+// 输出: 3
+// 注意:
+// 给定数组的长度不会超过50000。
+// 输入数组中的所有数字都在32位整数的表示范围内。
+func reversePairs(nums []int) int {
+	n := len(nums)
+
+	var mergeSort func(start, end int) int
+
+	// 归并排序
+	mergeSort = func(start, end int) int {
+		if start == end {
+			return 0
+		}
+		mid := (start + end) >> 1
+		count1, count2 := mergeSort(start, mid), mergeSort(mid+1, end)
+		result := count1 + count2
+		i, j := start, mid+1
+		for ; i <= mid; i++ {
+			for j <= end && nums[i] > 2*nums[j] {
+				j++
+			}
+			result += j - mid - 1
+		}
+
+		// 合并有序数组
+		tmpNums := make([]int, end-start+1)
+		index := 0
+		i, j = start, mid+1
+		for index < len(tmpNums) {
+			if i > mid {
+				tmpNums[index] = nums[j]
+				index++
+				j++
+				continue
+			}
+			if j > end {
+				tmpNums[index] = nums[i]
+				index++
+				i++
+				continue
+			}
+			if nums[i] < nums[j] {
+				tmpNums[index] = nums[i]
+				index++
+				i++
+			} else {
+				tmpNums[index] = nums[j]
+				index++
+				j++
+			}
+		}
+		for k := 0; k < len(tmpNums); k++ {
+			nums[start+k] = tmpNums[k]
+		}
+		return result
+	}
+
+	return mergeSort(0, n-1)
+}

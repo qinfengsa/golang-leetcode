@@ -433,7 +433,7 @@ func sumOfLeftLeaves(root *TreeNode) int {
 // 进阶：你可以不使用额外的空间吗？（假设由递归产生的隐式调用栈的开销不被计算在内）
 func findMode(root *TreeNode) []int {
 	prev := -1
-	result := []int{}
+	var result []int
 	count, maxCount := 0, 0
 	var inOrder func(*TreeNode)
 	inOrder = func(node *TreeNode) {

@@ -614,7 +614,7 @@ func convertToBase7(num int) string {
 		num = -num
 	}
 	for num > 0 {
-		result = fmt.Sprintf("%d", num%7) + result
+		result = strconv.Itoa(num%7) + result
 		num /= 7
 	}
 	if minus {
