@@ -2213,3 +2213,97 @@ func deleteNode(root *TreeNode, key int) *TreeNode {
 
 	return root
 }
+
+// 508. 出现次数最多的子树元素和
+// 给你一个二叉树的根结点，请你找出出现次数最多的子树元素和。一个结点的「子树元素和」定义为以该结点为根的二叉树上所有结点的元素之和（包括结点本身）。
+//
+// 你需要返回出现次数最多的子树元素和。如果有多个元素出现的次数相同，返回所有出现次数最多的子树元素和（不限顺序）。
+//
+// 示例 1：
+// 输入:
+//    5
+//  /  \
+// 2   -3
+// 返回 [2, -3, 4]，所有的值均只出现一次，以任意顺序返回所有值。
+//
+// 示例 2：
+// 输入：
+//    5
+//  /  \
+// 2   -5
+// 返回 [2]，只有 2 出现两次，-5 只出现 1 次。
+//
+// 提示： 假设任意子树元素和均可以用 32 位有符号整数表示。
+func findFrequentTreeSum(root *TreeNode) []int {
+	result := make([]int, 0)
+	if root == nil {
+		return result
+	}
+	sumMap := make(map[int]int)
+
+	var calSum func(node *TreeNode) int
+	maxCount := 0
+	calSum = func(node *TreeNode) int {
+		val := node.Val
+		if node.Left != nil {
+			val += calSum(node.Left)
+		}
+		if node.Right != nil {
+			val += calSum(node.Right)
+		}
+		sumMap[val]++
+		maxCount = max(maxCount, sumMap[val])
+		return val
+	}
+	calSum(root)
+	for k, v := range sumMap {
+		if v == maxCount {
+			result = append(result, k)
+		}
+	}
+
+	return result
+}
+
+// 513. 找树左下角的值
+// 给定一个二叉树的 根节点 root，请找出该二叉树的 最底层 最左边 节点的值。
+//
+// 假设二叉树中至少有一个节点。
+//
+// 示例 1:
+// 输入: root = [2,1,3]
+// 输出: 1
+//
+// 示例 2:
+// 输入: [1,2,3,4,null,5,6,null,null,7]
+// 输出: 7
+//
+// 提示:
+// 二叉树的节点个数的范围是 [1,104]
+// -231 <= Node.val <= 231 - 1
+func findBottomLeftValue(root *TreeNode) int {
+	// 广度优先遍历
+	queue := list.New()
+	result := -1
+	queue.PushBack(root)
+
+	for queue.Len() > 0 {
+		n := queue.Len()
+		for i := 0; i < n; i++ {
+			front := queue.Front()
+			queue.Remove(front)
+			node := front.Value.(*TreeNode)
+			if i == 0 {
+				result = node.Val
+			}
+			if node.Left != nil {
+				queue.PushBack(node.Left)
+			}
+			if node.Right != nil {
+				queue.PushBack(node.Right)
+			}
+		}
+	}
+
+	return result
+}

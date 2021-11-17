@@ -651,7 +651,7 @@ func checkPerfectNumber(num int) bool {
 		return false
 	}
 	sum := 1
-	for i := 2; i*i < num; i++ {
+	for i := 2; i*i <= num; i++ {
 		if num%i != 0 {
 			continue
 		}

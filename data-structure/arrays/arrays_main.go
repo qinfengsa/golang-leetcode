@@ -560,15 +560,15 @@ func findMaxConsecutiveOnes(nums []int) int {
 //
 // N 是一个正整数并且不会超过 10000。
 // 所有运动员的成绩都不相同。
-func findRelativeRanks(nums []int) []string {
+func findRelativeRanks(score []int) []string {
 	// 所有运动员的成绩都不相同
 	indexMap := make(map[int]int)
-	for i, num := range nums {
+	for i, num := range score {
 		indexMap[num] = i
 	}
-	sort.Ints(nums)
-	size := len(nums)
-	result := make([]string, size)
+	sort.Ints(score)
+	n := len(score)
+	result := make([]string, n)
 	var getRank = func(rank int) string {
 		switch rank {
 		case 1:
@@ -578,11 +578,11 @@ func findRelativeRanks(nums []int) []string {
 		case 3:
 			return "Bronze Medal"
 		default:
-			return fmt.Sprintf("%d", rank)
+			return strconv.Itoa(rank)
 		}
 	}
-	for i, num := range nums {
-		rank := size - i
+	for i, num := range score {
+		rank := n - i
 		index := indexMap[num]
 		result[index] = getRank(rank)
 	}
