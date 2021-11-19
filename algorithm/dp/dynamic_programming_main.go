@@ -166,6 +166,12 @@ func minCostClimbingStairs(cost []int) int {
 	}
 	return min(dp[size-1], dp[size-2])
 }
+func abs(x int) int {
+	if x < 0 {
+		return -1 * x
+	}
+	return x
+}
 
 func min(x, y int) int {
 	if x > y {
@@ -2238,4 +2244,141 @@ func findTargetSumWays(nums []int, target int) int {
 	}
 
 	return dp[b]
+}
+
+// 514. 自由之路
+// 电子游戏“辐射4”中，任务“通向自由”要求玩家到达名为“Freedom Trail Ring”的金属表盘，并使用表盘拼写特定关键词才能开门。
+// 给定一个字符串 ring，表示刻在外环上的编码；给定另一个字符串 key，表示需要拼写的关键词。您需要算出能够拼写关键词中所有字符的最少步数。
+// 最初，ring 的第一个字符与12:00方向对齐。您需要顺时针或逆时针旋转 ring 以使 key 的一个字符在 12:00 方向对齐，然后按下中心按钮，以此逐个拼写完 key 中的所有字符。
+// 旋转 ring 拼出 key 字符 key[i] 的阶段中：
+//
+// 您可以将 ring 顺时针或逆时针旋转一个位置，计为1步。旋转的最终目的是将字符串 ring 的一个字符与 12:00 方向对齐，并且这个字符必须等于字符 key[i] 。
+// 如果字符 key[i] 已经对齐到12:00方向，您需要按下中心按钮进行拼写，这也将算作 1 步。按完之后，您可以开始拼写 key 的下一个字符（下一阶段）, 直至完成所有拼写。
+//
+// 示例：
+// 输入: ring = "godding", key = "gd"
+// 输出: 4
+// 解释:
+//  对于 key 的第一个字符 'g'，已经在正确的位置, 我们只需要1步来拼写这个字符。
+//  对于 key 的第二个字符 'd'，我们需要逆时针旋转 ring "godding" 2步使它变成 "ddinggo"。
+//  当然, 我们还需要1步进行拼写。
+//  因此最终的输出是 4。
+//
+// 提示：
+// ring 和 key 的字符串长度取值范围均为 1 至 100；
+// 两个字符串中都只有小写字符，并且均可能存在重复字符；
+// 字符串 key 一定可以由字符串 ring 旋转拼出。
+func findRotateSteps(ring string, key string) int {
+	const inf = math.MaxInt32 >> 1
+	m, n := len(ring), len(key)
+	indexMap := make(map[byte][]int)
+	for i := 0; i < m; i++ {
+		c := ring[i]
+		indexMap[c] = append(indexMap[c], i)
+	}
+	dp := make([][]int, m)
+	for i := 0; i < m; i++ {
+		dp[i] = make([]int, n)
+		for j := 0; j < n; j++ {
+			dp[i][j] = inf
+		}
+	}
+	// dp[i][j] ring[i] 到 key[j] 的距离
+	first := key[0]
+	for _, idx := range indexMap[first] {
+		dp[idx][0] = min(idx, m-idx) + 1
+	}
+
+	for j := 1; j < n; j++ {
+		c := key[j]
+		for _, idx := range indexMap[c] {
+			for _, last := range indexMap[key[j-1]] {
+				distance := abs(idx - last)
+				// idx 到 last 的 最小距离
+				l := min(distance, m-distance)
+				dp[idx][j] = min(dp[idx][j], dp[last][j-1]+l+1)
+			}
+		}
+	}
+
+	result := inf
+	for i := 0; i < m; i++ {
+		result = min(result, dp[i][n-1])
+	}
+	return result
+}
+
+// 516. 最长回文子序列
+// 给你一个字符串 s ，找出其中最长的回文子序列，并返回该序列的长度。
+// 子序列定义为：不改变剩余字符顺序的情况下，删除某些字符或者不删除任何字符形成的一个序列。
+//
+// 示例 1：
+// 输入：s = "bbbab" 输出：4
+// 解释：一个可能的最长回文子序列为 "bbbb" 。
+//
+// 示例 2：
+// 输入：s = "cbbd" 输出：2
+// 解释：一个可能的最长回文子序列为 "bb" 。
+//
+// 提示：
+// 1 <= s.length <= 1000
+// s 仅由小写英文字母组成
+func longestPalindromeSubseq(s string) int {
+	n := len(s)
+	dp := make([][]int, n)
+	for i := 0; i < n; i++ {
+		dp[i] = make([]int, n)
+		dp[i][i] = 1
+	}
+	for i := n - 1; i >= 0; i-- {
+		for j := i + 1; j < n; j++ {
+			if s[i] == s[j] {
+				dp[i][j] = max(dp[i][j], dp[i+1][j-1]+2)
+			} else {
+				dp[i][j] = max(dp[i+1][j], dp[i][j-1])
+			}
+		}
+	}
+
+	return dp[0][n-1]
+}
+
+// 518. 零钱兑换 II
+// 给你一个整数数组 coins 表示不同面额的硬币，另给一个整数 amount 表示总金额。
+// 请你计算并返回可以凑成总金额的硬币组合数。如果任何硬币组合都无法凑出总金额，返回 0 。
+// 假设每一种面额的硬币有无限个。
+// 题目数据保证结果符合 32 位带符号整数。
+//
+// 示例 1：
+// 输入：amount = 5, coins = [1, 2, 5]
+// 输出：4
+// 解释：有四种方式可以凑成总金额：
+// 5=5
+// 5=2+2+1
+// 5=2+1+1+1
+// 5=1+1+1+1+1
+//
+// 示例 2：
+// 输入：amount = 3, coins = [2]
+// 输出：0
+// 解释：只用面额 2 的硬币不能凑成总金额 3 。
+//
+// 示例 3：
+// 输入：amount = 10, coins = [10]
+// 输出：1
+//
+// 提示：
+// 1 <= coins.length <= 300
+// 1 <= coins[i] <= 5000
+// coins 中的所有值 互不相同
+// 0 <= amount <= 5000
+func change(amount int, coins []int) int {
+	dp := make([]int, amount+1)
+	dp[0] = 1
+	for _, coin := range coins {
+		for i := coin; i <= amount; i++ {
+			dp[i] += dp[i-coin]
+		}
+	}
+	return dp[amount]
 }

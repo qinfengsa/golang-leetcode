@@ -686,12 +686,12 @@ func checkPerfectNumber(num int) bool {
 // 解释：F(4) = F(3) + F(2) = 2 + 1 = 3.
 //
 // 提示： 0 ≤ N ≤ 30
-func fib(N int) int {
-	if N == 0 {
+func fib(n int) int {
+	if n == 0 {
 		return 0
 	}
 	a, b := 0, 1
-	for i := 2; i <= N; i++ {
+	for i := 2; i <= n; i++ {
 		a, b = b, a+b
 	}
 	return b
