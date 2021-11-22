@@ -3092,3 +3092,58 @@ func findMinStep(board string, hand string) int {
 	}
 	return minStep
 }
+
+// 522. 最长特殊序列 II
+// 给定字符串列表，你需要从它们中找出最长的特殊序列。最长特殊序列定义如下：该序列为某字符串独有的最长子序列（即不能是其他字符串的子序列）。
+//
+// 子序列可以通过删去字符串中的某些字符实现，但不能改变剩余字符的相对顺序。空序列为所有字符串的子序列，任何字符串为其自身的子序列。
+// 输入将是一个字符串列表，输出是最长特殊序列的长度。如果最长特殊序列不存在，返回 -1 。
+//
+// 示例：
+// 输入: "aba", "cdc", "eae" 输出: 3
+//
+// 提示：
+// 所有给定的字符串长度不会超过 10 。
+// 给定字符串列表的长度将在 [2, 50 ] 之间。
+func findLUSlengthII(strs []string) int {
+	sort.Slice(strs, func(i, j int) bool {
+		return len(strs[i]) > len(strs[j])
+	})
+	// 判断 a 是否是 b 的子序列
+	isSubsequence := func(a, b string) bool {
+		if len(a) > len(b) {
+			return false
+		}
+		if a == b {
+			return true
+		}
+		index := 0
+		for i := 0; i < len(b) && index < len(a); i++ {
+			if a[index] == b[i] {
+				index++
+			}
+		}
+		return index == len(a)
+	}
+
+	n := len(strs)
+	for i := 0; i < n; i++ {
+		flag := true
+
+		for j := 0; j < n; j++ {
+			if i == j {
+				continue
+			}
+			if isSubsequence(strs[i], strs[j]) {
+				flag = false
+				break
+			}
+		}
+
+		if flag {
+			return len(strs[i])
+		}
+	}
+
+	return -1
+}
