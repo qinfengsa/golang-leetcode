@@ -3109,22 +3109,6 @@ func findLUSlengthII(strs []string) int {
 	sort.Slice(strs, func(i, j int) bool {
 		return len(strs[i]) > len(strs[j])
 	})
-	// 判断 a 是否是 b 的子序列
-	isSubsequence := func(a, b string) bool {
-		if len(a) > len(b) {
-			return false
-		}
-		if a == b {
-			return true
-		}
-		index := 0
-		for i := 0; i < len(b) && index < len(a); i++ {
-			if a[index] == b[i] {
-				index++
-			}
-		}
-		return index == len(a)
-	}
 
 	n := len(strs)
 	for i := 0; i < n; i++ {
@@ -3146,4 +3130,116 @@ func findLUSlengthII(strs []string) int {
 	}
 
 	return -1
+}
+
+// 判断 a 是否是 b 的子序列
+func isSubsequence(a, b string) bool {
+	if len(a) > len(b) {
+		return false
+	}
+	if a == b {
+		return true
+	}
+	index := 0
+	for i := 0; i < len(b) && index < len(a); i++ {
+		if a[index] == b[i] {
+			index++
+		}
+	}
+	return index == len(a)
+}
+
+// 859. 亲密字符串
+// 给你两个字符串 s 和 goal ，只要我们可以通过交换 s 中的两个字母得到与 goal 相等的结果，就返回 true ；否则返回 false 。
+// 交换字母的定义是：取两个下标 i 和 j （下标从 0 开始）且满足 i != j ，接着交换 s[i] 和 s[j] 处的字符。
+// 例如，在 "abcd" 中交换下标 0 和下标 2 的元素可以生成 "cbad" 。
+//
+// 示例 1：
+// 输入：s = "ab", goal = "ba"
+// 输出：true
+// 解释：你可以交换 s[0] = 'a' 和 s[1] = 'b' 生成 "ba"，此时 s 和 goal 相等。
+//示例 2：
+//
+//输入：s = "ab", goal = "ab"
+//输出：false
+//解释：你只能交换 s[0] = 'a' 和 s[1] = 'b' 生成 "ba"，此时 s 和 goal 不相等。
+//
+// 示例 3：
+// 输入：s = "aa", goal = "aa"
+// 输出：true
+// 解释：你可以交换 s[0] = 'a' 和 s[1] = 'a' 生成 "aa"，此时 s 和 goal 相等。
+//
+// 示例 4：
+// 输入：s = "aaaaaaabc", goal = "aaaaaaacb"
+// 输出：true
+//
+// 提示：
+// 1 <= s.length, goal.length <= 2 * 104
+// s 和 goal 由小写英文字母组成
+func buddyStrings(s string, goal string) bool {
+	if len(s) != len(goal) {
+		return false
+	}
+	n := len(s)
+	diff, twoCount := 0, false
+	first, second := -1, -1
+	letters := [26]int{}
+	for i := 0; i < n; i++ {
+		if s[i] == goal[i] {
+			index := int(s[i] - 'a')
+			letters[index]++
+			if letters[index] >= 2 {
+				twoCount = true
+			}
+		} else {
+			diff++
+			if diff == 1 {
+				first = i
+			}
+			if diff == 2 {
+				second = i
+			}
+			if diff > 2 {
+				return false
+			}
+		}
+	}
+	if diff == 0 && twoCount {
+		return true
+	}
+	if diff == 2 && s[first] == goal[second] && s[second] == goal[first] {
+		return true
+	}
+	return false
+}
+
+// 524. 通过删除字母匹配到字典里最长单词
+// 给你一个字符串 s 和一个字符串数组 dictionary ，找出并返回 dictionary 中最长的字符串，该字符串可以通过删除 s 中的某些字符得到。
+//
+// 如果答案不止一个，返回长度最长且字母序最小的字符串。如果答案不存在，则返回空字符串。
+//
+// 示例 1：
+// 输入：s = "abpcplea", dictionary = ["ale","apple","monkey","plea"]
+// 输出："apple"
+//
+// 示例 2：
+// 输入：s = "abpcplea", dictionary = ["a","b","c"]
+// 输出："a"
+//
+// 提示：
+// 1 <= s.length <= 1000
+// 1 <= dictionary.length <= 1000
+// 1 <= dictionary[i].length <= 1000
+// s 和 dictionary[i] 仅由小写英文字母组成
+func findLongestWord(s string, dictionary []string) string {
+	sort.Strings(dictionary)
+	result := ""
+	for _, word := range dictionary {
+		if isSubsequence(word, s) {
+			if len(word) > len(result) {
+				result = word
+			}
+		}
+	}
+	return result
 }
