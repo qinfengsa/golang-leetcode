@@ -2,6 +2,7 @@ package math
 
 import (
 	"container/list"
+	"math"
 	"strconv"
 )
 
@@ -290,4 +291,70 @@ func isDigit(expression string) bool {
 		return false
 	}
 	return true
+}
+
+// 556. 下一个更大元素 III
+// 给你一个正整数 n ，请你找出符合条件的最小整数，其由重新排列 n 中存在的每位数字组成，并且其值大于 n 。如果不存在这样的正整数，则返回 -1 。
+//
+// 注意 ，返回的整数应当是一个 32 位整数 ，如果存在满足题意的答案，但不是 32 位整数 ，同样返回 -1 。
+//
+// 示例 1：
+// 输入：n = 12 输出：21
+//
+// 示例 2：
+// 输入：n = 21 输出：-1
+//
+// 提示：
+// 1 <= n <= 231 - 1
+func nextGreaterElement(n int) int {
+	nums := [32]int{}
+	for i := 0; i < 32; i++ {
+		nums[i] = -1
+	}
+	index := 31
+	for n > 0 {
+		nums[index] = n % 10
+		n /= 10
+		index--
+	}
+	// 1 从后往前,找到第一个递增（从后往前递增,从前往后递减）
+	// 2 然后 获取前一位数字a, 如果前一位是0或不存在,返回-1
+	// 3 在 后面的数字中找到比a大的最小值, 放到a的位置
+	// 4 对后面的数字排序,(逆序即可)
+	index = -1
+	for i := 30; i >= 0; i-- {
+		if nums[i] != -1 && nums[i] < nums[i+1] {
+			index = i
+			break
+		}
+	}
+	if index == -1 {
+		return -1
+	}
+	left, right := index+1, len(nums)-1
+	for left < right {
+		nums[left], nums[right] = nums[right], nums[left]
+		left++
+		right--
+	}
+	for i := index + 1; i < len(nums); i++ {
+		if nums[i] > nums[index] {
+			nums[index], nums[i] = nums[i], nums[index]
+			break
+		}
+	}
+	maxVal := math.MaxInt32 / 10
+
+	result := 0
+	for _, num := range nums {
+		if num == -1 {
+			continue
+		}
+		if result > maxVal || (result == maxVal && num > 7) {
+			return -1
+		}
+		result = result*10 + num
+	}
+	return result
+
 }
