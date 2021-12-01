@@ -3243,3 +3243,228 @@ func findLongestWord(s string, dictionary []string) string {
 	}
 	return result
 }
+
+// 567. 字符串的排列
+// 给你两个字符串 s1 和 s2 ，写一个函数来判断 s2 是否包含 s1 的排列。如果是，返回 true ；否则，返回 false 。
+//
+// 换句话说，s1 的排列之一是 s2 的 子串 。
+//
+// 示例 1：
+// 输入：s1 = "ab" s2 = "eidbaooo"
+// 输出：true
+// 解释：s2 包含 s1 的排列之一 ("ba").
+//
+// 示例 2：
+// 输入：s1= "ab" s2 = "eidboaoo"  输出：false
+//
+// 提示：
+// 1 <= s1.length, s2.length <= 104
+// s1 和 s2 仅包含小写字母
+func checkInclusion(s1 string, s2 string) bool {
+	// 滑动窗口
+	m, n := len(s1), len(s2)
+	if m > n {
+		return false
+	}
+	letters1, letters2 := [26]int{}, [26]int{}
+
+	for i := 0; i < m; i++ {
+		letters1[s1[i]-'a']++
+		letters2[s2[i]-'a']++
+	}
+	match := func() bool {
+		for i := 0; i < 26; i++ {
+			if letters1[i] != letters2[i] {
+				return false
+			}
+		}
+		return true
+	}
+
+	for i := m; i < n; i++ {
+		if match() {
+			return true
+		}
+		letters2[s2[i]-'a']++
+		letters2[s2[i-m]-'a']--
+	}
+	return match()
+}
+
+// 564. 寻找最近的回文数
+// 给定一个整数 n ，你需要找到与它最近的回文数（不包括自身）。
+// “最近的”定义为两个整数差的绝对值最小。
+//
+// 示例 1:
+// 输入: "123" 输出: "121"
+// 注意:
+// n 是由字符串表示的正整数，其长度不超过18。
+// 如果有多个结果，返回最小的那个。
+func nearestPalindromic(n string) string {
+	m := len(n)
+	num, _ := strconv.Atoi(n)
+	if num == 11 {
+		return "9"
+	} else if num <= 10 {
+		return strconv.Itoa(num - 1)
+	}
+	// 奇数
+	odd := m&1 == 1
+	midIdx := m >> 1
+	var strPre string
+	if odd {
+		strPre = n[:midIdx+1]
+	} else {
+		strPre = n[:midIdx]
+	}
+	halfNum, _ := strconv.Atoi(strPre)
+	if isTenMultiple(n) { // 1000 -> 999
+		return strconv.Itoa(num - 1)
+	} else if validPalindromeString(n) { // 本身是回文
+		if n[midIdx] == '0' {
+			// 10001 -> 9999
+			if is101(n) {
+				return strconv.Itoa(num - 2)
+			}
+		} else if n[midIdx] == '9' {
+			// 9999 -> 10001
+			if isAllNine(n) {
+				return strconv.Itoa(num + 2)
+			}
+		}
+		tmp1, tmp2 := getResult(odd, strconv.Itoa(halfNum-1)), getResult(odd, strconv.Itoa(halfNum+1))
+		tmpNum1, _ := strconv.Atoi(tmp1)
+		tmpNum2, _ := strconv.Atoi(tmp2)
+		if num-tmpNum1 <= tmpNum2-num {
+			return tmp1
+		} else {
+			return tmp2
+		}
+	} else {
+		// 否则进行去中间数+1，-1，和中间数不变三个进行比较
+		tmp1, tmp2, tmp3 := getResult(odd, strconv.Itoa(halfNum+1)), getResult(odd, strconv.Itoa(halfNum-1)),
+			getResult(odd, strPre)
+		tmpNum1, _ := strconv.Atoi(tmp1)
+		tmpNum2, _ := strconv.Atoi(tmp2)
+		tmpNum3, _ := strconv.Atoi(tmp3)
+
+		if tmpNum1-num < num-tmpNum2 && tmpNum1-num < abs(tmpNum3-num) {
+			return tmp1
+		} else if num-tmpNum2 < tmpNum1-num && num-tmpNum2 <= abs(tmpNum3-num) {
+			return tmp2
+		} else {
+			return tmp3
+		}
+
+	}
+}
+func abs(x int) int {
+	if x < 0 {
+		return -1 * x
+	}
+	return x
+}
+
+func getResult(odd bool, strPre string) string {
+	strSuf := reverse(strPre)
+	if odd {
+		return strPre + strSuf[1:]
+	}
+	return strPre + strSuf
+}
+
+func validPalindromeString(s string) bool {
+	left, right := 0, len(s)-1
+	for left < right {
+		if s[left] != s[right] {
+			return false
+		}
+		left++
+		right--
+	}
+	return true
+}
+func isAllNine(s string) bool {
+	for i := 0; i < len(s); i++ {
+		if s[i] != '9' {
+			return false
+		}
+	}
+	return true
+}
+
+func is101(s string) bool {
+	n := len(s)
+	if s[0] != '1' || s[n-1] != '1' {
+		return false
+	}
+	for i := 1; i < n-1; i++ {
+		if s[i] != '0' {
+			return false
+		}
+	}
+	return true
+}
+
+func isTenMultiple(s string) bool {
+	if s[0] != '1' {
+		return false
+	}
+	for i := 1; i < len(s); i++ {
+		if s[i] != '0' {
+			return false
+		}
+	}
+
+	return true
+}
+
+func reverse(s string) string {
+	bytes := []byte(s)
+	left, right := 0, len(s)-1
+	for left < right {
+		bytes[left], bytes[right] = bytes[right], bytes[left]
+		left++
+		right--
+	}
+	return string(bytes)
+}
+
+// 1446. 连续字符
+// 给你一个字符串 s ，字符串的「能量」定义为：只包含一种字符的最长非空子字符串的长度。
+// 请你返回字符串的能量。
+//
+// 例 1：
+// 输入：s = "leetcode" 输出：2
+// 解释：子字符串 "ee" 长度为 2 ，只包含字符 'e' 。
+//
+// 示例 2：
+// 输入：s = "abbcccddddeeeeedcba" 输出：5
+// 解释：子字符串 "eeeee" 长度为 5 ，只包含字符 'e' 。
+//
+// 示例 3：
+// 输入：s = "triplepillooooow" 输出：5
+//
+// 示例 4：
+// 输入：s = "hooraaaaaaaaaaay" 输出：11
+//
+// 示例 5：
+// 输入：s = "tourist" 输出：1
+//
+// 提示：
+// 1 <= s.length <= 500
+// s 只包含小写英文字母。
+func maxPower(s string) int {
+	n := len(s)
+	result, count := 1, 1
+	for i := 1; i < n; i++ {
+		if s[i] == s[i-1] {
+			count++
+		} else {
+			count = 1
+		}
+		result = max(result, count)
+	}
+
+	return result
+}
