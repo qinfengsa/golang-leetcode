@@ -614,15 +614,15 @@ func findTilt(root *TreeNode) int {
 //  / \
 // 1   2
 // 返回 false。
-func isSubtree(s *TreeNode, t *TreeNode) bool {
-	if s == nil {
+func isSubtree(root *TreeNode, subRoot *TreeNode) bool {
+	if root == nil {
 		return false
 	}
 	b1 := false
-	if s.Val == t.Val {
-		b1 = isSameTree(s, t)
+	if root.Val == subRoot.Val {
+		b1 = isSameTree(root, subRoot)
 	}
-	return b1 || isSubtree(s.Left, t) || isSubtree(s.Right, t)
+	return b1 || isSubtree(root.Left, subRoot) || isSubtree(root.Right, subRoot)
 }
 
 // 606. 根据二叉树创建字符串

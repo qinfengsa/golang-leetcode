@@ -2440,7 +2440,9 @@ func removeBoxes(boxes []int) int {
 }
 
 var (
-	Mod = 1_000_000_007
+	Mod    = 1_000_000_007
+	DirCol = []int{1, -1, 0, 0}
+	DirRow = []int{0, 0, 1, -1}
 )
 
 // 552. 学生出勤记录 II
@@ -2507,4 +2509,59 @@ func checkRecord(n int) int {
 	dp0 %= Mod
 
 	return dp0
+}
+
+// 576. 出界的路径数
+// 给你一个大小为 m x n 的网格和一个球。球的起始坐标为 [startRow, startColumn] 。你可以将球移到在四个方向上相邻的单元格内（可以穿过网格边界到达网格之外）。你 最多 可以移动 maxMove 次球。
+//
+// 给你五个整数 m、n、maxMove、startRow 以及 startColumn ，找出并返回可以将球移出边界的路径数量。因为答案可能非常大，返回对 109 + 7 取余 后的结果。
+//
+// 示例 1：
+// 输入：m = 2, n = 2, maxMove = 2, startRow = 0, startColumn = 0
+// 输出：6
+//
+// 示例 2：
+// 输入：m = 1, n = 3, maxMove = 3, startRow = 0, startColumn = 1
+// 输出：12
+//
+// 提示：
+// 1 <= m, n <= 50
+// 0 <= maxMove <= 50
+// 0 <= startRow < m
+// 0 <= startColumn < n
+func findPaths(m int, n int, maxMove int, startRow int, startColumn int) int {
+	dp := make([][][]int, m+2)
+	for i := 0; i <= m+1; i++ {
+		dp[i] = make([][]int, n+2)
+		for j := 0; j <= n+1; j++ {
+			dp[i][j] = make([]int, maxMove+1)
+		}
+		// 第一列和最后一列
+		dp[i][0][0] = 1
+		dp[i][n+1][0] = 1
+	}
+	for j := 0; j <= n+1; j++ {
+		// 第一行和最后一行
+		dp[0][j][0] = 1
+		dp[m+1][j][0] = 1
+	}
+
+	for k := 1; k <= maxMove; k++ {
+		for i := 1; i <= m; i++ {
+			for j := 1; j <= n; j++ {
+				for s := 0; s < 4; s++ {
+					prevRow, prevCol := i+DirRow[s], j+DirCol[s]
+					dp[i][j][k] += dp[prevRow][prevCol][k-1]
+					dp[i][j][k] %= Mod
+				}
+			}
+		}
+	}
+
+	result := 0
+	for k := 1; k <= maxMove; k++ {
+		result += dp[startRow+1][startColumn+1][k]
+		result %= Mod
+	}
+	return result
 }
