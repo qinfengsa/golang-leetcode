@@ -26,7 +26,7 @@ func maxDepth2(root *Node) int {
 // 返回其前序遍历: [1,3,5,6,2,4]。
 // 说明: 递归法很简单，你可以使用迭代法完成此题吗?
 func preorder(root *Node) []int {
-	result := []int{}
+	var result []int
 	var preorderList func(*Node)
 	preorderList = func(node *Node) {
 		if node == nil {
@@ -48,7 +48,7 @@ func preorder(root *Node) []int {
 // 返回其后序遍历: [5,6,3,2,4,1].
 // 说明: 递归法很简单，你可以使用迭代法完成此题吗?
 func postorder(root *Node) []int {
-	result := []int{}
+	var result []int
 	var postorderList func(*Node)
 	postorderList = func(node *Node) {
 		if node == nil {

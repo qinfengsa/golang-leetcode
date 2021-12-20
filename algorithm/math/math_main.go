@@ -1,10 +1,12 @@
 package math
 
 import (
+	"container/list"
 	"fmt"
 	"log"
 	"math"
 	"math/bits"
+	"sort"
 	"strconv"
 	"strings"
 )
@@ -2654,4 +2656,96 @@ func optimalDivision(nums []int) string {
 	builder.WriteString(")")
 
 	return builder.String()
+}
+
+// 587. 安装栅栏
+// 在一个二维的花园中，有一些用 (x, y) 坐标表示的树。由于安装费用十分昂贵，你的任务是先用最短的绳子围起所有的树。只有当所有的树都被绳子包围时，花园才能围好栅栏。你需要找到正好位于栅栏边界上的树的坐标。
+//
+// 示例 1:
+// 输入: [[1,1],[2,2],[2,0],[2,4],[3,3],[4,2]]
+// 输出: [[1,1],[2,0],[4,2],[3,3],[2,4]]
+// 解释:
+//
+// 示例 2:
+// 输入: [[1,2],[2,2],[4,2]]
+// 输出: [[1,2],[2,2],[4,2]]
+// 解释:
+// 即使树都在一条直线上，你也需要先用绳子包围它们。
+//
+// 注意:
+// 所有的树应当被围在一起。你不能剪断绳子来包围树或者把树分成一组以上。
+// 输入的整数在 0 到 100 之间。
+// 花园至少有一棵树。
+// 所有树的坐标都是不同的。
+// 输入的点没有顺序。输出顺序也没有要求。
+func outerTrees(trees [][]int) [][]int {
+	n := len(trees)
+	if n <= 3 {
+		return trees
+	}
+
+	getLeft := func() []int {
+		left := trees[0]
+		for i := 1; i < n; i++ {
+			if trees[i][0] < left[0] {
+				left = trees[i]
+			}
+		}
+		return left
+	}
+
+	// 角度
+	getOrientation := func(left, p, q []int) int {
+		return (p[1]-left[1])*(q[0]-left[0]) - (p[0]-left[0])*(q[1]-left[1])
+	}
+
+	// 距离
+	getDistance := func(p, q []int) int {
+		return (p[0]-q[0])*(p[0]-q[0]) + (p[1]-q[1])*(p[1]-q[1])
+	}
+	// 找到最左端的点
+	left := getLeft()
+	// 排序
+	sort.Slice(trees, func(i, j int) bool {
+		diff := getOrientation(left, trees[i], trees[j]) - getOrientation(left, trees[j], trees[i])
+		if diff == 0 {
+			return getDistance(left, trees[i]) < getDistance(left, trees[j])
+		}
+		return diff < 0
+	})
+	// 最后一条边如果有多个点, 需要交换顺序
+	idx := n - 1
+	for idx > 0 && getOrientation(left, trees[n-1], trees[idx-1]) == 0 {
+		idx--
+	}
+	for l, r := idx, n-1; l < r; {
+		trees[l], trees[r] = trees[r], trees[l]
+		l++
+		r--
+	}
+	stack := list.New()
+	for _, point := range trees {
+		if stack.Len() < 2 {
+			stack.PushBack(point)
+			continue
+		}
+		back := stack.Back()
+		stack.Remove(back)
+		backPoint := back.Value.([]int)
+		for stack.Len() >= 2 && getOrientation(stack.Back().Value.([]int), backPoint, point) > 0 {
+			back = stack.Back()
+			stack.Remove(back)
+			backPoint = back.Value.([]int)
+		}
+		stack.PushBack(backPoint)
+		stack.PushBack(point)
+	}
+	result := make([][]int, stack.Len())
+	for i := stack.Len() - 1; i >= 0; i-- {
+		back := stack.Back()
+		stack.Remove(back)
+		result[i] = back.Value.([]int)
+	}
+
+	return result
 }
