@@ -396,8 +396,8 @@ func distributeCandies(candies []int) int {
 // 下标从0开始，到列表的长度减1。
 // 两个列表都没有重复的元素。
 func findRestaurant(list1 []string, list2 []string) []string {
-	min := 2000
-	result := []string{}
+	minVal := 2000
+	var result []string
 	restMap := map[string]int{}
 	for i, name := range list1 {
 		restMap[name] = i
@@ -405,10 +405,10 @@ func findRestaurant(list1 []string, list2 []string) []string {
 	for i, name := range list2 {
 		if idx, ok := restMap[name]; ok {
 			sum := i + idx
-			if sum < min {
-				min = sum
+			if sum < minVal {
+				minVal = sum
 				result = []string{name}
-			} else if sum == min {
+			} else if sum == minVal {
 				result = append(result, name)
 			}
 		}

@@ -3,7 +3,9 @@ package math
 import (
 	"container/list"
 	"math"
+	"regexp"
 	"strconv"
+	"strings"
 )
 
 // 150. 逆波兰表达式求值
@@ -356,5 +358,88 @@ func nextGreaterElement(n int) int {
 		result = result*10 + num
 	}
 	return result
+
+}
+
+// 592. 分数加减运算
+// 给定一个表示分数加减运算表达式的字符串，你需要返回一个字符串形式的计算结果。 这个结果应该是不可约分的分数，即最简分数。 如果最终结果是一个整数，例如 2，你需要将它转换成分数形式，其分母为 1。所以在上述例子中, 2 应该被转换为 2/1。
+//
+// 示例 1:
+// 输入:"-1/2+1/2" 输出: "0/1"
+//
+// 示例 2:
+// 输入:"-1/2+1/2+1/3" 输出: "1/3"
+//
+// 示例 3:
+// 输入:"1/3-1/2" 输出: "-1/6"
+//
+// 示例 4:
+// 输入:"5/3+1/3" 输出: "2/1"
+//
+// 说明:
+// 输入和输出字符串只包含 '0' 到 '9' 的数字，以及 '/', '+' 和 '-'。
+// 输入和输出分数格式均为 ±分子/分母。如果输入的第一个分数或者输出的分数是正数，则 '+' 会被省略掉。
+// 输入只包含合法的最简分数，每个分数的分子与分母的范围是  [1,10]。 如果分母是1，意味着这个分数实际上是一个整数。
+// 输入的分数个数范围是 [1,10]。
+// 最终结果的分子与分母保证是 32 位整数范围内的有效整数。
+func fractionAddition(expression string) string {
+	calReg, _ := regexp.Compile("[+-]")
+
+	cals := make([]bool, 0)
+	for i := 1; i < len(expression); i++ {
+		if expression[i] == '+' {
+			cals = append(cals, true)
+		} else if expression[i] == '-' {
+			cals = append(cals, false)
+		}
+	}
+	var nodeList []*FractionNode
+	for _, num := range calReg.Split(expression, -1) {
+		if len(num) > 0 {
+			facts := strings.Split(num, "/")
+			numerator, _ := strconv.Atoi(facts[0])
+			denominator, _ := strconv.Atoi(facts[1])
+			nodeList = append(nodeList, &FractionNode{numerator, denominator})
+		}
+	}
+	node := nodeList[0]
+	if expression[0] == '-' {
+		node.numerator *= -1
+	}
+
+	for i, c := range cals {
+		curNode := nodeList[i+1]
+		if !c {
+			curNode.numerator *= -1
+		}
+		node = addFraction(node, curNode)
+	}
+
+	if node.numerator == 0 {
+		return "0/1"
+	}
+	var builder strings.Builder
+	gcd := getGcd(abs(node.numerator), node.denominator)
+	builder.WriteString(strconv.Itoa(node.numerator / gcd))
+	builder.WriteString("/")
+	builder.WriteString(strconv.Itoa(node.denominator / gcd))
+	return builder.String()
+}
+
+type FractionNode struct {
+	// 分子 分母
+	numerator, denominator int
+}
+
+func addFraction(node1, node2 *FractionNode) *FractionNode {
+	if node1 == nil {
+		return node2
+	}
+	gcd := getGcd(node1.denominator, node2.denominator)
+	denominator := node1.denominator * node2.denominator / gcd
+
+	numerator := (node1.numerator*node2.denominator + node2.numerator*node1.denominator) / gcd
+
+	return &FractionNode{numerator, denominator}
 
 }

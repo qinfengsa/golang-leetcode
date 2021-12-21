@@ -2749,3 +2749,88 @@ func outerTrees(trees [][]int) [][]int {
 
 	return result
 }
+
+// 593. 有效的正方形
+// 给定二维空间中四点的坐标，返回四点是否可以构造一个正方形。
+//
+// 一个点的坐标（x，y）由一个有两个整数的整数数组表示。
+//
+// 示例:
+// 输入: p1 = [0,0], p2 = [1,1], p3 = [1,0], p4 = [0,1]
+// 输出: True
+//
+// 注意:
+// 所有输入整数都在 [-10000，10000] 范围内。
+// 一个有效的正方形有四个等长的正长和四个等角（90度角）。
+// 输入点没有顺序。
+func validSquare(p1 []int, p2 []int, p3 []int, p4 []int) bool {
+	// 四个点 -> 六条边
+	sides := make([]int, 6)
+
+	getSideSquare := func(p, q []int) int {
+		return (p[0]-q[0])*(p[0]-q[0]) + (p[1]-q[1])*(p[1]-q[1])
+	}
+	sides[0] = getSideSquare(p1, p2)
+	sides[1] = getSideSquare(p1, p3)
+	sides[2] = getSideSquare(p1, p4)
+	sides[3] = getSideSquare(p2, p3)
+	sides[4] = getSideSquare(p2, p4)
+	sides[5] = getSideSquare(p3, p4)
+	sort.Ints(sides)
+
+	// 前4条边相等
+	side, diagonal := sides[0], sides[4]
+	if side == 0 {
+		return false
+	}
+	if side != sides[1] || side != sides[2] || side != sides[3] {
+		return false
+	}
+	if diagonal != sides[5] {
+		return false
+	}
+	// 对角线的平方是 边长平方的两倍
+	return side*2 == diagonal
+}
+
+// 1154. 一年中的第几天
+// 给你一个字符串 date ，按 YYYY-MM-DD 格式表示一个 现行公元纪年法 日期。请你计算并返回该日期是当年的第几天。
+//
+// 通常情况下，我们认为 1 月 1 日是每年的第 1 天，1 月 2 日是每年的第 2 天，依此类推。每个月的天数与现行公元纪年法（格里高利历）一致。
+//
+// 示例 1：
+// 输入：date = "2019-01-09" 输出：9
+//
+// 示例 2：
+// 输入：date = "2019-02-10" 输出：41
+//
+// 示例 3：
+// 输入：date = "2003-03-01" 输出：60
+//
+// 示例 4：
+// 输入：date = "2004-03-01" 输出：61
+//
+// 提示：
+// date.length == 10
+// date[4] == date[7] == '-'，其他的 date[i] 都是数字
+// date 表示的范围从 1900 年 1 月 1 日至 2019 年 12 月 31 日
+func dayOfYear(date string) int {
+	isLeapYear := func(year int) bool {
+		if year%400 == 0 {
+			return true
+		}
+		return year%100 != 0 && year%4 == 0
+	}
+
+	year, _ := strconv.Atoi(date[:4])
+	month, _ := strconv.Atoi(date[5:7])
+	day, _ := strconv.Atoi(date[8:])
+	days := []int{0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334}
+	result := 0
+	result += days[month-1]
+	result += day
+	if isLeapYear(year) && month > 2 {
+		result += 1
+	}
+	return result
+}
