@@ -2602,3 +2602,49 @@ func minDistanceII(word1 string, word2 string) int {
 
 	return m + n - 2*dp[m][n]
 }
+
+// 600. 不含连续1的非负整数
+// 给定一个正整数 n，找出小于或等于 n 的非负整数中，其二进制表示不包含 连续的1 的个数。
+//
+// 示例 1:
+// 输入: 5 输出: 5
+// 解释:
+// 下面是带有相应二进制表示的非负整数<= 5：
+// 0 : 0
+// 1 : 1
+// 2 : 10
+// 3 : 11
+// 4 : 100
+// 5 : 101
+// 其中，只有整数3违反规则（有两个连续的1），其他5个满足规则。
+// 说明: 1 <= n <= 109
+func findIntegers(n int) int {
+	// dp[i] 表示 小于1 << i  符合要求的数
+	dp := [31]int{}
+	dp[0] = 1 // 0
+	dp[1] = 2 // 0 1   ->  0 1 2
+	for i := 2; i < 31; i++ {
+		// 10开头 dp[i-2]  0开头 dp[i-1]
+		dp[i] = dp[i-2] + dp[i-1]
+	}
+	sum := 0
+	m, idx := 1<<30, 30
+	preBit := 0
+	for m > 0 {
+		if m&n != 0 {
+			sum += dp[idx]
+			if preBit == 1 {
+				sum--
+				break
+			}
+
+			preBit = 1
+		} else {
+			preBit = 0
+		}
+		idx--
+		m >>= 1
+	}
+
+	return sum + 1
+}

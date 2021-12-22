@@ -4,6 +4,7 @@ import (
 	"container/list"
 	"fmt"
 	"math"
+	"strconv"
 	"strings"
 )
 
@@ -657,46 +658,24 @@ func isSubtree(root *TreeNode, subRoot *TreeNode) bool {
 //
 // 解释: 和第一个示例相似，
 // 除了我们不能省略第一个对括号来中断输入和输出之间的一对一映射关系。
-func tree2str(t *TreeNode) string {
+func tree2str(root *TreeNode) string {
 	result := ""
-	if t == nil {
+	if root == nil {
 		return result
 	}
-	bLeft, bRight := t.Left != nil, t.Right != nil
+	bLeft, bRight := root.Left != nil, root.Right != nil
 	if !bLeft && !bRight {
-		return fmt.Sprintf("%d", t.Val)
+		return strconv.Itoa(root.Val)
 	}
-	result += fmt.Sprintf("%d", t.Val)
+	result += strconv.Itoa(root.Val)
 	result += "("
-	result += tree2str(t.Left)
+	result += tree2str(root.Left)
 	result += ")"
 	if bRight {
 		result += "("
-		result += tree2str(t.Right)
+		result += tree2str(root.Right)
 		result += ")"
 	}
-	/*var preorder func(node *TreeNode)
-	preorder = func(node *TreeNode) {
-		if node == nil {
-			return
-		}
-		result += fmt.Sprintf("%d", node.Val)
-		bLeft, bRight := node.Left != nil, node.Right != nil
-		if !bLeft && !bRight {
-			return
-		}
-
-		result += "("
-		preorder(node.Left)
-		result += ")"
-		if bRight {
-			result += "("
-			preorder(node.Right)
-			result += ")"
-		}
-
-	}
-	preorder(t)*/
 	return result
 }
 
@@ -722,17 +701,17 @@ func tree2str(t *TreeNode) string {
 //	  / \   \
 //	 5   4   7
 // 注意: 合并必须从两个树的根节点开始。
-func mergeTrees(t1 *TreeNode, t2 *TreeNode) *TreeNode {
-	if t1 == nil {
-		return t2
+func mergeTrees(root1 *TreeNode, root2 *TreeNode) *TreeNode {
+	if root1 == nil {
+		return root2
 	}
-	if t2 == nil {
-		return t1
+	if root2 == nil {
+		return root1
 	}
-	t1.Val += t2.Val
-	t1.Left = mergeTrees(t1.Left, t2.Left)
-	t1.Right = mergeTrees(t1.Right, t2.Right)
-	return t1
+	root1.Val += root2.Val
+	root1.Left = mergeTrees(root1.Left, root2.Left)
+	root1.Right = mergeTrees(root1.Right, root2.Right)
+	return root1
 }
 
 // 637. 二叉树的层平均值
