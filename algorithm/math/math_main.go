@@ -765,7 +765,7 @@ func maximumProduct(nums []int) int {
 			max = num
 		}
 	}*/
-	max := 0
+	maxVal := 0
 	a := -1 << 32
 	max1, max2, max3 := a, a, a
 	min1, min2 := 0, 0
@@ -784,14 +784,14 @@ func maximumProduct(nums []int) int {
 			min2 = num
 		}
 	}
-	max = max1 * max2 * max3
+	maxVal = max1 * max2 * max3
 	if min2 < 0 {
 		num := min1 * min2 * max1
-		if num > max {
-			max = num
+		if num > maxVal {
+			maxVal = num
 		}
 	}
-	return max
+	return maxVal
 }
 
 // 693. 交替位二进制数
