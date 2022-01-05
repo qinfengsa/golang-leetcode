@@ -2,6 +2,7 @@ package math
 
 import (
 	"container/list"
+	"fmt"
 	"math"
 	"regexp"
 	"strconv"
@@ -442,4 +443,99 @@ func addFraction(node1, node2 *FractionNode) *FractionNode {
 
 	return &FractionNode{numerator, denominator}
 
+}
+
+// 640. 求解方程
+// 求解一个给定的方程，将x以字符串"x=#value"的形式返回。该方程仅包含'+'，' - '操作，变量 x 和其对应系数。
+//
+// 如果方程没有解，请返回“No solution”。
+// 如果方程有无限解，则返回“Infinite solutions”。
+// 如果方程中只有一个解，要保证返回值 x 是一个整数。
+//
+// 示例 1：
+// 输入: "x+5-3+x=6+x-2"
+// 输出: "x=2"
+//
+// 示例 2:
+// 输入: "x=x"
+// 输出: "Infinite solutions"
+//
+// 示例 3:
+// 输入: "2x=x"
+// 输出: "x=0"
+//
+// 示例 4:
+// 输入: "2x+3x-6x=x+2"
+// 输出: "x=-1"
+//
+// 示例 5:
+// 输入: "x=x+2"
+// 输出: "No solution"
+func solveEquation(equation string) string {
+	strs := strings.Split(equation, "=")
+	left, right := createEquation(strs[0]), createEquation(strs[1])
+
+	xNum := left.xNum - right.xNum
+	value := right.value - left.value
+	if xNum == 0 {
+		if value == 0 {
+			return "Infinite solutions"
+		} else {
+			return "No solution"
+		}
+	}
+	return "x=" + strconv.Itoa(value/xNum)
+}
+
+type equation struct {
+	xNum, value int
+}
+
+func createEquation(expression string) *equation {
+	calReg, _ := regexp.Compile("[+-]")
+	flags := make([]bool, 0)
+	nums := make([]string, 0)
+	flags = append(flags, expression[0] != '-')
+	for i := 1; i < len(expression); i++ {
+		c := expression[i]
+		if c == '+' {
+			flags = append(flags, true)
+		} else if c == '-' {
+			flags = append(flags, false)
+		}
+	}
+
+	for _, num := range calReg.Split(expression, -1) {
+		if len(num) > 0 {
+			nums = append(nums, num)
+		}
+	}
+	fmt.Println(expression)
+	xNum, value := 0, 0
+	for i := 0; i < len(nums); i++ {
+		flag, num := flags[i], nums[i]
+		n := len(num)
+		if num[n-1] == 'x' {
+
+			val := 1
+			if n > 1 {
+				val, _ = strconv.Atoi(num[:n-1])
+			}
+			if !flag {
+				val *= -1
+			}
+			fmt.Println("x = ", val)
+			xNum += val
+		} else {
+			val, _ := strconv.Atoi(num)
+			if !flag {
+				val *= -1
+			}
+			value += val
+		}
+
+	}
+	return &equation{
+		value: value, xNum: xNum,
+	}
 }

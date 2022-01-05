@@ -840,14 +840,14 @@ func findMaxAverage(nums []int, k int) float64 {
 	for i := 0; i < k; i++ {
 		sum += nums[i]
 	}
-	max := sum
+	maxVal := sum
 	for i := k; i < size; i++ {
 		sum += nums[i] - nums[i-k]
-		if sum > max {
-			max = sum
+		if sum > maxVal {
+			maxVal = sum
 		}
 	}
-	return float64(max) / float64(k)
+	return float64(maxVal) / float64(k)
 }
 
 // 645. 错误的集合
