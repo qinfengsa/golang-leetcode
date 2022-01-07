@@ -4208,3 +4208,79 @@ func countQuadruplets(nums []int) int {
 	}
 	return result
 }
+
+// 632. 最小区间
+// 你有 k 个 非递减排列 的整数列表。找到一个 最小 区间，使得 k 个列表中的每个列表至少有一个数包含在其中。
+//
+// 我们定义如果 b-a < d-c 或者在 b-a == d-c 时 a < c，则区间 [a,b] 比 [c,d] 小。
+//
+// 示例 1：
+// 输入：nums = [[4,10,15,24,26], [0,9,12,20], [5,18,22,30]]
+// 输出：[20,24]
+// 解释：
+// 列表 1：[4, 10, 15, 24, 26]，24 在区间 [20,24] 中。
+// 列表 2：[0, 9, 12, 20]，20 在区间 [20,24] 中。
+// 列表 3：[5, 18, 22, 30]，22 在区间 [20,24] 中。
+//
+// 示例 2：
+// 输入：nums = [[1,2,3],[1,2,3],[1,2,3]]
+// 输出：[1,1]
+//
+// 示例 3：
+// 输入：nums = [[10,10],[11,11]]
+// 输出：[10,11]
+//
+// 示例 4：
+// 输入：nums = [[10],[11]]
+// 输出：[10,11]
+//
+// 示例 5：
+// 输入：nums = [[1],[2],[3],[4],[5],[6],[7]]
+// 输出：[1,7]
+//
+// 提示：
+// nums.length == k
+// 1 <= k <= 3500
+// 1 <= nums[i].length <= 50
+// -105 <= nums[i][j] <= 105
+// nums[i] 按非递减顺序排列
+func smallestRange(nums [][]int) []int {
+	// 首先将 k  组数据升序合并成一组，并记录每个数字所属的组，
+	k := len(nums)
+	pairs := make([][]int, 0)
+	for i := 0; i < k; i++ {
+		for _, num := range nums[i] {
+			pairs = append(pairs, []int{num, i})
+		}
+	}
+	// 合并后升序排列
+	sort.Slice(pairs, func(i, j int) bool {
+		return pairs[i][0] < pairs[j][0]
+	})
+	fmt.Println(pairs)
+
+	result := make([]int, 0)
+
+	left, count := 0, 0
+	indexMap := make(map[int]int)
+	// 滑动窗口
+	for _, pair := range pairs {
+		num, idx := pair[0], pair[1]
+		if indexMap[idx] == 0 {
+			count++
+		}
+		indexMap[idx]++
+		if count == k {
+			for indexMap[pairs[left][1]] > 1 {
+				indexMap[pairs[left][1]]--
+				left++
+			}
+			if len(result) == 0 || result[1]-result[0] > num-pairs[left][0] {
+				result = []int{num, pairs[left][0]}
+			}
+
+		}
+
+	}
+	return result
+}
