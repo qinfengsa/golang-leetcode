@@ -3652,3 +3652,127 @@ func countSubstrings(s string) int {
 
 	return result
 }
+
+// 159. 至多包含两个不同字符的最长子串
+// 给定一个字符串 s ，找出 至多 包含两个不同字符的最长子串 t ，并返回该子串的长度。
+//
+// 示例 1:
+// 输入: "eceba"
+// 输出: 3
+// 解释: t 是 "ece"，长度为3。
+//
+// 示例 2:
+// 输入: "ccaabbb"
+// 输出: 5
+// 解释: t 是 "aabbb"，长度为5。
+func lengthOfLongestSubstringTwoDistinct(s string) int {
+
+	result := 0
+	letterMap := make(map[byte]int)
+
+	left, n := 0, len(s)
+	for i := 0; i < n; i++ {
+		c := s[i]
+		letterMap[c]++
+		for i+1 < n && s[i+1] == c {
+			i++
+			letterMap[c]++
+		}
+		for len(letterMap) > 2 {
+			letterMap[s[left]]--
+			if letterMap[s[left]] == 0 {
+				delete(letterMap, s[left])
+			}
+			left++
+		}
+		result = max(result, i-left+1)
+	}
+	return result
+}
+
+// 161. 相隔为 1 的编辑距离
+// 给定两个字符串 s 和 t，判断他们的编辑距离是否为 1。
+//
+// 注意：
+// 满足编辑距离等于 1 有三种可能的情形：
+// 往 s 中插入一个字符得到 t
+// 从 s 中删除一个字符得到 t
+// 在 s 中替换一个字符得到 t
+//
+// 示例 1：
+// 输入: s = "ab", t = "acb"
+// 输出: true
+// 解释: 可以将 'c' 插入字符串 s 来得到 t。
+//
+// 示例 2:
+// 输入: s = "cab", t = "ad"
+// 输出: false
+// 解释: 无法通过 1 步操作使 s 变为 t。
+//
+// 示例 3:
+// 输入: s = "1203", t = "1213"
+// 输出: true
+// 解释: 可以将字符串 s 中的 '0' 替换为 '1' 来得到 t。
+func isOneEditDistance(s string, t string) bool {
+	m, n := len(s), len(t)
+	if n > m {
+		return isOneEditDistance(t, s)
+	}
+	if m-n > 1 {
+		return false
+	}
+	diff := 0
+	if m == n {
+		for i := 0; i < m; i++ {
+			if s[i] != t[i] {
+				diff++
+			}
+		}
+		return diff == 1
+	}
+	// m > n
+	for i := 0; i < n; i++ {
+		if s[i] != t[i] {
+			return s[i+1:] == t[i:]
+		}
+	}
+	return true
+}
+
+// 186. 翻转字符串里的单词 II
+// 给定一个字符串，逐个翻转字符串中的每个单词。
+//
+// 示例：
+// 输入: ["t","h","e"," ","s","k","y"," ","i","s"," ","b","l","u","e"]
+// 输出: ["b","l","u","e"," ","i","s"," ","s","k","y"," ","t","h","e"]
+// 注意：
+// 单词的定义是不包含空格的一系列字符
+// 输入字符串中不会包含前置或尾随的空格
+// 单词与单词之间永远是以单个空格隔开的
+// 进阶：使用 O(1) 额外空间复杂度的原地解法。
+func reverseWordsII(s []byte) {
+
+	n := len(s)
+	// 全部反转
+	left, right := 0, n-1
+	for left < right {
+		s[left], s[right] = s[right], s[left]
+		left++
+		right--
+	}
+	for i := 0; i < n; i++ {
+		left = i
+		for i+1 < n && s[i+1] != ' ' {
+			i++
+		}
+		right = i
+		i++
+		// 按空格 每个反转
+		for left < right {
+			s[left], s[right] = s[right], s[left]
+			left++
+			right--
+		}
+	}
+
+}
