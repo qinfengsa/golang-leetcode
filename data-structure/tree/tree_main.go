@@ -2545,3 +2545,47 @@ func upsideDownBinaryTree(root *TreeNode) *TreeNode {
 	}
 	return dfs(root)
 }
+
+// 652. 寻找重复的子树
+// 给定一棵二叉树，返回所有重复的子树。对于同一类的重复子树，你只需要返回其中任意一棵的根结点即可。
+//
+// 两棵树重复是指它们具有相同的结构以及相同的结点值。
+//
+// 示例 1：
+//        1
+//       / \
+//      2   3
+//     /   / \
+//    4   2   4
+//       /
+//      4
+// 下面是两个重复的子树：
+//      2
+//     /
+//    4
+// 和
+//    4
+// 因此，你需要以列表的形式返回上述重复子树的根结点。
+func findDuplicateSubtrees(root *TreeNode) []*TreeNode {
+	result := make([]*TreeNode, 0)
+	// 用树的路径做Key
+	pathMap := make(map[string]int)
+
+	// 先序遍历
+	var preorder func(node *TreeNode) string
+
+	preorder = func(node *TreeNode) string {
+		if node == nil {
+			return ""
+		}
+		path := strconv.Itoa(node.Val) + "," + preorder(node.Left) + "," + preorder(node.Right)
+		count := pathMap[path]
+		if count == 1 {
+			result = append(result, node)
+		}
+		pathMap[path]++
+		return path
+	}
+	preorder(root)
+	return result
+}
