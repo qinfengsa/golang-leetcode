@@ -2589,3 +2589,137 @@ func findDuplicateSubtrees(root *TreeNode) []*TreeNode {
 	preorder(root)
 	return result
 }
+
+// 654. 最大二叉树
+// 给定一个不含重复元素的整数数组 nums 。一个以此数组直接递归构建的 最大二叉树 定义如下：
+//
+// 二叉树的根是数组 nums 中的最大元素。
+// 左子树是通过数组中 最大值左边部分 递归构造出的最大二叉树。
+// 右子树是通过数组中 最大值右边部分 递归构造出的最大二叉树。
+// 返回有给定数组 nums 构建的 最大二叉树 。
+//
+// 示例 1：
+// 输入：nums = [3,2,1,6,0,5]
+// 输出：[6,3,5,null,2,0,null,null,1]
+// 解释：递归调用如下所示：
+// - [3,2,1,6,0,5] 中的最大值是 6 ，左边部分是 [3,2,1] ，右边部分是 [0,5] 。
+//    - [3,2,1] 中的最大值是 3 ，左边部分是 [] ，右边部分是 [2,1] 。
+//        - 空数组，无子节点。
+//        - [2,1] 中的最大值是 2 ，左边部分是 [] ，右边部分是 [1] 。
+//            - 空数组，无子节点。
+//            - 只有一个元素，所以子节点是一个值为 1 的节点。
+//    - [0,5] 中的最大值是 5 ，左边部分是 [0] ，右边部分是 [] 。
+//        - 只有一个元素，所以子节点是一个值为 0 的节点。
+//        - 空数组，无子节点。
+//
+// 示例 2：
+// 输入：nums = [3,2,1]
+// 输出：[3,null,2,null,1]
+//
+// 提示：
+// 1 <= nums.length <= 1000
+// 0 <= nums[i] <= 1000
+// nums 中的所有整数 互不相同
+func constructMaximumBinaryTree(nums []int) *TreeNode {
+	n := len(nums)
+	if n == 0 {
+		return nil
+	}
+	root := &TreeNode{Val: nums[0]}
+	for i := 1; i < n; i++ {
+		// 1 找到右子树中 第一个比 nums[i] 小的 node 和 node 的 parent
+		// parent.right = curNode
+		// curNode.left = node
+		curNode := &TreeNode{Val: nums[i]}
+		node := root
+		var parent *TreeNode
+		for node != nil && node.Val >= nums[i] {
+			parent = node
+			node = node.Right
+		}
+		if parent != nil {
+			parent.Right = curNode
+		}
+		curNode.Left = node
+		if node == root {
+			root = curNode
+		}
+	}
+	return root
+}
+
+// 655. 输出二叉树
+// 在一个 m*n 的二维字符串数组中输出二叉树，并遵守以下规则：
+//
+// 行数 m 应当等于给定二叉树的高度。
+// 列数 n 应当总是奇数。
+// 根节点的值（以字符串格式给出）应当放在可放置的第一行正中间。根节点所在的行与列会将剩余空间划分为两部分（左下部分和右下部分）。你应该将左子树输出在左下部分，右子树输出在右下部分。左下和右下部分应当有相同的大小。即使一个子树为空而另一个非空，你不需要为空的子树输出任何东西，但仍需要为另一个子树留出足够的空间。然而，如果两个子树都为空则不需要为它们留出任何空间。
+// 每个未使用的空间应包含一个空的字符串""。
+// 使用相同的规则输出子树。
+// 示例 1:
+//
+// 输入:
+//     1
+//    /
+//   2
+// 输出:
+// [["", "1", ""],
+// ["2", "", ""]]
+//
+// 示例 2:
+// 输入:
+//     1
+//    / \
+//   2   3
+//    \
+//     4
+// 输出:
+// [["", "", "", "1", "", "", ""],
+//  ["", "2", "", "", "", "3", ""],
+//  ["", "", "4", "", "", "", ""]]
+//
+// 示例 3:
+// 输入:
+//       1
+//      / \
+//     2   5
+//    /
+//   3
+//  /
+// 4
+// 输出:
+// [["",  "",  "", "",  "", "", "", "1", "",  "",  "",  "",  "", "", ""]
+//  ["",  "",  "", "2", "", "", "", "",  "",  "",  "",  "5", "", "", ""]
+//  ["",  "3", "", "",  "", "", "", "",  "",  "",  "",  "",  "", "", ""]
+//  ["4", "",  "", "",  "", "", "", "",  "",  "",  "",  "",  "", "", ""]]
+// 注意: 二叉树的高度在范围 [1, 10] 中。
+func printTree(root *TreeNode) [][]string {
+	var height func(root *TreeNode) int
+	height = func(root *TreeNode) int {
+		if root == nil {
+			return 0
+		}
+		return max(height(root.Left), height(root.Right)) + 1
+	}
+	m := height(root)
+	result := make([][]string, m)
+	n := (1 << m) - 1
+	for i := 0; i < m; i++ {
+		result[i] = make([]string, n)
+	}
+
+	var printNode func(node *TreeNode, start, end int, row int)
+
+	printNode = func(node *TreeNode, start, end int, row int) {
+		if node == nil {
+			return
+		}
+		col := (start + end) >> 1
+		result[row][col] = strconv.Itoa(node.Val)
+		printNode(node.Left, start, col-1, row+1)
+		printNode(node.Right, col+1, end, row+1)
+	}
+
+	printNode(root, 0, n-1, 0)
+	return result
+}

@@ -4429,3 +4429,62 @@ func predictPartyVictory(senate string) string {
 	}
 	return "Radiant"
 }
+
+// 659. 分割数组为连续子序列
+// 给你一个按升序排序的整数数组 num（可能包含重复数字），请你将它们分割成一个或多个长度至少为 3 的子序列，其中每个子序列都由连续整数组成。
+//
+// 如果可以完成上述分割，则返回 true ；否则，返回 false 。
+//
+// 示例 1：
+// 输入: [1,2,3,3,4,5]
+// 输出: True
+// 解释:
+// 你可以分割出这样两个连续子序列 :
+// 1, 2, 3
+// 3, 4, 5
+//
+// 示例 2：
+// 输入: [1,2,3,3,4,4,5,5]
+// 输出: True
+// 解释:
+// 你可以分割出这样两个连续子序列 :
+// 1, 2, 3, 4, 5
+// 3, 4, 5
+//
+// 示例 3：
+// 输入: [1,2,3,4,4,5]
+// 输出: False
+//
+// 提示：
+// 1 <= nums.length <= 10000
+func isPossible(nums []int) bool {
+	// nc[i]：存储原数组中数字i出现的次数 tail[i]：存储以数字i结尾的且符合题意的连续子序列个数
+	// 1. 先去寻找一个长度为3的连续子序列i, i+1, i+2，找到后就将nc[i], nc[i+1],
+	// nc[i+2]中对应数字消耗1个（即-1），并将tail[i+2]加1，即以i+2结尾的子序列个数+1。
+	// 2. 如果后续发现有能够接在这个连续子序列的数字i+3，
+	// 则延长以i+2为结尾的连续子序列到i+3，此时消耗nc[i+3]一个，由于子序列已延长，因此tail[i+2]减1，tail[i+3]加1
+	// 在不满足上面的情况下
+	// 3. 如果nc[i]为0，说明这个数字已经消耗完，可以不管了
+	// 4. 如果nc[i]不为0，说明这个数字多出来了，且无法组成连续子序列，所以可以直接返回false了
+	nc, tail := make(map[int]int), make(map[int]int)
+	for _, num := range nums {
+		nc[num]++
+	}
+	for _, num := range nums {
+		if nc[num] == 0 {
+			continue
+		}
+		if tail[num-1] > 0 {
+			tail[num-1]--
+			tail[num]++
+		} else if nc[num+1] > 0 && nc[num+2] > 0 {
+			nc[num+1]--
+			nc[num+2]--
+			tail[num+2]++
+		} else {
+			return false
+		}
+		nc[num]--
+	}
+	return true
+}
