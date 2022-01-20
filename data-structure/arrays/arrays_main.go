@@ -898,55 +898,54 @@ func findErrorNums(nums []int) []int {
 // 注意:
 // 给定矩阵中的整数范围为 [0, 255]。
 // 矩阵的长和宽的范围均为 [1, 150]。
-func imageSmoother(M [][]int) [][]int {
-	rows, cols := len(M), len(M[0])
+func imageSmoother(img [][]int) [][]int {
+	rows, cols := len(img), len(img[0])
 
 	result := make([][]int, rows)
 	for i := 0; i < rows; i++ {
-		nums := make([]int, cols)
+		result[i] = make([]int, cols)
 		for j := 0; j < cols; j++ {
-			var count, sum = 1, M[i][j]
+			var count, sum = 1, img[i][j]
 			left, right, up, down := false, false, false, false
 			if i-1 >= 0 {
 				count++
 				up = true
-				sum += M[i-1][j]
+				sum += img[i-1][j]
 			}
 			if j-1 >= 0 {
 				count++
 				left = true
-				sum += M[i][j-1]
+				sum += img[i][j-1]
 			}
 			if i+1 < rows {
 				count++
 				down = true
-				sum += M[i+1][j]
+				sum += img[i+1][j]
 			}
 			if j+1 < cols {
 				count++
 				right = true
-				sum += M[i][j+1]
+				sum += img[i][j+1]
 			}
 
 			if left && up {
 				count++
-				sum += M[i-1][j-1]
+				sum += img[i-1][j-1]
 			}
 			if left && down {
 				count++
-				sum += M[i+1][j-1]
+				sum += img[i+1][j-1]
 			}
 			if right && up {
 				count++
-				sum += M[i-1][j+1]
+				sum += img[i-1][j+1]
 			}
 			if right && down {
 				count++
-				sum += M[i+1][j+1]
+				sum += img[i+1][j+1]
 			}
 			result[i][j] = sum / count
 		}
-		result[i] = nums
 	}
 
 	return result
@@ -969,13 +968,13 @@ func imageSmoother(M [][]int) [][]int {
 // 1 <= n <= 10 ^ 4
 // - 10 ^ 5 <= nums[i] <= 10 ^ 5
 func checkPossibility(nums []int) bool {
-	size := len(nums)
-	if size <= 2 {
+	n := len(nums)
+	if n <= 2 {
 		return true
 	}
 
 	count := 0
-	for i := 1; i < size; i++ {
+	for i := 1; i < n; i++ {
 		if nums[i-1] > nums[i] {
 			count++
 			if count > 1 {
@@ -4487,4 +4486,48 @@ func isPossible(nums []int) bool {
 		nc[num]--
 	}
 	return true
+}
+
+// 667. 优美的排列 II
+// 给你两个整数 n 和 k ，请你构造一个答案列表 answer ，该列表应当包含从 1 到 n 的 n 个不同正整数，并同时满足下述条件：
+//
+// 假设该列表是 answer = [a1, a2, a3, ... , an] ，那么列表 [|a1 - a2|, |a2 - a3|, |a3 - a4|, ... , |an-1 - an|] 中应该有且仅有 k 个不同整数。
+// 返回列表 answer 。如果存在多种答案，只需返回其中 任意一种 。
+//
+// 示例 1：
+// 输入：n = 3, k = 1
+// 输出：[1, 2, 3]
+// 解释：[1, 2, 3] 包含 3 个范围在 1-3 的不同整数，并且 [1, 1] 中有且仅有 1 个不同整数：1
+//
+// 示例 2：
+// 输入：n = 3, k = 2
+// 输出：[1, 3, 2]
+// 解释：[1, 3, 2] 包含 3 个范围在 1-3 的不同整数，并且 [2, 1] 中有且仅有 2 个不同整数：1 和 2
+//
+// 提示：
+// 1 <= k < n <= 104
+func constructArray(n int, k int) []int {
+	nums := make([]int, n)
+	left, right := 1, n
+	flag := true
+	for i := 0; i < k-1; i++ {
+		if flag {
+			nums[i] = left
+			left++
+		} else {
+			nums[i] = right
+			right--
+		}
+		flag = !flag
+	}
+	k--
+	for i := left; i <= right; i++ {
+		if flag {
+			nums[k] = i
+		} else {
+			nums[k] = right + left - i
+		}
+		k++
+	}
+	return nums
 }
