@@ -2918,3 +2918,125 @@ func minSteps(n int) int {
 	}
 	return result
 }
+
+// 670. 最大交换
+// 给定一个非负整数，你至多可以交换一次数字中的任意两位。返回你能得到的最大值。
+//
+// 示例 1 :
+// 输入: 2736
+// 输出: 7236
+// 解释: 交换数字2和数字7。
+//
+// 示例 2 :
+// 输入: 9973
+// 输出: 9973
+// 解释: 不需要交换。
+// 注意:
+// 给定数字的范围是 [0, 108]
+func maximumSwap(num int) int {
+	nums := [9]int{}
+	idx := 0
+	for num > 0 {
+		nums[idx] = num % 10
+		idx++
+		num /= 10
+	}
+	// 从后往前 找最大的
+	maxIndexs := [9]int{}
+	maxIdx := 0
+	for i := 0; i < idx; i++ {
+		if nums[i] > nums[maxIdx] {
+			maxIdx = i
+		}
+		maxIndexs[i] = maxIdx
+	}
+	// 从前往后
+	for i := idx - 1; i >= 0; i-- {
+		maxIdx = maxIndexs[i]
+		if nums[maxIdx] != nums[i] {
+			nums[maxIdx], nums[i] = nums[i], nums[maxIdx]
+			break
+		}
+	}
+	num = 0
+	for i := idx - 1; i >= 0; i-- {
+		num = num*10 + nums[i]
+	}
+	return num
+}
+
+// 672. 灯泡开关 Ⅱ
+// 现有一个房间，墙上挂有 n 只已经打开的灯泡和 4 个按钮。在进行了 m 次未知操作后，你需要返回这 n 只灯泡可能有多少种不同的状态。
+//
+// 假设这 n 只灯泡被编号为 [1, 2, 3 ..., n]，这 4 个按钮的功能如下：
+//
+// 1.将所有灯泡的状态反转（即开变为关，关变为开）
+// 2.将编号为偶数的灯泡的状态反转
+// 3.将编号为奇数的灯泡的状态反转
+// 4.将编号为 3k+1 的灯泡的状态反转（k = 0, 1, 2, ...)
+//
+// 示例 1:
+// 输入: n = 1, m = 1. 输出: 2
+// 说明: 状态为: [开], [关]
+//
+// 示例 2:
+// 输入: n = 2, m = 1.
+// 输出: 3
+// 说明: 状态为: [开, 关], [关, 开], [关, 关]
+//
+// 示例 3:
+// 输入: n = 3, m = 1.
+// 输出: 4
+// 说明: 状态为: [关, 开, 关], [开, 关, 开], [关, 关, 关], [关, 开, 开].
+// 注意： n 和 m 都属于 [0, 1000].
+func flipLights(n int, presses int) int {
+	// 操作2，3 是2个循环; 操作4 是 3个循环
+	// 所有操作应该是 6 个灯泡 循环
+	// 所以前6个灯泡决定 所有的状态
+
+	// 操作 1 ~ 4  a, b, c , d
+	// 灯1 1 + a + c + d
+	// 灯2 1 + a + b
+	// 灯3 1 + a + c
+	// 灯4 1 + a + b + d
+	// 灯5 1 + a + c
+	// 灯6 1 + a + b
+
+	// presses = 0  111111
+	// presses = 1  000000 101010 010101 100100
+	// presses = 2  111111 101010 010101 100100
+	//              000000 001110 110001
+	// presses = 3  111111 101010 010101 100100
+	//              000000 001110 110001 010101
+	n = min(n, 3)
+	result := 0
+	if presses == 0 {
+		result = 1
+	} else if presses == 1 {
+		if n == 1 {
+			result = 2
+		} else if n == 2 {
+			result = 3
+		} else {
+			result = 4
+		}
+	} else if presses == 2 {
+		if n == 1 {
+			result = 2
+		} else if n == 2 {
+			result = 4
+		} else {
+			result = 7
+		}
+	} else {
+		if n == 1 {
+			result = 2
+		} else if n == 2 {
+			result = 4
+		} else {
+			result = 8
+		}
+	}
+
+	return result
+}
