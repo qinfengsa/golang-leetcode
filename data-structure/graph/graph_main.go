@@ -513,3 +513,141 @@ func calcEquation(equations [][]string, values []float64, queries [][]string) []
 
 	return result
 }
+
+// 684. 冗余连接
+// 树可以看成是一个连通且 无环 的 无向 图。
+//
+// 给定往一棵 n 个节点 (节点值 1～n) 的树中添加一条边后的图。添加的边的两个顶点包含在 1 到 n 中间，且这条附加的边不属于树中已存在的边。图的信息记录于长度为 n 的二维数组 edges ，edges[i] = [ai, bi] 表示图中在 ai 和 bi 之间存在一条边。
+//
+// 请找出一条可以删去的边，删除后可使得剩余部分是一个有着 n 个节点的树。如果有多个答案，则返回数组 edges 中最后出现的边。
+//
+// 示例 1：
+// 输入: edges = [[1,2], [1,3], [2,3]]
+// 输出: [2,3]
+//
+// 示例 2：
+// 输入: edges = [[1,2], [2,3], [3,4], [1,4], [1,5]]
+// 输出: [1,4]
+//
+// 提示:
+// n == edges.length
+// 3 <= n <= 1000
+// edges[i].length == 2
+// 1 <= ai < bi <= edges.length
+// ai != bi
+// edges 中无重复元素
+// 给定的图是连通的
+func findRedundantConnection(edges [][]int) []int {
+	n := len(edges)
+	nums := make([]int, n+1)
+	for i := 0; i <= n; i++ {
+		nums[i] = i
+	}
+
+	var findParent func(num int) int
+
+	findParent = func(num int) int {
+		if nums[num] == num {
+			return num
+		}
+		return findParent(nums[num])
+	}
+
+	union := func(num1, num2 int) {
+		nums[num2] = num1
+	}
+
+	for _, edge := range edges {
+		num1, num2 := findParent(edge[0]), findParent(edge[1])
+		if num1 == num2 {
+			return edge
+		}
+		union(num1, num2)
+	}
+
+	return nil
+}
+
+// 685. 冗余连接 II
+// 在本问题中，有根树指满足以下条件的 有向 图。该树只有一个根节点，所有其他节点都是该根节点的后继。该树除了根节点之外的每一个节点都有且只有一个父节点，而根节点没有父节点。
+//
+// 输入一个有向图，该图由一个有着 n 个节点（节点值不重复，从 1 到 n）的树及一条附加的有向边构成。附加的边包含在 1 到 n 中的两个不同顶点间，这条附加的边不属于树中已存在的边。
+//
+// 结果图是一个以边组成的二维数组 edges 。 每个元素是一对 [ui, vi]，用以表示 有向 图中连接顶点 ui 和顶点 vi 的边，其中 ui 是 vi 的一个父节点。
+//
+// 返回一条能删除的边，使得剩下的图是有 n 个节点的有根树。若有多个答案，返回最后出现在给定二维数组的答案。
+//
+// 示例 1：
+// 输入：edges = [[1,2],[1,3],[2,3]]
+// 输出：[2,3]
+//
+// 示例 2：
+// 输入：edges = [[1,2],[2,3],[3,4],[4,1],[1,5]]
+// 输出：[4,1]
+//
+// 提示：
+// n == edges.length
+// 3 <= n <= 1000
+// edges[i].length == 2
+// 1 <= ui, vi <= n
+func findRedundantDirectedConnection(edges [][]int) []int {
+	n := len(edges)
+	nums := make([]int, n+1)
+	for i := 0; i <= n; i++ {
+		nums[i] = i
+	}
+	var findParent func(num int) int
+
+	findParent = func(num int) int {
+		if nums[num] == num {
+			return num
+		}
+		return findParent(nums[num])
+	}
+	union := func(num1, num2 int) {
+		nums[num2] = num1
+	}
+	// 1.入度全为1， 则找出构成环的最后一条边
+	// 2.有度为2的两条边(A->B, C->B)，则删除的边一定是在其中
+	// 先不将C->B加入并查集中，若不能构成环，则C->B是需要删除的点边，
+	// 反之，则A->B是删除的边(去掉C->B还能构成环，则C->B一定不是要删除的边)
+	inDegree := make([]int, n+1)
+	repeatNode := -1
+	for _, edge := range edges {
+		inDegree[edge[1]]++
+		if inDegree[edge[1]] == 2 {
+			repeatNode = edge[1]
+		}
+	}
+	var result []int
+	if repeatNode == -1 {
+		// 入度全为1
+		for _, edge := range edges {
+			num1, num2 := findParent(edge[0]), findParent(edge[1])
+			if num1 == num2 {
+				return edge
+			}
+			union(num1, num2)
+		}
+	} else {
+		nodes := make([][]int, 0)
+		for _, edge := range edges {
+			if edge[1] == repeatNode {
+				nodes = append(nodes, edge)
+				continue
+			}
+			num1, num2 := findParent(edge[0]), findParent(edge[1])
+			union(num1, num2)
+		}
+		for _, node := range nodes {
+			num1, num2 := findParent(node[0]), findParent(node[1])
+			if num1 == num2 {
+				return node
+			}
+			union(num1, num2)
+		}
+
+	}
+	return result
+
+}
