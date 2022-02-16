@@ -4669,3 +4669,69 @@ func minimumDifference(nums []int, k int) int {
 	}
 	return result
 }
+
+// 689. 三个无重叠子数组的最大和
+// 给你一个整数数组 nums 和一个整数 k ，找出三个长度为 k 、互不重叠、且全部数字和（3 * k 项）最大的子数组，并返回这三个子数组。
+//
+// 以下标的数组形式返回结果，数组中的每一项分别指示每个子数组的起始位置（下标从 0 开始）。如果有多个结果，返回字典序最小的一个。
+//
+// 示例 1：
+// 输入：nums = [1,2,1,2,6,7,5,1], k = 2
+// 输出：[0,3,5]
+// 解释：子数组 [1, 2], [2, 6], [7, 5] 对应的起始下标为 [0, 3, 5]。
+// 也可以取 [2, 1], 但是结果 [1, 3, 5] 在字典序上更大。
+//
+// 示例 2：
+// 输入：nums = [1,2,1,2,1,2,1,2,1], k = 2
+// 输出：[0,2,4]
+//
+// 提示：
+// 1 <= nums.length <= 2 * 104
+// 1 <= nums[i] < 216
+// 1 <= k <= floor(nums.length / 3)
+func maxSumOfThreeSubarrays(nums []int, k int) []int {
+	n := len(nums) - k + 1
+	sums := make([]int, n)
+	result := []int{-1, -1, -1}
+	sum := 0
+	for i := 0; i < k; i++ {
+		sum += nums[i]
+	}
+	// sums[i] = num[i] + ...+ num[i +k -1]
+	sums[0] = sum
+	for i := 0; i < n-1; i++ {
+		sum += nums[i+k] - nums[i]
+		sums[i+1] = sum
+	}
+	// 左边最大 和 右边最大
+	left, right := make([]int, n), make([]int, n)
+	for i := 1; i < n; i++ {
+		idx := left[i-1]
+		if sums[i] > sums[idx] {
+			idx = i
+		}
+		left[i] = idx
+	}
+	right[n-1] = n - 1
+	for i := n - 2; i >= 0; i-- {
+		idx := right[i+1]
+		// 左边 优先
+		if sums[i] >= sums[idx] {
+			idx = i
+		}
+		right[i] = idx
+	}
+
+	// 取 中间
+	for i := k; i < n-k; i++ {
+		leftIdx, rightIdx := left[i-k], right[i+k]
+		if result[0] == -1 || sums[leftIdx]+sums[i]+sums[rightIdx] >
+			sums[result[0]]+sums[result[1]]+sums[result[2]] {
+			result[0] = leftIdx
+			result[1] = i
+			result[2] = rightIdx
+		}
+	}
+
+	return result
+}
