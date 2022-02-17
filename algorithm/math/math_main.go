@@ -819,7 +819,7 @@ func maximumProduct(nums []int) int {
 // 提示：
 // 1 <= n <= 231 - 1
 func hasAlternatingBits(n int) bool {
-	last := n & 1
+	/*last := n & 1
 	n >>= 1
 	for n > 0 {
 		tmp := n & 1
@@ -829,7 +829,9 @@ func hasAlternatingBits(n int) bool {
 		n >>= 1
 		last = tmp
 	}
-	return true
+	return true*/
+	num := n ^ (n >> 1)
+	return num&(num+1) == 0
 }
 
 // 1720. 解码异或后的数组

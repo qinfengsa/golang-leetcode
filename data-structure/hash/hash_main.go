@@ -873,6 +873,7 @@ func topKFrequent(nums []int, k int) []int {
 }
 
 type element struct {
+	word  string
 	num   int
 	count int
 }
@@ -1458,4 +1459,48 @@ func findDuplicate(paths []string) [][]string {
 		}
 	}
 	return result
+}
+
+// 692. 前K个高频单词
+// 给一非空的单词列表，返回前 k 个出现次数最多的单词。
+// 返回的答案应该按单词出现频率由高到低排序。如果不同的单词有相同出现频率，按字母顺序排序。
+//
+// 示例 1：
+// 输入: ["i", "love", "leetcode", "i", "love", "coding"], k = 2
+// 输出: ["i", "love"]
+// 解析: "i" 和 "love" 为出现次数最多的两个单词，均为2次。
+//    注意，按字母顺序 "i" 在 "love" 之前。
+//
+// 示例 2：
+// 输入: ["the", "day", "is", "sunny", "the", "the", "the", "sunny", "is", "is"], k = 4
+// 输出: ["the", "is", "sunny", "day"]
+// 解析: "the", "is", "sunny" 和 "day" 是出现次数最多的四个单词，
+//    出现次数依次为 4, 3, 2 和 1 次。
+//
+// 注意：
+// 假定 k 总为有效值， 1 ≤ k ≤ 集合元素数。
+// 输入的单词均由小写字母组成。
+//
+// 扩展练习：
+// 尝试以 O(n log k) 时间复杂度和 O(n) 空间复杂度解决。
+func topKFrequentII(words []string, k int) []string {
+
+	countMap := make(map[string]int)
+	for _, word := range words {
+		countMap[word]++
+	}
+
+	wordList := make([]string, 0)
+	for key := range countMap {
+		wordList = append(wordList, key)
+	}
+	// 排序
+	sort.Slice(wordList, func(i, j int) bool {
+		count1, count2 := countMap[wordList[i]], countMap[wordList[j]]
+		if count1 == count2 {
+			return wordList[i] < wordList[j]
+		}
+		return count2 < count1
+	})
+	return wordList[:k]
 }
