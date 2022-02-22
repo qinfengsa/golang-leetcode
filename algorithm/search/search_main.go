@@ -83,13 +83,6 @@ func search(nums []int, target int) int {
 	return -1
 }
 
-func searchTest() {
-	nums := []int{1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1}
-	target := 2
-	result := search2(nums, target)
-	fmt.Println(result)
-}
-
 // 81. 搜索旋转排序数组 II
 // 已知存在一个按非降序排列的整数数组 nums ，数组中的值不必互不相同。
 //

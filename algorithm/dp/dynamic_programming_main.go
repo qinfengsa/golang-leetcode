@@ -2992,3 +2992,137 @@ func minStickers(stickers []string, target string) int {
 	}
 	return dp[m-1]
 }
+
+// 1994. 好子集的数目
+// 给你一个整数数组 nums 。如果 nums 的一个子集中，所有元素的乘积可以表示为一个或多个 互不相同的质数 的乘积，那么我们称它为 好子集 。
+//
+// 比方说，如果 nums = [1, 2, 3, 4] ：
+// [2, 3] ，[1, 2, 3] 和 [1, 3] 是 好 子集，乘积分别为 6 = 2*3 ，6 = 2*3 和 3 = 3 。
+// [1, 4] 和 [4] 不是 好 子集，因为乘积分别为 4 = 2*2 和 4 = 2*2 。
+// 请你返回 nums 中不同的 好 子集的数目对 109 + 7 取余 的结果。
+//
+// nums 中的 子集 是通过删除 nums 中一些（可能一个都不删除，也可能全部都删除）元素后剩余元素组成的数组。如果两个子集删除的下标不同，那么它们被视为不同的子集。
+//
+// 示例 1：
+// 输入：nums = [1,2,3,4]
+// 输出：6
+// 解释：好子集为：
+// - [1,2]：乘积为 2 ，可以表示为质数 2 的乘积。
+// - [1,2,3]：乘积为 6 ，可以表示为互不相同的质数 2 和 3 的乘积。
+// - [1,3]：乘积为 3 ，可以表示为质数 3 的乘积。
+// - [2]：乘积为 2 ，可以表示为质数 2 的乘积。
+// - [2,3]：乘积为 6 ，可以表示为互不相同的质数 2 和 3 的乘积。
+// - [3]：乘积为 3 ，可以表示为质数 3 的乘积。
+//
+// 示例 2：
+// 输入：nums = [4,2,3,15]
+// 输出：5
+// 解释：好子集为：
+// - [2]：乘积为 2 ，可以表示为质数 2 的乘积。
+// - [2,3]：乘积为 6 ，可以表示为互不相同质数 2 和 3 的乘积。
+// - [2,15]：乘积为 30 ，可以表示为互不相同质数 2，3 和 5 的乘积。
+// - [3]：乘积为 3 ，可以表示为质数 3 的乘积。
+// - [15]：乘积为 15 ，可以表示为互不相同质数 3 和 5 的乘积。
+//
+// 提示：
+// 1 <= nums.length <= 105
+// 1 <= nums[i] <= 30
+func numberOfGoodSubsets(nums []int) int {
+	// 所有质数
+	primes := []int{2, 3, 5, 7, 11, 13, 17, 19, 23, 29}
+
+	freq := [31]int{}
+	for _, num := range nums {
+		freq[num]++
+	}
+	maxStatus := 1 << len(primes)
+	dp := make([]int, maxStatus)
+	dp[0] = 1
+	for i := 0; i < freq[1]; i++ {
+		dp[0] *= 2
+		dp[0] %= Mod
+	}
+next:
+	// 2 ~ 30 的所有数
+	for num := 2; num <= 30; num++ {
+		if freq[num] == 0 {
+			continue
+		}
+		// 数组 i
+		status := 0
+		for j, prime := range primes {
+			if num%(prime*prime) == 0 {
+				continue next
+			}
+			if num%prime == 0 {
+				status |= 1 << j
+			}
+		}
+		// 动态规划 num 表示为 二进制 status
+		for mask := maxStatus - 1; mask > 0; mask-- {
+			if mask&status == status {
+				dp[mask] += dp[mask^status] * freq[num] % Mod
+				dp[mask] %= Mod
+			}
+
+		}
+	}
+	result := 0
+	for _, f := range dp[1:] {
+		result += f
+		result %= Mod
+	}
+	return result
+}
+
+// 712. 两个字符串的最小ASCII删除和
+// 给定两个字符串s1 和 s2，返回 使两个字符串相等所需删除字符的 ASCII 值的最小和 。
+//
+// 示例 1:
+// 输入: s1 = "sea", s2 = "eat"
+// 输出: 231
+// 解释: 在 "sea" 中删除 "s" 并将 "s" 的值(115)加入总和。
+// 在 "eat" 中删除 "t" 并将 116 加入总和。
+// 结束时，两个字符串相等，115 + 116 = 231 就是符合条件的最小和。
+//
+// 示例 2:
+// 输入: s1 = "delete", s2 = "leet"
+// 输出: 403
+// 解释: 在 "delete" 中删除 "dee" 字符串变成 "let"，
+// 将 100[d]+101[e]+101[e] 加入总和。在 "leet" 中删除 "e" 将 101[e] 加入总和。
+// 结束时，两个字符串都等于 "let"，结果即为 100+101+101+101 = 403 。
+// 如果改为将两个字符串转换为 "lee" 或 "eet"，我们会得到 433 或 417 的结果，比答案更大。
+//
+// 提示:
+// 0 <= s1.length, s2.length <= 1000
+// s1 和 s2 由小写英文字母组成
+func minimumDeleteSum(s1 string, s2 string) int {
+	m, n := len(s1), len(s2)
+	dp := make([][]int, m+1)
+	for i := 0; i <= m; i++ {
+		dp[i] = make([]int, n+1)
+	}
+	// 状态：使用 dp[i][j]表示s1前i个字符和s2前j个字符的最小和结果
+	// 转移：如果当前字符相等 dp[i][j] = dp[i-1][j-1]
+	// dp[i][j] =
+	// min(dp[i-1][j]+ascii(s1[i]),dp[i][j-1]+ascii(s2[j])) 表示删除，加上ascii的值更新
+	//
+	// 注意边界，对于空串就是将其所有ascii值相加
+	for i := 0; i < m; i++ {
+		dp[i+1][0] = dp[i][0] + int(s1[i])
+	}
+	for j := 0; j < n; j++ {
+		dp[0][j+1] = dp[0][j] + int(s2[j])
+	}
+
+	for i := 0; i < m; i++ {
+		for j := 0; j < n; j++ {
+			if s1[i] == s2[j] {
+				dp[i+1][j+1] = dp[i][j]
+			} else {
+				dp[i+1][j+1] = min(dp[i][j+1]+int(s1[i]), dp[i+1][j]+int(s2[j]))
+			}
+		}
+	}
+	return dp[m][n]
+}
