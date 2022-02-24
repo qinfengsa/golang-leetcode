@@ -1087,3 +1087,60 @@ func min(x, y int) int {
 	}
 	return x
 }
+
+// 719. 找出第 k 小的距离对
+// 给定一个整数数组，返回所有数对之间的第 k 个最小距离。一对 (A, B) 的距离被定义为 A 和 B 之间的绝对差值。
+//
+// 示例 1:
+// 输入：
+// nums = [1,3,1]
+// k = 1
+// 输出：0
+// 解释：
+// 所有数对如下：
+// (1,3) -> 2
+// (1,1) -> 0
+// (3,1) -> 2
+// 因此第 1 个最小距离的数对是 (1,1)，它们之间的距离为 0。
+//
+// 提示:
+// 2 <= len(nums) <= 10000.
+// 0 <= nums[i] < 1000000.
+// 1 <= k <= len(nums) * (len(nums) - 1) / 2.
+func smallestDistancePair(nums []int, k int) int {
+
+	// 思路分析： 与 LeetCode 乘法表中第k小的数（二分搜索） 非常类似。
+	// 最大的距离必定是最大值 - 最小值，而最小的距离可能是0（也可能比0大）。所以我们采用二分法，
+	// 初始化left = 0， right = 最大距离。对于mid = (left + right) / 2，我们计算距离小于等于k个距离对的个数shortDisMid。
+	//
+	// 如果shortDisMid < k， 则第k小的距离对必定不会出现在[left, mid]，所以修改left = mid + 1
+	// 否则 right = mid
+	sort.Ints(nums)
+	n := len(nums)
+
+	countDistance := func(num int) int {
+		count := 0
+		right := n - 1
+		for left := n - 2; left >= 0; left-- {
+			for left < right && nums[right]-nums[left] > num {
+				right--
+			}
+			count += right - left
+		}
+		return count
+	}
+	left, right := 0, nums[n-1]-nums[0]
+
+	for left < right {
+		mid := (left + right) >> 1
+		// 获取距离大小不超过k的距离对的个数
+		count := countDistance(mid)
+		if count < k {
+			left = mid + 1
+		} else {
+			right = mid
+		}
+	}
+
+	return left
+}
