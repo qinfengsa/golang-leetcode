@@ -4,6 +4,7 @@ import (
 	"container/list"
 	"fmt"
 	"log"
+	"sort"
 	"strconv"
 	"strings"
 	"unicode"
@@ -824,4 +825,121 @@ func subArrayRanges(nums []int) int64 {
 		sumMin += int64(minRight[i]-i) * int64(i-minLeft[i]) * int64(num)
 	}
 	return sumMax - sumMin
+}
+
+// 726. 原子的数量
+// 给你一个字符串化学式 formula ，返回 每种原子的数量 。
+//
+// 原子总是以一个大写字母开始，接着跟随 0 个或任意个小写字母，表示原子的名字。
+//
+// 如果数量大于 1，原子后会跟着数字表示原子的数量。如果数量等于 1 则不会跟数字。
+//
+// 例如，"H2O" 和 "H2O2" 是可行的，但 "H1O2" 这个表达是不可行的。
+// 两个化学式连在一起可以构成新的化学式。
+//
+// 例如 "H2O2He3Mg4" 也是化学式。
+// 由括号括起的化学式并佐以数字（可选择性添加）也是化学式。
+//
+// 例如 "(H2O2)" 和 "(H2O2)3" 是化学式。
+// 返回所有原子的数量，格式为：第一个（按字典序）原子的名字，跟着它的数量（如果数量大于 1），然后是第二个原子的名字（按字典序），跟着它的数量（如果数量大于 1），以此类推。
+//
+// 示例 1：
+// 输入：formula = "H2O"
+// 输出："H2O"
+// 解释：原子的数量是 {'H': 2, 'O': 1}。
+//
+// 示例 2：
+// 输入：formula = "Mg(OH)2"
+// 输出："H2MgO2"
+// 解释：原子的数量是 {'H': 2, 'Mg': 1, 'O': 2}。
+//
+// 示例 3：
+// 输入：formula = "K4(ON(SO3)2)2"
+// 输出："K4N2O14S4"
+// 解释：原子的数量是 {'K': 4, 'N': 2, 'O': 14, 'S': 4}。
+//
+// 提示：
+// 1 <= formula.length <= 1000
+// formula 由英文字母、数字、'(' 和 ')' 组成
+// formula 总是有效的化学式
+func countOfAtoms(formula string) string {
+	stack := list.New()
+	n := len(formula)
+	stack.PushBack(make(map[string]int))
+	for i := 0; i < n; {
+		c := formula[i]
+		if c == '(' {
+			stack.PushBack(make(map[string]int))
+			i++
+		} else if c == ')' {
+			back := stack.Back()
+			stack.Remove(back)
+			i++
+			// 括号后面是数字
+			count := 0
+			for i < n && unicode.IsDigit(rune(formula[i])) {
+				count = count*10 + int(formula[i]-'0')
+				i++
+			}
+			if count == 0 {
+				count = 1
+			}
+			// 当前括号的原子放入前一个 map中
+			curAtomMap := back.Value.(map[string]int)
+			back = stack.Back()
+			lastAtomMap := back.Value.(map[string]int)
+			for name, v := range curAtomMap {
+				lastAtomMap[name] += v * count
+			}
+
+		} else {
+			start := i
+			i++
+			for i < n && unicode.IsLower(rune(formula[i])) {
+				i++
+			}
+			name := formula[start:i]
+			count := 0
+			for i < n && unicode.IsDigit(rune(formula[i])) {
+				count = count*10 + int(formula[i]-'0')
+				i++
+			}
+			if count == 0 {
+				count = 1
+			}
+			back := stack.Back()
+			lastAtomMap := back.Value.(map[string]int)
+
+			lastAtomMap[name] += count
+
+		}
+
+	}
+
+	var builder strings.Builder
+
+	back := stack.Back()
+	lastAtomMap := back.Value.(map[string]int)
+
+	atomList := make([]*Atom, 0)
+	for name, cnt := range lastAtomMap {
+		count := ""
+		if cnt > 1 {
+			count = strconv.Itoa(cnt)
+		}
+		atomList = append(atomList, &Atom{name: name, count: count})
+	}
+	sort.Slice(atomList, func(i, j int) bool {
+		return atomList[i].name < atomList[j].name
+	})
+
+	for _, atom := range atomList {
+		builder.WriteString(atom.name)
+		builder.WriteString(atom.count)
+	}
+	return builder.String()
+}
+
+type Atom struct {
+	name, count string
 }
