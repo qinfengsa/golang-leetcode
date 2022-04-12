@@ -4117,3 +4117,117 @@ func maxConsecutiveAnswers(answerKey string, k int) int {
 
 	return maxVal
 }
+
+// 796. 旋转字符串
+// 给定两个字符串, s 和 goal。如果在若干次旋转操作之后，s 能变成 goal ，那么返回 true 。
+//
+// s 的 旋转操作 就是将 s 最左边的字符移动到最右边。
+//
+// 例如, 若 s = 'abcde'，在旋转一次之后结果就是'bcdea' 。
+//
+// 示例 1:
+// 输入: s = "abcde", goal = "cdeab"
+// 输出: true
+//
+// 示例 2:
+// 输入: s = "abcde", goal = "abced"
+// 输出: false
+//
+// 提示:
+// 1 <= s.length, goal.length <= 100
+// s 和 goal 由小写英文字母组成
+func rotateString(s string, goal string) bool {
+	m, n := len(s), len(goal)
+	if m != n {
+		return false
+	}
+	if s == goal {
+		return true
+	}
+	letters := [26]int{}
+	for i := 0; i < n; i++ {
+		c1, c2 := s[i], goal[i]
+		letters[c1-'a']++
+		letters[c2-'a']--
+	}
+	for i := 0; i < 26; i++ {
+		if letters[i] != 0 {
+			return false
+		}
+	}
+	indexs := make([]int, 0)
+
+	for i := 0; i < n; i++ {
+		last := i - 1
+		if i == 0 {
+			last = n - 1
+		}
+		if goal[i] == s[0] && goal[last] == s[n-1] {
+			indexs = append(indexs, i)
+		}
+	}
+	match := func(idx int) bool {
+		for i := 0; i < n; i++ {
+			if s[i] != goal[idx] {
+				return false
+			}
+			idx++
+			if idx == n {
+				idx = 0
+			}
+		}
+		return true
+	}
+
+	for _, idx := range indexs {
+		if match(idx) {
+			return true
+		}
+	}
+
+	return false
+}
+
+// 806. 写字符串需要的行数
+// 我们要把给定的字符串 S 从左到右写到每一行上，每一行的最大宽度为100个单位，如果我们在写某个字母的时候会使这行超过了100 个单位，那么我们应该把这个字母写到下一行。我们给定了一个数组 widths ，这个数组 widths[0] 代表 'a' 需要的单位， widths[1] 代表 'b' 需要的单位，...， widths[25] 代表 'z' 需要的单位。
+//
+// 现在回答两个问题：至少多少行能放下S，以及最后一行使用的宽度是多少个单位？将你的答案作为长度为2的整数列表返回。
+//
+// 示例 1:
+// 输入:
+// widths = [10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10]
+// S = "abcdefghijklmnopqrstuvwxyz"
+// 输出: [3, 60]
+// 解释:
+// 所有的字符拥有相同的占用单位10。所以书写所有的26个字母，
+// 我们需要2个整行和占用60个单位的一行。
+//
+// 示例 2:
+// 输入:
+// widths = [4,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10]
+// S = "bbbcccdddaaa"
+// 输出: [2, 4]
+// 解释:
+// 除去字母'a'所有的字符都是相同的单位10，并且字符串 "bbbcccdddaa" 将会覆盖 9 * 10 + 2 * 4 = 98 个单位.
+// 最后一个字母 'a' 将会被写到第二行，因为第一行只剩下2个单位了。
+// 所以，这个答案是2行，第二行有4个单位宽度。
+//
+// 注:
+// 字符串 S 的长度在 [1, 1000] 的范围。
+// S 只包含小写字母。
+// widths 是长度为 26的数组。
+// widths[i] 值的范围在 [2, 10]。
+func numberOfLines(widths []int, s string) []int {
+	rows, count := 1, 0
+	for _, c := range s {
+		width := widths[c-'a']
+		if width+count > 100 {
+			rows++
+			count = width
+		} else {
+			count += width
+		}
+	}
+
+	return []int{rows, count}
+}
