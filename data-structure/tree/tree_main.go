@@ -2907,3 +2907,86 @@ func insertIntoBST(root *TreeNode, val int) *TreeNode {
 	}
 	return root
 }
+
+// 965. 单值二叉树
+// 如果二叉树每个节点都具有相同的值，那么该二叉树就是单值二叉树。
+//
+// 只有给定的树是单值二叉树时，才返回 true；否则返回 false。
+//
+// 示例 1：
+// 输入：[1,1,1,1,1,null,1]
+// 输出：true
+//
+// 示例 2：
+// 输入：[2,2,2,5,2]
+// 输出：false
+//
+// 提示：
+// 给定树的节点数范围是 [1, 100]。
+// 每个节点的值都是整数，范围为 [0, 99] 。
+func isUnivalTree(root *TreeNode) bool {
+	if root == nil {
+		return false
+	}
+	num := root.Val
+
+	var dfs func(node *TreeNode) bool
+
+	dfs = func(node *TreeNode) bool {
+		if node == nil {
+			return true
+		}
+		if node.Val != num {
+			return false
+		}
+		return dfs(node.Left) && dfs(node.Right)
+	}
+
+	return dfs(root)
+}
+
+// 1022. 从根到叶的二进制数之和
+// 给出一棵二叉树，其上每个结点的值都是 0 或 1 。每一条从根到叶的路径都代表一个从最高有效位开始的二进制数。
+//
+// 例如，如果路径为 0 -> 1 -> 1 -> 0 -> 1，那么它表示二进制数 01101，也就是 13 。
+// 对树上的每一片叶子，我们都要找出从根到该叶子的路径所表示的数字。
+//
+// 返回这些数字之和。题目数据保证答案是一个 32 位 整数。
+//
+// 示例 1：
+// 输入：root = [1,0,1,0,1,0,1]
+// 输出：22
+// 解释：(100) + (101) + (110) + (111) = 4 + 5 + 6 + 7 = 22
+//
+// 示例 2：
+// 输入：root = [0]
+// 输出：0
+//
+// 提示：
+// 树中的节点数在 [1, 1000] 范围内
+// Node.val 仅为 0 或 1
+func sumRootToLeaf(root *TreeNode) int {
+	sum := 0
+
+	var dfs func(node *TreeNode, num int)
+	dfs = func(node *TreeNode, num int) {
+		if node == nil {
+			return
+		}
+		num <<= 1
+		num += node.Val
+		if node.Left == nil && node.Right == nil {
+			sum += num
+		}
+		if node.Left != nil {
+			dfs(node.Left, num)
+		}
+		if node.Right != nil {
+			dfs(node.Right, num)
+		}
+
+	}
+	dfs(root, 0)
+
+	return sum
+}
