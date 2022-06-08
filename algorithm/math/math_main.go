@@ -1203,13 +1203,6 @@ func maxPoints(points [][]int) int {
 		return size
 	}
 
-	inLine := func(point1, point2, point3 []int) bool {
-		x1, x2, x3 := point1[0], point2[0], point3[0]
-		y1, y2, y3 := point1[1], point2[1], point3[1]
-
-		return (x2-x1)*(y3-y1) == (y2-y1)*(x3-x1)
-	}
-
 	maxCnt := 0
 	for i := 0; i < size; i++ {
 		same := 1
@@ -3264,4 +3257,34 @@ func diStringMatch(s string) []int {
 	}
 	result[n] = low
 	return result
+}
+
+// 1037. 有效的回旋镖
+// 给定一个数组 points ，其中 points[i] = [xi, yi] 表示 X-Y 平面上的一个点，如果这些点构成一个 回旋镖 则返回 true 。
+//
+// 回旋镖 定义为一组三个点，这些点 各不相同 且 不在一条直线上 。
+//
+// 示例 1：
+// 输入：points = [[1,1],[2,3],[3,2]]
+// 输出：true
+//
+// 示例 2：
+// 输入：points = [[1,1],[2,2],[3,3]]
+// 输出：false
+//
+// 提示：
+// points.length == 3
+// points[i].length == 2
+// 0 <= xi, yi <= 100
+func isBoomerang(points [][]int) bool {
+	point1, point2, point3 := points[0], points[1], points[2]
+
+	return !inLine(point1, point2, point3)
+}
+
+func inLine(point1, point2, point3 []int) bool {
+	x1, x2, x3 := point1[0], point2[0], point3[0]
+	y1, y2, y3 := point1[1], point2[1], point3[1]
+
+	return (x2-x1)*(y3-y1) == (y2-y1)*(x3-x1)
 }
