@@ -5002,3 +5002,102 @@ func sortArrayByParity(nums []int) []int {
 	}
 	return nums
 }
+
+// 1051. 高度检查器
+// 学校打算为全体学生拍一张年度纪念照。根据要求，学生需要按照 非递减 的高度顺序排成一行。
+//
+// 排序后的高度情况用整数数组 expected 表示，其中 expected[i] 是预计排在这一行中第 i 位的学生的高度（下标从 0 开始）。
+//
+// 给你一个整数数组 heights ，表示 当前学生站位 的高度情况。heights[i] 是这一行中第 i 位学生的高度（下标从 0 开始）。
+// 返回满足 heights[i] != expected[i] 的 下标数量 。
+//
+// 示例：
+// 输入：heights = [1,1,4,2,1,3]
+// 输出：3
+// 解释：
+// 高度：[1,1,4,2,1,3]
+// 预期：[1,1,1,2,3,4]
+// 下标 2 、4 、5 处的学生高度不匹配。
+//
+// 示例 2：
+// 输入：heights = [5,1,2,3,4]
+// 输出：5
+// 解释：
+// 高度：[5,1,2,3,4]
+// 预期：[1,2,3,4,5]
+// 所有下标的对应学生高度都不匹配。
+//
+// 示例 3：
+// 输入：heights = [1,2,3,4,5]
+// 输出：0
+// 解释：
+// 高度：[1,2,3,4,5]
+// 预期：[1,2,3,4,5]
+// 所有下标的对应学生高度都匹配。
+//
+// 提示：
+// 1 <= heights.length <= 100
+// 1 <= heights[i] <= 100
+func heightChecker(heights []int) int {
+	var bucket [101]int
+	for _, height := range heights {
+		bucket[height]++
+	}
+	count := 0
+	for i, idx := 1, 0; i < 101; i++ {
+		for bucket[i] > 0 {
+			if heights[idx] != i {
+				count++
+			}
+			idx++
+			bucket[i]--
+		}
+	}
+
+	return count
+}
+
+// 1089. 复写零
+// 给你一个长度固定的整数数组 arr，请你将该数组中出现的每个零都复写一遍，并将其余的元素向右平移。
+//
+// 注意：请不要在超过该数组长度的位置写入元素。
+//
+// 要求：请对输入的数组 就地 进行上述修改，不要从函数返回任何东西。
+//
+// 示例 1：
+// 输入：[1,0,2,3,0,4,5,0]
+// 输出：null
+// 解释：调用函数后，输入的数组将被修改为：[1,0,0,2,3,0,0,4]
+//
+// 示例 2：
+// 输入：[1,2,3]
+// 输出：null
+// 解释：调用函数后，输入的数组将被修改为：[1,2,3]
+//
+// 提示：
+// 1 <= arr.length <= 10000
+// 0 <= arr[i] <= 9
+func duplicateZeros(arr []int) {
+	n, count := len(arr), 0
+	lastZero := -1
+	for i, num := range arr {
+		if i+count+1 >= n {
+			break
+		}
+		if num == 0 {
+			count++
+			lastZero = i
+		}
+	}
+	j := n - 1
+	for count > 0 && j > 0 {
+		left := j - count
+		arr[j] = arr[j-count]
+		if arr[j] == 0 && left <= lastZero {
+			j--
+			arr[j] = 0
+			count--
+		}
+		j--
+	}
+}
