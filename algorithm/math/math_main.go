@@ -3333,3 +3333,94 @@ func inLine(point1, point2, point3 []int) bool {
 
 	return (x2-x1)*(y3-y1) == (y2-y1)*(x3-x1)
 }
+
+// 1175. 质数排列
+// 请你帮忙给从 1 到 n 的数设计排列方案，使得所有的「质数」都应该被放在「质数索引」（索引从 1 开始）上；你需要返回可能的方案总数。
+//
+// 让我们一起来回顾一下「质数」：质数一定是大于 1 的，并且不能用两个小于它的正整数的乘积来表示。
+//
+// 由于答案可能会很大，所以请你返回答案 模 mod 10^9 + 7 之后的结果即可。
+//
+// 示例 1：
+// 输入：n = 5
+// 输出：12
+// 解释：举个例子，[1,2,5,4,3] 是一个有效的排列，但 [5,2,3,4,1] 不是，因为在第二种情况里质数 5 被错误地放在索引为 1 的位置上。
+//
+// 示例 2：
+// 输入：n = 100
+// 输出：682289015
+//
+// 提示：
+// 1 <= n <= 100
+func numPrimeArrangements(n int) int {
+	if n < 3 {
+		return 1
+	}
+	count := 0
+	nums := make([]bool, n+1)
+	for i := 2; i*i <= n; i++ {
+		if nums[i] {
+			continue
+		}
+		for j := i * i; j <= n; j += i {
+			if nums[j] {
+				continue
+			}
+			nums[j] = true
+			count++
+		}
+	}
+
+	count++
+	MOD := 1000000007
+
+	num := 1
+	for i := 1; i <= count; i++ {
+		num = (num * i) % MOD
+	}
+	for i := 1; i <= n-count; i++ {
+		num = (num * i) % MOD
+	}
+	return num
+}
+
+// 1217. 玩筹码
+// 有 n 个筹码。第 i 个筹码的位置是 position[i] 。
+//
+// 我们需要把所有筹码移到同一个位置。在一步中，我们可以将第 i 个筹码的位置从 position[i] 改变为:
+//
+// position[i] + 2 或 position[i] - 2 ，此时 cost = 0
+// position[i] + 1 或 position[i] - 1 ，此时 cost = 1
+// 返回将所有筹码移动到同一位置上所需要的 最小代价 。
+//
+// 示例 1：
+// 输入：position = [1,2,3]
+// 输出：1
+// 解释：第一步:将位置3的筹码移动到位置1，成本为0。
+// 第二步:将位置2的筹码移动到位置1，成本= 1。
+// 总成本是1。
+//
+// 示例 2：
+// 输入：position = [2,2,2,3,3]
+// 输出：2
+// 解释：我们可以把位置3的两个筹码移到位置2。每一步的成本为1。总成本= 2。
+//
+// 示例 3:
+// 输入：position = [1,1000000000]
+// 输出：1
+//
+// 提示：
+// 1 <= chips.length <= 100
+// 1 <= chips[i] <= 10^9
+func minCostToMoveChips(position []int) int {
+	odd, even := 0, 0
+	for _, num := range position {
+		if num&1 == 1 {
+			odd++
+		} else {
+			even++
+		}
+	}
+
+	return min(even, odd)
+}
