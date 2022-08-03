@@ -4,6 +4,7 @@ import (
 	"container/list"
 	"math"
 	"sort"
+	"strconv"
 	"strings"
 )
 
@@ -631,4 +632,42 @@ func checkValidString(s string) bool {
 
 	}
 	return left1 == 0
+}
+
+// 738. 单调递增的数字
+// 当且仅当每个相邻位数上的数字 x 和 y 满足 x <= y 时，我们称这个整数是单调递增的。
+//
+// 给定一个整数 n ，返回 小于或等于 n 的最大数字，且数字呈 单调递增 。
+//
+// 示例 1:
+// 输入: n = 10 输出: 9
+//
+// 示例 2:
+// 输入: n = 1234 输出: 1234
+//
+// 示例 3:
+// 输入: n = 332 输出: 299
+//
+// 提示:
+// 0 <= n <= 109
+func monotoneIncreasingDigits(n int) int {
+	s := strconv.Itoa(n)
+	bytes := []byte(s)
+	l := len(bytes)
+	i := 1
+	// 原来的数字 递增
+	for i < l && bytes[i-1] <= bytes[i] {
+		i++
+	}
+	// 把递减开始的地方的前一位 -1
+	for 0 < i && i < l && bytes[i-1] > bytes[i] {
+		i--
+		bytes[i]--
+	}
+	// 补9
+	for j := i + 1; j < l; j++ {
+		bytes[j] = '9'
+	}
+	num, _ := strconv.Atoi(string(bytes))
+	return num
 }
