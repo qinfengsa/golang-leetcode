@@ -2,6 +2,7 @@ package string
 
 import (
 	"fmt"
+	"reflect"
 	"testing"
 )
 
@@ -59,4 +60,25 @@ func Test_findMinStep(t *testing.T) {
 
 	result := findMinStep(board, hand)
 	fmt.Println(result)
+}
+
+func Test_pyramidTransition(t *testing.T) {
+	type pyramidArg struct {
+		bottom  string
+		allowed []string
+	}
+	tests := []struct {
+		name string
+		args pyramidArg
+		want bool
+	}{
+		{"1", pyramidArg{bottom: "BCD", allowed: []string{"BCC", "CDE", "CEA", "FFF"}}, true},
+	}
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			if got := pyramidTransition(test.args.bottom, test.args.allowed); !reflect.DeepEqual(got, test.want) {
+				t.Errorf("pyramidTransition() = %v, want %v", got, test.want)
+			}
+		})
+	}
 }
