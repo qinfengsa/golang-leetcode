@@ -3036,3 +3036,44 @@ func pruneTree(root *TreeNode) *TreeNode {
 	}
 	return nil
 }
+
+// 1302. 层数最深叶子节点的和
+// 给你一棵二叉树的根节点 root ，请你返回 层数最深的叶子节点的和 。
+//
+// 示例 1：
+// 输入：root = [1,2,3,4,5,null,6,7,null,null,null,null,8]
+// 输出：15
+//
+// 示例 2：
+// 输入：root = [6,7,8,2,7,1,3,9,null,1,4,null,null,null,5]
+// 输出：19
+//
+// 提示：
+// 树中节点数目在范围 [1, 104] 之间。
+// 1 <= Node.val <= 100
+func deepestLeavesSum(root *TreeNode) int {
+	if root == nil {
+		return 0
+	}
+	queue := list.New()
+	result := 0
+	queue.PushBack(root)
+	for queue.Len() > 0 {
+		n := queue.Len()
+		result = 0
+		for i := 0; i < n; i++ {
+			front := queue.Front()
+			queue.Remove(front)
+			node := front.Value.(*TreeNode)
+			result += node.Val
+			if node.Left != nil {
+				queue.PushBack(node.Left)
+			}
+			if node.Right != nil {
+				queue.PushBack(node.Right)
+			}
+		}
+	}
+
+	return result
+}
