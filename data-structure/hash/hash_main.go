@@ -1562,3 +1562,54 @@ func isAlienSorted(words []string, order string) bool {
 
 	return true
 }
+
+// 1224. 最大相等频率
+// 给你一个正整数数组 nums，请你帮忙从该数组中找出能满足下面要求的 最长 前缀，并返回该前缀的长度：
+//
+// 从前缀中 恰好删除一个 元素后，剩下每个数字的出现次数都相同。
+// 如果删除这个元素后没有剩余元素存在，仍可认为每个数字都具有相同的出现次数（也就是 0 次）。
+//
+// 示例 1：
+// 输入：nums = [2,2,1,1,5,3,3,5]
+// 输出：7
+// 解释：对于长度为 7 的子数组 [2,2,1,1,5,3,3]，如果我们从中删去 nums[4] = 5，就可以得到 [2,2,1,1,3,3]，里面每个数字都出现了两次。
+//
+// 示例 2：
+// 输入：nums = [1,1,1,2,2,2,3,3,3,4,4,4,5]
+// 输出：13
+//
+// 提示：
+// 2 <= nums.length <= 105
+// 1 <= nums[i] <= 105
+func maxEqualFreq(nums []int) int {
+	n := len(nums)
+	// num 的数量
+	numCount := make([]int, 100001)
+	// count 的个数
+	countNum := make([]int, n+1)
+	maxCount, result := 0, 0
+	for i, num := range nums {
+		numCount[num]++
+		count := numCount[num]
+		countNum[count-1]--
+		countNum[count]++
+		maxCount = max(count, maxCount)
+		// count 全是1
+		if countNum[1] == i+1 {
+			result = i + 1
+		}
+		// count == i + 1 只有一个num
+		if count == i+1 {
+			result = i + 1
+		}
+		// count = 1 的 存在且只有1个
+		if countNum[1] == 1 && countNum[maxCount]*maxCount == i {
+			result = i + 1
+		}
+		// maxCount-1 有 n 个  maxCount   只有一个
+		if countNum[maxCount] == 1 && countNum[maxCount-1]*(maxCount-1)+maxCount == i+1 {
+			result = i + 1
+		}
+	}
+	return result
+}
