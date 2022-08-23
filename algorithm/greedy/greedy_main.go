@@ -2,6 +2,7 @@ package greedy
 
 import (
 	"container/list"
+	"fmt"
 	"math"
 	"sort"
 	"strconv"
@@ -741,5 +742,79 @@ func partitionLabels(s string) []int {
 			start = i
 		}
 	}
+	return result
+}
+
+// 757. 设置交集大小至少为2
+// 一个整数区间 [a, b]  ( a < b ) 代表着从 a 到 b 的所有连续整数，包括 a 和 b。
+//
+// 给你一组整数区间intervals，请找到一个最小的集合 S，使得 S 里的元素与区间intervals中的每一个整数区间都至少有2个元素相交。
+//
+// 输出这个最小集合S的大小。
+//
+// 示例 1:
+// 输入: intervals = [[1, 3], [1, 4], [2, 5], [3, 5]]
+// 输出: 3
+// 解释:
+// 考虑集合 S = {2, 3, 4}. S与intervals中的四个区间都有至少2个相交的元素。
+// 且这是S最小的情况，故我们输出3。
+//
+// 示例 2:
+// 输入: intervals = [[1, 2], [2, 3], [2, 4], [4, 5]]
+// 输出: 5
+// 解释:
+// 最小的集合S = {1, 2, 3, 4, 5}.
+//
+// 注意:
+// intervals 的长度范围为[1, 3000]。
+// intervals[i] 长度为 2，分别代表左、右边界。
+// intervals[i][j] 的值是 [0, 10^8]范围内的整数。
+func intersectionSizeTwo(intervals [][]int) int {
+
+	// [a,b] a降序 b 升序
+	sort.Slice(intervals, func(i, j int) bool {
+		if intervals[i][0] == intervals[j][0] {
+			return intervals[i][1] <= intervals[j][1]
+		}
+		return intervals[i][0] > intervals[j][0]
+	})
+	fmt.Println(intervals)
+	result := 0
+	// 假设前一个区间为[a1,b1]，与集合的交集是[left,right]，保证left < right,接下来要处理的区间是[a2,b2]。
+	// 有以下几种情况：
+	// 1、a2 <= left < right <= b2,left、right都在[a2,b2]内部，不需要更新。
+	// 2、a2 <= left <= b2 < right,left在[a2,b2]内部，更新right。
+	// 3、left < a2 <= right <= b2,,right在[a2,b2]内部，更新left。
+	// 4、left、right不在[a2,b2]内部，同时更新left、right。
+	// 关键点：更新的时候需要保证left < right
+
+	left, right := math.MaxInt32, math.MaxInt32
+	for _, interval := range intervals {
+		if interval[0] <= left && left <= interval[1] && interval[0] <= right && right <= interval[1] {
+			continue
+		} else if interval[0] <= left && left <= interval[1] {
+			result++
+			if left == interval[0] {
+				right = interval[0] + 1
+			} else {
+				right = left
+				left = interval[0]
+			}
+		} else if interval[0] <= right && right <= interval[1] {
+			result++
+			if right == interval[0] {
+				left = interval[0]
+				right = interval[0] + 1
+			} else {
+				left = interval[0]
+			}
+		} else {
+			result += 2
+			left = interval[0]
+			right = interval[0] + 1
+		}
+
+	}
+
 	return result
 }
