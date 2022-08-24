@@ -4,6 +4,7 @@ import (
 	"container/heap"
 	"container/list"
 	"math"
+	"math/bits"
 	"sort"
 )
 
@@ -13,6 +14,13 @@ var (
 	AroundDirRow = []int{-1, -1, -1, 0, 0, 1, 1, 1}
 	AroundDirCol = []int{-1, 0, 1, -1, 1, -1, 0, 1}
 )
+
+func abs(x int) int {
+	if x < 0 {
+		return -1 * x
+	}
+	return x
+}
 
 func min(x, y int) int {
 	if x > y {
@@ -1113,4 +1121,109 @@ func isToeplitzMatrix(matrix [][]int) bool {
 	}
 
 	return true
+}
+
+// 782. 变为棋盘
+// 一个 n x n 的二维网络 board 仅由 0 和 1 组成 。每次移动，你能任意交换两列或是两行的位置。
+//
+// 返回 将这个矩阵变为  “棋盘”  所需的最小移动次数 。如果不存在可行的变换，输出 -1。
+//
+// “棋盘” 是指任意一格的上下左右四个方向的值均与本身不同的矩阵。
+//
+// 示例 1:
+// 输入: board = [[0,1,1,0],[0,1,1,0],[1,0,0,1],[1,0,0,1]]
+// 输出: 2
+// 解释:一种可行的变换方式如下，从左到右：
+// 第一次移动交换了第一列和第二列。
+// 第二次移动交换了第二行和第三行。
+//
+// 示例 2:
+// 输入: board = [[0, 1], [1, 0]]
+// 输出: 0
+// 解释: 注意左上角的格值为0时也是合法的棋盘，也是合法的棋盘.
+//
+// 示例 3:
+// 输入: board = [[1, 0], [1, 0]]
+// 输出: -1
+// 解释: 任意的变换都不能使这个输入变为合法的棋盘。
+//
+// 提示：
+// n == board.length
+// n == board[i].length
+// 2 <= n <= 30
+// board[i][j] 将只包含 0或 1
+func movesToChessboard(board [][]int) int {
+	n := len(board)
+	checkBoard := func(countMap map[int]int) int {
+		if len(countMap) != 2 {
+			return -1
+		}
+		k1, k2 := -1, -1
+		count1, count2 := 0, 0
+		for k, v := range countMap {
+			if k1 == -1 {
+				k1 = k
+				count1 = v
+			} else {
+				k2 = k
+				count2 = v
+			}
+		}
+		// 最多相差一个
+		if abs(count1-count2) > 1 {
+			return -1
+		}
+		sum := (1 << n) - 1
+		// k1 k2 互异
+		if k1^k2 != sum {
+			return -1
+		}
+		// 求最小交换次数 分别求 以 1 和 0 开头 需要的交换次数
+		bitNum := bits.OnesCount(uint(k1 & sum))
+		result := math.MaxInt32
+		if (n&1) == 0 || bitNum<<1 < n {
+			// 0xAAAAAAAA：10101010101010101010101010101010
+			// 找到与正确的1010...相差的位数，则需要交换的次数是一半（/2）
+			result = min(result, bits.OnesCount(uint(k1^0xAAAAAAAA&sum))>>1)
+		}
+
+		if (n&1) == 0 || bitNum<<1 > n {
+			// 0x55555555：01010101010101010101010101010101
+			// 找到与正确的1010...相差的位数，则需要交换的次数是一半（/2）
+			result = min(result, bits.OnesCount(uint(k1^0x55555555&sum))>>1)
+		}
+
+		return result
+	}
+
+	// 判断是否 合法, 以第一行为准, 其他行要么与第一行相同, 要么完全 相反 并且 两个 数量相等或相差1
+	rowMap := make(map[int]int)
+	for i := 0; i < n; i++ {
+		num := 0
+		for j := 0; j < n; j++ {
+			num <<= 1
+			num |= board[i][j]
+		}
+		rowMap[num]++
+	}
+	count1 := checkBoard(rowMap)
+	if count1 == -1 {
+		return -1
+	}
+
+	// 判断列
+	colMap := make(map[int]int)
+	for j := 0; j < n; j++ {
+		num := 0
+		for i := 0; i < n; i++ {
+			num <<= 1
+			num |= board[i][j]
+		}
+		colMap[num]++
+	}
+	count2 := checkBoard(colMap)
+	if count2 == -1 {
+		return -1
+	}
+	return count1 + count2
 }
