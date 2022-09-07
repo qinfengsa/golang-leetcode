@@ -4776,3 +4776,132 @@ func canTransform(start string, end string) bool {
 	}
 	return true
 }
+
+// 828. 统计子串中的唯一字符
+// 我们定义了一个函数 countUniqueChars(s) 来统计字符串 s 中的唯一字符，并返回唯一字符的个数。
+//
+// 例如：s = "LEETCODE" ，则其中 "L", "T","C","O","D" 都是唯一字符，因为它们只出现一次，所以 countUniqueChars(s) = 5 。
+//
+// 本题将会给你一个字符串 s ，我们需要返回 countUniqueChars(t) 的总和，其中 t 是 s 的子字符串。输入用例保证返回值为 32 位整数。
+//
+// 注意，某些子字符串可能是重复的，但你统计时也必须算上这些重复的子字符串（也就是说，你必须统计 s 的所有子字符串中的唯一字符）。
+//
+// 示例 1：
+// 输入: s = "ABC"
+// 输出: 10
+// 解释: 所有可能的子串为："A","B","C","AB","BC" 和 "ABC"。
+//     其中，每一个子串都由独特字符构成。
+//     所以其长度总和为：1 + 1 + 1 + 2 + 2 + 3 = 10
+//
+// 示例 2：
+// 输入: s = "ABA"
+// 输出: 8
+// 解释: 除了 countUniqueChars("ABA") = 1 之外，其余与示例 1 相同。
+//
+// 示例 3：
+// 输入：s = "LEETCODE"
+// 输出：92
+//
+// 提示：
+// 1 <= s.length <= 10^5
+// s 只包含大写英文字符
+func uniqueLetterString(s string) int {
+	// "LEETCODE"  len=8
+	// 对于字符'L'，在区间[0,7]只出现一次，为答案贡献8(在该区间中,'L'可以存在于8个子串中)
+	// 对于字符'E'，在区间[0,1]只出现一次，为答案贡献2
+	// 对于字符'E'，在区间[2,6]只出现一次，为答案贡献5
+	// 对于字符'T'，在区间[0,7]只出现一次，为答案贡献20 左边 4 右边5
+	// 对于字符'C'，在区间[0,7]只出现一次，为答案贡献20 左边 5 右边4
+	// 对于字符'O'，在区间[0,7]只出现一次，为答案贡献18
+	// 对于字符'D'，在区间[0,7]只出现一次，为答案贡献14
+	// 对于字符'E'，在区间[3,7]只出现一次，为答案贡献5
+	// ans=8+2+5+20+20+18+14+5=92
+	// 以每个字符为中心，向两边扩展到不重复为止
+	n := len(s)
+	result := 0
+	for i := 0; i < n; i++ {
+		c := s[i]
+		left, right := i-1, i+1
+		for left >= 0 && s[left] != c {
+			left--
+		}
+		for right < n && s[right] != c {
+			right++
+		}
+		result += (i - left) * (right - i)
+	}
+
+	return result
+}
+
+// 1592. 重新排列单词间的空格
+// 给你一个字符串 text ，该字符串由若干被空格包围的单词组成。每个单词由一个或者多个小写英文字母组成，并且两个单词之间至少存在一个空格。题目测试用例保证 text 至少包含一个单词 。
+//
+// 请你重新排列空格，使每对相邻单词之间的空格数目都 相等 ，并尽可能 最大化 该数目。如果不能重新平均分配所有空格，请 将多余的空格放置在字符串末尾 ，这也意味着返回的字符串应当与原 text 字符串的长度相等。
+// 返回 重新排列空格后的字符串 。
+//
+// 示例 1：
+// 输入：text = "  this   is  a sentence "
+// 输出："this   is   a   sentence"
+// 解释：总共有 9 个空格和 4 个单词。可以将 9 个空格平均分配到相邻单词之间，相邻单词间空格数为：9 / (4-1) = 3 个。
+//
+// 示例 2：
+// 输入：text = " practice   makes   perfect"
+// 输出："practice   makes   perfect "
+// 解释：总共有 7 个空格和 3 个单词。7 / (3-1) = 3 个空格加上 1 个多余的空格。多余的空格需要放在字符串的末尾。
+//
+// 示例 3：
+// 输入：text = "hello   world"
+// 输出："hello   world"
+//
+// 示例 4：
+// 输入：text = "  walks  udp package   into  bar a"
+// 输出："walks  udp  package  into  bar  a "
+//
+// 示例 5：
+// 输入：text = "a"
+// 输出："a"
+//
+// 提示：
+// 1 <= text.length <= 100
+// text 由小写英文字母和 ' ' 组成
+// text 中至少包含一个单词
+func reorderSpaces(text string) string {
+	count := 0
+	for _, c := range text {
+		if c == ' ' {
+			count++
+		}
+	}
+	strs := strings.Split(text, " ")
+
+	words := make([]string, 0)
+	for _, str := range strs {
+		if len(str) > 0 {
+			words = append(words, str)
+		}
+	}
+	n := len(words)
+	var num int
+	if n == 1 {
+		num = 0
+	} else {
+		num = count / (n - 1)
+	}
+	left := count - num*(n-1)
+	var builder strings.Builder
+	for i, word := range words {
+		builder.WriteString(word)
+		var blankSize int
+		if i == n-1 {
+			blankSize = left
+		} else {
+			blankSize = num
+		}
+		for j := 0; j < blankSize; j++ {
+			builder.WriteByte(' ')
+		}
+	}
+
+	return builder.String()
+}
