@@ -1567,3 +1567,47 @@ func countMaxOrSubsets(nums []int) int {
 	dfs(0, 0)
 	return result
 }
+
+// 784. 字母大小写全排列
+// 给定一个字符串 s ，通过将字符串 s 中的每个字母转变大小写，我们可以获得一个新的字符串。
+//
+// 返回 所有可能得到的字符串集合 。以 任意顺序 返回输出。
+//
+// 示例 1：
+// 输入：s = "a1b2"
+// 输出：["a1b2", "a1B2", "A1b2", "A1B2"]
+//
+// 示例 2:
+// 输入: s = "3z4"
+// 输出: ["3z4","3Z4"]
+//
+// 提示:
+// 1 <= s.length <= 12
+// s 由小写英文字母、大写英文字母和数字组成
+func letterCasePermutation(s string) []string {
+	n := len(s)
+	result := make([]string, 0)
+	bytes := make([]byte, n)
+	var back func(index int)
+
+	back = func(index int) {
+		if n == index {
+			result = append(result, string(bytes))
+			return
+		}
+		c := s[index]
+		bytes[index] = c
+		back(index + 1)
+		if c >= 'a' && c <= 'z' {
+			ch := 'A' + (c - 'a')
+			bytes[index] = ch
+			back(index + 1)
+		} else if c >= 'A' && c <= 'Z' {
+			ch := 'a' + (c - 'A')
+			bytes[index] = ch
+			back(index + 1)
+		}
+	}
+	back(0)
+	return result
+}
