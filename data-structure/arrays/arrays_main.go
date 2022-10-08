@@ -5893,3 +5893,47 @@ func maxAscendingSum(nums []int) int {
 
 	return result
 }
+
+// 870. 优势洗牌
+// 给定两个大小相等的数组 nums1 和 nums2，nums1 相对于 nums 的优势可以用满足 nums1[i] > nums2[i] 的索引 i 的数目来描述。
+//
+// 返回 nums1 的任意排列，使其相对于 nums2 的优势最大化。
+//
+// 示例 1：
+// 输入：nums1 = [2,7,11,15], nums2 = [1,10,4,11]
+// 输出：[2,11,7,15]
+//
+// 示例 2：
+// 输入：nums1 = [12,24,8,32], nums2 = [13,25,32,11]
+// 输出：[24,32,8,12]
+//
+// 提示：
+// 1 <= nums1.length <= 105
+// nums2.length == nums1.length
+// 0 <= nums1[i], nums2[i] <= 109
+func advantageCount(nums1 []int, nums2 []int) []int {
+	n := len(nums1)
+	result := make([]int, n)
+	sort.Ints(nums1)
+	nums := make([][]int, n)
+	for i := 0; i < n; i++ {
+		nums[i] = make([]int, 2)
+		nums[i][0] = nums2[i]
+		nums[i][1] = i
+	}
+	sort.Slice(nums, func(i, j int) bool {
+		return nums[i][0] < nums[j][0]
+	})
+	left, right := 0, n-1
+	for _, num := range nums1 {
+		if num <= nums[left][0] {
+			result[nums[right][1]] = num // 下等马对上等马
+			right--
+		} else {
+			result[nums[left][1]] = num // 下等马对下等马
+			left++
+		}
+	}
+
+	return result
+}
