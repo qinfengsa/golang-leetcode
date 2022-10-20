@@ -949,6 +949,13 @@ func max(x, y int) int {
 	return y
 }
 
+func min(x, y int) int {
+	if x < y {
+		return x
+	}
+	return y
+}
+
 // 785. 判断二分图
 // 存在一个 无向图 ，图中有 n 个节点。其中每个节点都有一个介于 0 到 n - 1 之间的唯一编号。给你一个二维数组 graph ，其中 graph[u] 是一个节点数组，由节点 u 的邻接节点组成。形式上，对于 graph[u] 中的每个 v ，都存在一条位于节点 u 和节点 v 之间的无向边。该无向图同时具有以下属性：
 // 不存在自环（graph[u] 不包含 u）。
@@ -1010,4 +1017,73 @@ func isBipartite(graph [][]int) bool {
 		}
 	}
 	return true
+}
+
+// 787. K 站中转内最便宜的航班
+// 有 n 个城市通过一些航班连接。给你一个数组 flights ，其中 flights[i] = [fromi, toi, pricei] ，表示该航班都从城市 fromi 开始，以价格 pricei 抵达 toi。
+//
+// 现在给定所有的城市和航班，以及出发城市 src 和目的地 dst，你的任务是找到出一条最多经过 k 站中转的路线，使得从 src 到 dst 的 价格最便宜 ，并返回该价格。 如果不存在这样的路线，则输出 -1。
+//
+// 示例 1：
+// 输入:
+// n = 3, edges = [[0,1,100],[1,2,100],[0,2,500]]
+// src = 0, dst = 2, k = 1
+// 输出: 200
+// 解释:
+// 城市航班图如下
+//
+// 从城市 0 到城市 2 在 1 站中转以内的最便宜价格是 200，如图中红色所示。
+//
+// 示例 2：
+// 输入:
+// n = 3, edges = [[0,1,100],[1,2,100],[0,2,500]]
+// src = 0, dst = 2, k = 0
+// 输出: 500
+// 解释:
+// 城市航班图如下
+//
+// 从城市 0 到城市 2 在 0 站中转以内的最便宜价格是 500，如图中蓝色所示。
+//
+// 提示：
+// 1 <= n <= 100
+// 0 <= flights.length <= (n * (n - 1) / 2)
+// flights[i].length == 3
+// 0 <= fromi, toi < n
+// fromi != toi
+// 1 <= pricei <= 104
+// 航班没有重复，且不存在自环
+// 0 <= src, dst, k < n
+// src != dst
+func findCheapestPrice(n int, flights [][]int, src int, dst int, k int) int {
+	const inf = 10000*101 + 1
+	result := inf
+	// cost[k][dst] k站 目的地dst 的最小花费
+	cost := make([][]int, k+2)
+	for i := range cost {
+		cost[i] = make([]int, n)
+		for j := range cost[i] {
+			cost[i][j] = inf
+		}
+	}
+	cost[0][src] = 0
+	for i := 1; i <= k+1; i++ {
+		for _, flight := range flights {
+			start, end, price := flight[0], flight[1], flight[2]
+			// 目的地
+			cost[i][end] = min(cost[i][end], price+cost[i-1][start])
+		}
+	}
+	for i := 1; i <= k+1; i++ {
+		result = min(result, cost[i][dst])
+	}
+	if result == inf {
+		return -1
+	}
+
+	return result
+}
+
+type FlightInfo struct {
+	start int
+	price int
 }
