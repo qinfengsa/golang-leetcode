@@ -1396,3 +1396,98 @@ func swimInWater(grid [][]int) int {
 	}
 	return left
 }
+
+// 934. 最短的桥
+// 给你一个大小为 n x n 的二元矩阵 grid ，其中 1 表示陆地，0 表示水域。
+//
+// 岛 是由四面相连的 1 形成的一个最大组，即不会与非组内的任何其他 1 相连。grid 中 恰好存在两座岛 。
+//
+// 你可以将任意数量的 0 变为 1 ，以使两座岛连接起来，变成 一座岛 。
+//
+// 返回必须翻转的 0 的最小数目。
+//
+// 示例 1：
+// 输入：grid = [[0,1],[1,0]]
+// 输出：1
+//
+// 示例 2：
+// 输入：grid = [[0,1,0],[0,0,0],[0,0,1]]
+// 输出：2
+//
+// 示例 3：
+// 输入：grid = [[1,1,1,1,1],[1,0,0,0,1],[1,0,1,0,1],[1,0,0,0,1],[1,1,1,1,1]]
+// 输出：1
+//
+// 提示：
+// n == grid.length == grid[i].length
+// 2 <= n <= 100
+// grid[i][j] 为 0 或 1
+// grid 中恰有两个岛
+func shortestBridge(grid [][]int) int {
+	n := len(grid)
+	var findIsland func(row, col, color int)
+
+	findIsland = func(row, col, color int) {
+		if !inArea(row, col, n, n) {
+			return
+		}
+		if grid[row][col] == 0 || grid[row][col] == color {
+			return
+		}
+		grid[row][col] = color
+		for k := 0; k < 4; k++ {
+			nextRow, nextCol := row+DirRow[k], col+DirCol[k]
+			findIsland(nextRow, nextCol, color)
+		}
+	}
+	// 染色
+	color := 2
+	for i := 0; i < n; i++ {
+		for j := 0; j < n; j++ {
+			if grid[i][j] == 1 {
+				findIsland(i, j, color)
+				color++
+			}
+		}
+	}
+	queue := list.New()
+	for i := 0; i < n; i++ {
+		for j := 0; j < n; j++ {
+			if grid[i][j] != 2 {
+				continue
+			}
+			for k := 0; k < 4; k++ {
+				nextRow, nextCol := i+DirRow[k], j+DirCol[k]
+				if inArea(nextRow, nextCol, n, n) && grid[nextRow][nextCol] == 0 {
+					queue.PushBack([]int{nextRow, nextCol})
+				}
+			}
+		}
+	}
+	result := 0
+	for queue.Len() > 0 {
+		tmpLen := queue.Len()
+		result++
+		for i := 0; i < tmpLen; i++ {
+			front := queue.Front()
+			queue.Remove(front)
+			p := front.Value.([]int)
+			row, col := p[0], p[1]
+			if grid[row][col] != 0 {
+				continue
+			}
+			grid[row][col] = 2
+			for k := 0; k < 4; k++ {
+				nextRow, nextCol := row+DirRow[k], col+DirCol[k]
+				if inArea(nextRow, nextCol, n, n) {
+					if grid[nextRow][nextCol] == 0 {
+						queue.PushBack([]int{nextRow, nextCol})
+					} else if grid[nextRow][nextCol] == 3 {
+						return result
+					}
+				}
+			}
+		}
+	}
+	return -1
+}
