@@ -3883,3 +3883,59 @@ func soupServings(n int) float64 {
 
 	return dp[n][n]
 }
+
+// 813. 最大平均值和的分组
+// 给定数组 nums 和一个整数 k 。我们将给定的数组 nums 分成 最多 k 个相邻的非空子数组 。 分数 由每个子数组内的平均值的总和构成。
+// 注意我们必须使用 nums 数组中的每一个数进行分组，并且分数不一定需要是整数。
+// 返回我们所能得到的最大 分数 是多少。答案误差在 10-6 内被视为是正确的。
+//
+// 示例 1:
+// 输入: nums = [9,1,2,3,9], k = 3
+// 输出: 20.00000
+// 解释:
+// nums 的最优分组是[9], [1, 2, 3], [9]. 得到的分数是 9 + (1 + 2 + 3) / 3 + 9 = 20.
+// 我们也可以把 nums 分成[9, 1], [2], [3, 9].
+// 这样的分组得到的分数为 5 + 2 + 6 = 13, 但不是最大值.
+//
+// 示例 2:
+// 输入: nums = [1,2,3,4,5,6,7], k = 4
+// 输出: 20.50000
+//
+// 提示:
+// 1 <= nums.length <= 100
+// 1 <= nums[i] <= 104
+// 1 <= k <= nums.length
+func largestSumOfAverages(nums []int, k int) float64 {
+	// 设 dp(i, k) 表示将数组 A 中的前 i 个元素 A[:i] 分成 k 个相邻的非空子数组，可以得到的最大分数。dp(i, k) 的值可以通过 dp(j, k - 1)
+	// 转移而来，其中 j < i，状态转移方程为：
+	// dp(i, k) = max(dp(j, k - 1) + average(j + 1, i))
+	// dp(i, 0) = average(0, i)
+	n := len(nums)
+	dp := make([][]float64, k)
+	for i := 0; i < k; i++ {
+		dp[i] = make([]float64, n)
+	}
+	var sum = 0.0
+	for i := 0; i < n; i++ {
+		sum += float64(nums[i])
+		dp[0][i] = sum / float64(i+1)
+	}
+
+	for k1 := 1; k1 < k; k1++ {
+		for i := k1; i < n; i++ {
+			sum = 0.0
+			for j := i; j > k1-1; j-- {
+				sum += float64(nums[j])
+				dp[k1][i] = maxFloat(dp[k1][i], sum/float64(i-j+1)+dp[k1-1][j-1])
+			}
+		}
+	}
+	return dp[k-1][n-1]
+}
+
+func maxFloat(x, y float64) float64 {
+	if x > y {
+		return x
+	}
+	return y
+}
