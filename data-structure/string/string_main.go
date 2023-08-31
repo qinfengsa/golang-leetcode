@@ -5873,3 +5873,74 @@ func numDifferentIntegers(word string) int {
 	}
 	return len(numMap)
 }
+
+// 1812. 判断国际象棋棋盘中一个格子的颜色
+// 给你一个坐标 coordinates ，它是一个字符串，表示国际象棋棋盘中一个格子的坐标。下图是国际象棋棋盘示意图。
+//
+// 如果所给格子的颜色是白色，请你返回 true，如果是黑色，请返回 false 。
+//
+// 给定坐标一定代表国际象棋棋盘上一个存在的格子。坐标第一个字符是字母，第二个字符是数字。
+//
+// 示例 1：
+// 输入：coordinates = "a1"
+// 输出：false
+// 解释：如上图棋盘所示，"a1" 坐标的格子是黑色的，所以返回 false 。
+//
+// 示例 2：
+// 输入：coordinates = "h3"
+// 输出：true
+// 解释：如上图棋盘所示，"h3" 坐标的格子是白色的，所以返回 true 。
+//
+// 示例 3：
+// 输入：coordinates = "c7"
+// 输出：false
+//
+// 提示：
+// coordinates.length == 2
+// 'a' <= coordinates[0] <= 'h'
+// '1' <= coordinates[1] <= '8'
+func squareIsWhite(coordinates string) bool {
+	b1 := ((coordinates[0] - 'a') & 1) == 1
+	b2 := ((coordinates[1] - '1') & 1) == 1
+
+	return b1 != b2
+}
+
+// 2351. 第一个出现两次的字母
+// 给你一个由小写英文字母组成的字符串 s ，请你找出并返回第一个出现 两次 的字母。
+//
+// 注意：
+// 如果 a 的 第二次 出现比 b 的 第二次 出现在字符串中的位置更靠前，则认为字母 a 在字母 b 之前出现两次。
+// s 包含至少一个出现两次的字母。
+//
+// 示例 1：
+// 输入：s = "abccbaacz"
+// 输出："c"
+// 解释：
+// 字母 'a' 在下标 0 、5 和 6 处出现。
+// 字母 'b' 在下标 1 和 4 处出现。
+// 字母 'c' 在下标 2 、3 和 7 处出现。
+// 字母 'z' 在下标 8 处出现。
+// 字母 'c' 是第一个出现两次的字母，因为在所有字母中，'c' 第二次出现的下标是最小的。
+//
+// 示例 2：
+// 输入：s = "abcdd"
+// 输出："d"
+// 解释：
+// 只有字母 'd' 出现两次，所以返回 'd' 。
+//
+// 提示：
+// 2 <= s.length <= 100
+// s 由小写英文字母组成
+// s 包含至少一个重复字母
+func repeatedCharacter(s string) byte {
+	letters := make([]int, 26)
+	for i := 0; i < len(s); i++ {
+		c := s[i]
+		letters[c-'a']++
+		if letters[c-'a'] == 2 {
+			return c
+		}
+	}
+	return ' '
+}
