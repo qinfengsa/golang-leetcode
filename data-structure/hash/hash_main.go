@@ -7,6 +7,7 @@ import (
 	"sort"
 	"strconv"
 	"strings"
+	"unicode"
 )
 
 // 205. 同构字符串
@@ -350,7 +351,8 @@ out:
 // 示例 1:
 // 输入: candies = [1,1,2,2,3,3] 输出: 3
 // 解析: 一共有三种种类的糖果，每一种都有两个。
-//     最优分配方案：妹妹获得[1,2,3],弟弟也获得[1,2,3]。这样使妹妹获得糖果的种类数最多。
+//
+//	最优分配方案：妹妹获得[1,2,3],弟弟也获得[1,2,3]。这样使妹妹获得糖果的种类数最多。
 //
 // 示例 2 :
 // 输入: candies = [1,1,2,3] 输出: 2
@@ -581,9 +583,11 @@ func isValidSudoku(board [][]byte) bool {
 // 输入: ["eat", "tea", "tan", "ate", "nat", "bat"]
 // 输出:
 // [
-//  ["ate","eat","tea"],
-//  ["nat","tan"],
-//  ["bat"]
+//
+//	["ate","eat","tea"],
+//	["nat","tan"],
+//	["bat"]
+//
 // ]
 // 说明：
 // 所有输入均为小写字母。
@@ -1469,13 +1473,15 @@ func findDuplicate(paths []string) [][]string {
 // 输入: ["i", "love", "leetcode", "i", "love", "coding"], k = 2
 // 输出: ["i", "love"]
 // 解析: "i" 和 "love" 为出现次数最多的两个单词，均为2次。
-//    注意，按字母顺序 "i" 在 "love" 之前。
+//
+//	注意，按字母顺序 "i" 在 "love" 之前。
 //
 // 示例 2：
 // 输入: ["the", "day", "is", "sunny", "the", "the", "the", "sunny", "is", "is"], k = 4
 // 输出: ["the", "is", "sunny", "day"]
 // 解析: "the", "is", "sunny" 和 "day" 是出现次数最多的四个单词，
-//    出现次数依次为 4, 3, 2 和 1 次。
+//
+//	出现次数依次为 4, 3, 2 和 1 次。
 //
 // 注意：
 // 假定 k 总为有效值， 1 ≤ k ≤ 集合元素数。
@@ -1899,6 +1905,62 @@ func twoOutOfThree(nums1 []int, nums2 []int, nums3 []int) []int {
 	for i := 1; i <= 100; i++ {
 		if hashNums[i] == 3 || hashNums[i] == 5 || hashNums[i] == 6 || hashNums[i] == 7 {
 			result = append(result, i)
+		}
+	}
+	return result
+}
+
+// 819. 最常见的单词
+// 给定一个段落 (paragraph) 和一个禁用单词列表 (banned)。返回出现次数最多，同时不在禁用列表中的单词。
+// 题目保证至少有一个词不在禁用列表中，而且答案唯一。
+// 禁用列表中的单词用小写字母表示，不含标点符号。段落中的单词不区分大小写。答案都是小写字母。
+//
+// 示例：
+// 输入:
+// paragraph = "Bob hit a ball, the hit BALL flew far after it was hit."
+// banned = ["hit"]
+// 输出: "ball"
+// 解释:
+// "hit" 出现了3次，但它是一个禁用的单词。
+// "ball" 出现了2次 (同时没有其他单词出现2次)，所以它是段落里出现次数最多的，且不在禁用列表中的单词。
+// 注意，所有这些单词在段落里不区分大小写，标点符号需要忽略（即使是紧挨着单词也忽略， 比如 "ball,"），
+// "hit"不是最终的答案，虽然它出现次数更多，但它在禁用单词列表中。
+//
+// 提示：
+// 1 <= 段落长度 <= 1000
+// 0 <= 禁用单词个数 <= 100
+// 1 <= 禁用单词长度 <= 10
+// 答案是唯一的, 且都是小写字母 (即使在 paragraph 里是大写的，即使是一些特定的名词，答案都是小写的。)
+// paragraph 只包含字母、空格和下列标点符号!?',;.
+// 不存在没有连字符或者带有连字符的单词。
+// 单词里只包含字母，不会出现省略号或者其他标点符号。
+func mostCommonWord(paragraph string, banned []string) string {
+
+	// strings.Split(paragraph)
+	bannedMap := make(map[string]bool)
+	for _, word := range banned {
+		bannedMap[word] = true
+	}
+	countMap := make(map[string]int)
+	maxCount := 0
+	result := ""
+	n := len(paragraph)
+	var builder strings.Builder
+	for i := 0; i <= n; i++ {
+		if i < n && unicode.IsLetter(rune(paragraph[i])) {
+			builder.WriteByte(byte(unicode.ToLower(rune(paragraph[i]))))
+		} else if builder.Len() > 0 {
+			word := builder.String()
+			builder.Reset()
+			if bannedMap[word] {
+				continue
+			}
+			countMap[word]++
+			count := countMap[word]
+			if count > maxCount {
+				maxCount = count
+				result = word
+			}
 		}
 	}
 	return result
