@@ -76,8 +76,6 @@ func deleteDuplicates(head *ListNode) *ListNode {
 //
 // 如果链表中存在环，则返回 true 。 否则，返回 false 。
 //
-//
-//
 // 进阶： 你能用 O(1)（即，常量）内存解决此问题吗？
 // 示例 1： 输入：head = [3,2,0,-4], pos = 1 输出：true
 // 解释：链表中有一个环，其尾部连接到第二个节点。
@@ -453,9 +451,11 @@ func removeNthFromEnd(head *ListNode, n int) *ListNode {
 // 输入：lists = [[1,4,5],[1,3,4],[2,6]] 输出：[1,1,2,3,4,4,5,6]
 // 解释：链表数组如下：
 // [
-//   1->4->5,
-//   1->3->4,
-//   2->6
+//
+//	1->4->5,
+//	1->3->4,
+//	2->6
+//
 // ]
 // 将它们合并到一个有序链表中得到。
 // 1->1->2->3->4->4->5->6
@@ -1198,4 +1198,30 @@ func numComponents(head *ListNode, nums []int) int {
 		node = node.Next
 	}
 	return result
+}
+
+// 876. 链表的中间结点
+// 给你单链表的头结点 head ，请你找出并返回链表的中间结点。
+// 如果有两个中间结点，则返回第二个中间结点。
+//
+// 示例 1：
+// 输入：head = [1,2,3,4,5]
+// 输出：[3,4,5]
+// 解释：链表只有一个中间结点，值为 3 。
+//
+// 示例 2：
+// 输入：head = [1,2,3,4,5,6]
+// 输出：[4,5,6]
+// 解释：该链表有两个中间结点，值分别为 3 和 4 ，返回第二个结点。
+//
+// 提示：
+// 链表的结点数范围是 [1, 100]
+// 1 <= Node.val <= 100
+func middleNode(head *ListNode) *ListNode {
+	slow, fast := head, head
+	for fast != nil && fast.Next != nil {
+		slow = slow.Next
+		fast = fast.Next.Next
+	}
+	return slow
 }
