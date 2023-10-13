@@ -1614,3 +1614,52 @@ func flipAndInvertImage(image [][]int) [][]int {
 
 	return image
 }
+
+// 892. 三维形体的表面积
+// 给你一个 n * n 的网格 grid ，上面放置着一些 1 x 1 x 1 的正方体。每个值 v = grid[i][j] 表示 v 个正方体叠放在对应单元格 (i, j) 上。
+// 放置好正方体后，任何直接相邻的正方体都会互相粘在一起，形成一些不规则的三维形体。
+// 请你返回最终这些形体的总表面积。
+// 注意：每个形体的底面也需要计入表面积中。
+//
+// 示例 1：
+// 输入：grid = [[1,2],[3,4]]
+// 输出：34
+//
+// 示例 2：
+// 输入：grid = [[1,1,1],[1,0,1],[1,1,1]]
+// 输出：32
+//
+// 示例 3：
+// 输入：grid = [[2,2,2],[2,1,2],[2,2,2]]
+// 输出：46
+//
+// 提示：
+// n == grid.length
+// n == grid[i].length
+// 1 <= n <= 50
+// 0 <= grid[i][j] <= 50
+func surfaceArea(grid [][]int) int {
+	n := len(grid)
+	if n == 0 {
+		return 0
+	}
+	result := 0
+	for i := 0; i < n; i++ {
+		for j := 0; j < n; j++ {
+			num := grid[i][j]
+			if num > 0 {
+				result += 2 + 4*num
+			}
+			// 减掉重合的部分
+			if i > 0 {
+				leftNum := grid[i-1][j]
+				result -= 2 * min(leftNum, num)
+			}
+			if j > 0 {
+				upNum := grid[i][j-1]
+				result -= 2 * min(upNum, num)
+			}
+		}
+	}
+	return result
+}
