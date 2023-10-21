@@ -510,20 +510,20 @@ func minMoves(nums []int) int {
 //
 // 0 <= A.length <= 10000
 // 0 <= A[i] <= 10000
-func validMountainArray(A []int) bool {
-	size := len(A)
-	i, j := 0, size-1
-	for i+1 < size && A[i] < A[i+1] {
+func validMountainArray(arr []int) bool {
+	n := len(arr)
+	i := 0
+	for i+1 < n && arr[i] < arr[i+1] {
 		i++
 	}
-	if i == j {
+	if i == 0 || i == n-1 {
 		return false
 	}
-	for j-1 >= 0 && A[j-1] < A[j] {
-		j--
+	for i+1 < n && arr[i] > arr[i+1] {
+		i++
 	}
 
-	return i == j && j != 0
+	return i == n-1
 }
 
 // 485. 最大连续1的个数
