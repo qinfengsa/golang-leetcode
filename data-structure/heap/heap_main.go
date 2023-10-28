@@ -2,6 +2,7 @@ package heap
 
 import (
 	"container/heap"
+	"math"
 	"sort"
 )
 
@@ -41,13 +42,15 @@ func (h *hp) Pop() interface{} {
 // 输入: nums1 = [1,7,11], nums2 = [2,4,6], k = 3
 // 输出: [1,2],[1,4],[1,6]
 // 解释: 返回序列中的前 3 对数：
-//     [1,2],[1,4],[1,6],[7,2],[7,4],[11,2],[7,6],[11,4],[11,6]
+//
+//	[1,2],[1,4],[1,6],[7,2],[7,4],[11,2],[7,6],[11,4],[11,6]
 //
 // 示例 2:
 // 输入: nums1 = [1,1,2], nums2 = [1,2,3], k = 2
 // 输出: [1,1],[1,1]
 // 解释: 返回序列中的前 2 对数：
-//     [1,1],[1,1],[1,2],[2,1],[1,2],[2,2],[1,3],[1,3],[2,3]
+//
+//	[1,1],[1,1],[1,2],[2,1],[1,2],[2,2],[1,3],[1,3],[2,3]
 //
 // 示例 3:
 // 输入: nums1 = [1,2], nums2 = [3], k = 3
@@ -201,7 +204,7 @@ func scheduleCourse(courses [][]int) int {
 		return courses[i][1] < courses[j][1]
 	})
 	time := 0
-	h := courseHeap{}
+	h := pq{}
 	for _, course := range courses {
 		if time+course[0] <= course[1] {
 			heap.Push(&h, course[0])
@@ -214,27 +217,77 @@ func scheduleCourse(courses [][]int) int {
 	return h.Len()
 }
 
-type courseHeap []int
+type pq []int
 
-func (h courseHeap) Len() int {
+func (h pq) Len() int {
 	return len(h)
 }
 
-func (h courseHeap) Less(i, j int) bool {
+func (h pq) Less(i, j int) bool {
 	return h[i] > h[j]
 }
 
-func (h courseHeap) Swap(i, j int) {
+func (h pq) Swap(i, j int) {
 	h[i], h[j] = h[j], h[i]
 }
 
-func (h *courseHeap) Push(x interface{}) {
+func (h *pq) Push(x interface{}) {
 	*h = append(*h, x.(int))
 }
 
-func (h *courseHeap) Pop() interface{} {
+func (h *pq) Pop() interface{} {
 	tmp := *h
 	v := tmp[len(tmp)-1]
 	*h = tmp[:len(tmp)-1]
 	return v
+}
+
+// 2558. 从数量最多的堆取走礼物
+// 给你一个整数数组 gifts ，表示各堆礼物的数量。每一秒，你需要执行以下操作：
+//
+// 选择礼物数量最多的那一堆。
+// 如果不止一堆都符合礼物数量最多，从中选择任一堆即可。
+// 选中的那一堆留下平方根数量的礼物（向下取整），取走其他的礼物。
+// 返回在 k 秒后剩下的礼物数量。
+//
+// 示例 1：
+// 输入：gifts = [25,64,9,4,100], k = 4
+// 输出：29
+// 解释：
+// 按下述方式取走礼物：
+// - 在第一秒，选中最后一堆，剩下 10 个礼物。
+// - 接着第二秒选中第二堆礼物，剩下 8 个礼物。
+// - 然后选中第一堆礼物，剩下 5 个礼物。
+// - 最后，再次选中最后一堆礼物，剩下 3 个礼物。
+// 最后剩下的礼物数量分别是 [5,8,9,4,3] ，所以，剩下礼物的总数量是 29 。
+//
+// 示例 2：
+// 输入：gifts = [1,1,1,1], k = 4
+// 输出：4
+// 解释：
+// 在本例中，不管选中哪一堆礼物，都必须剩下 1 个礼物。
+// 也就是说，你无法获取任一堆中的礼物。
+// 所以，剩下礼物的总数量是 4 。
+//
+// 提示：
+// 1 <= gifts.length <= 103
+// 1 <= gifts[i] <= 109
+// 1 <= k <= 103
+func pickGifts(gifts []int, k int) int64 {
+	h := &pq{}
+	for _, gift := range gifts {
+		h.Push(gift)
+	}
+	heap.Init(h)
+	for k > 0 {
+		num := heap.Pop(h).(int)
+		tmp := int(math.Floor(math.Sqrt(float64(num))))
+		heap.Push(h, tmp)
+		k--
+	}
+	var result int64 = 0
+	for h.Len() > 0 {
+		result += int64(h.Pop().(int))
+	}
+	return result
 }
