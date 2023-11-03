@@ -15,10 +15,11 @@ type Node struct {
 // 给你无向 连通 图中一个节点的引用，请你返回该图的 深拷贝（克隆）。
 //
 // 图中的每个节点都包含它的值 val（int） 和其邻居的列表（list[Node]）。
-// class Node {
-//    public int val;
-//    public List<Node> neighbors;
-// }
+//
+//	class Node {
+//	   public int val;
+//	   public List<Node> neighbors;
+//	}
 //
 // 测试用例格式：
 // 简单起见，每个节点的值都和它的索引相同。例如，第一个节点值为 1（val = 1），第二个节点值为 2（val = 2），以此类推。该图在测试用例中使用邻接列表表示。
@@ -658,7 +659,6 @@ func findRedundantDirectedConnection(edges [][]int) []int {
 //
 // 给你一个二维整数数组 edges ，其中 edges[i] = [ui, vi] 表示在节点 ui 和 vi 之间存在一条边。请你找出并返回 edges 所表示星型图的中心节点。
 //
-//
 // 示例 1：
 // 输入：edges = [[1,2],[2,3],[4,2]]
 // 输出：2
@@ -1143,4 +1143,49 @@ func validPath(n int, edges [][]int, source int, destination int) bool {
 	}
 
 	return dfs(source)
+}
+
+// 997. 找到小镇的法官
+// 小镇里有 n 个人，按从 1 到 n 的顺序编号。传言称，这些人中有一个暗地里是小镇法官。
+//
+// 如果小镇法官真的存在，那么：
+// 小镇法官不会信任任何人。
+// 每个人（除了小镇法官）都信任这位小镇法官。
+// 只有一个人同时满足属性 1 和属性 2 。
+// 给你一个数组 trust ，其中 trust[i] = [ai, bi] 表示编号为 ai 的人信任编号为 bi 的人。
+//
+// 如果小镇法官存在并且可以确定他的身份，请返回该法官的编号；否则，返回 -1 。
+//
+// 示例 1：
+// 输入：n = 2, trust = [[1,2]]
+// 输出：2
+//
+// 示例 2：
+// 输入：n = 3, trust = [[1,3],[2,3]]
+// 输出：3
+//
+// 示例 3：
+// 输入：n = 3, trust = [[1,3],[2,3],[3,1]]
+// 输出：-1
+//
+// 提示：
+// 1 <= n <= 1000
+// 0 <= trust.length <= 104
+// trust[i].length == 2
+// trust 中的所有trust[i] = [ai, bi] 互不相同
+// ai != bi
+// 1 <= ai, bi <= n
+func findJudge(n int, trust [][]int) int {
+	inDegrees, outDegrees := make([]int, n+1), make([]int, n+1)
+	for _, t := range trust {
+		a, b := t[0], t[1]
+		outDegrees[a]++
+		inDegrees[b]++
+	}
+	for i := 1; i <= n; i++ {
+		if outDegrees[i] == 0 && inDegrees[i] == n-1 {
+			return i
+		}
+	}
+	return -1
 }
